@@ -75,6 +75,7 @@ button.chip{pointer-events:auto;cursor:pointer;font-family:var(--ui)}
 #gmenu{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;pointer-events:auto;
   background:radial-gradient(ellipse at 50% 40%,rgba(10,16,12,.55),rgba(6,9,6,.88) 75%)}
 #gmenu.on{display:flex}
+#bye{position:fixed;inset:0;z-index:95;display:none;align-items:center;justify-content:center;text-align:center;background:#16210f;color:#f5ecd6;font-family:var(--ui);padding:20px}#bye.on{display:flex}#bye h2{font:700 28px var(--display);color:#ffe7a8;margin:8px 0}#bye p{margin:0 0 18px;line-height:1.45}#bye small{color:#cfc6b0}
 #gmenu.title{background:radial-gradient(ellipse at 50% 38%,rgba(10,20,12,.05),rgba(6,10,6,.72) 80%)}
 .mbox{width:min(400px,100%);max-height:100%;overflow:auto;text-align:center;display:flex;flex-direction:column;gap:14px}
 .mlogo h1{margin:0;font:700 clamp(34px,7vw,56px)/1.05 var(--display);color:#ffe7a8;letter-spacing:.02em;text-shadow:0 3px 0 #6b4a0b,0 0 30px rgba(255,200,90,.45),0 6px 18px rgba(0,0,0,.6)}
@@ -252,6 +253,7 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
       <button class="mb" id="mnew">Novo jogo</button>
       <div class="mrow"><button class="mb small" id="fsb">Tela cheia</button><button class="mb small" id="snd">Som ligado</button><button class="mb small" id="qlb">Gráficos: Alta</button></div>
       <button class="mb small ghost" id="mtitle">Voltar ao menu inicial</button>
+      <button class="mb small ghost" id="mexit">Sair do jogo</button>
     </div>
     <div class="mbtns" id="mconf" hidden>
       <p class="mq">Apagar todo o progresso e começar do zero?<br><small>Nível, itens, missões, o Yuki e as pedras de teleporte serão perdidos.</small></p>
@@ -261,6 +263,7 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
     <p class="mhint" id="mhint"></p>
   </div>
 </div>
+<div id="bye"><div><div class="mlogo"><span class="leaf"></span></div><h2>Progresso salvo ✓</h2><p>Já pode fechar o app.<br><small>No Android: gesto de voltar ou deslize o app para fora da tela de recentes.</small></p><button class="mb main" id="byeback">Continuar jogando</button></div></div>
 <div id="load">Gerando o mundo…<small id="lsub">Preparando a floresta</small></div>
 
 <script src="three.min.js"></script>
@@ -1688,7 +1691,7 @@ function buildChunk(cx,cy){
     if(!gO && gT!==T.WATER && Math.hypot(x+.5,y+.5)>3.6){
       const dk=gD&15, v=gD>>4;
       const grassy=gT===T.GRASS||gT===T.FOREST;
-      const nT=grassy?(r4<.55?2:r4<.8?1:0):(gT===T.SAND?(r4<.12?1:0):0);
+      const nT=grassy?(r4<.55?(GRASS_LO?1:2):r4<.8&&!GRASS_LO?1:0):(gT===T.SAND?(r4<.12?1:0):0);
       for(let g=0;g<nT;g++){ const a=hash2(x,y,seed+400+g), b=hash2(x,y,seed+410+g);
         const gx=x+.1+a*.8, gz=y+.1+b*.8; if(roadD(gx,gz)<RW-.1) continue; const gc=(gT===T.FOREST?C('#56a146'):gT===T.SAND?C('#b9c56c'):C('#7cc554')).multiplyScalar(.85+a*.3);
         const s=.8+b*.6; L.tuft.push([gx,hgt(gx,gz)-.02,gz,s,s*(.8+a*.5),s,a*6.28,0,0,gc]); }
@@ -1714,8 +1717,9 @@ function buildChunk(cx,cy){
   return grp;
 }
 const built=new Map(); let buildQueue=[];
+var VIEW_R=46, GRASS_LO=false;
 function updateChunks(px,py,budget){
-  const R=46, pcx=Math.floor(px/CH), pcy=Math.floor(py/CH), rc=Math.ceil(R/CH)+1;
+  const R=VIEW_R, pcx=Math.floor(px/CH), pcy=Math.floor(py/CH), rc=Math.ceil(R/CH)+1;
   buildQueue.length=0;
   for(let cy=pcy-rc;cy<=pcy+rc;cy++)for(let cx=pcx-rc;cx<=pcx+rc;cx++){
     const d=Math.hypot(cx*CH+8-px,cy*CH+8-py); if(d>R) continue;
@@ -2347,14 +2351,14 @@ function hurtPlayer(m){
   P.hp-=dmg; P.combatT=5; P.hitT=.2; shake=Math.min(.4,shake+.12+dmg*.008);
   { const dx=P.x-m.x, dy=P.y-m.y, d=Math.hypot(dx,dy)||1, heavy=dmg>=P.max*.14||m.size>=1.4;
     P.kbx=dx/d*(heavy?7:4.5); P.kby=dy/d*(heavy?7:4.5); P.stag=.32; P.face=Math.atan2(-dx,-dy);
-    if(heavy&&P.hp>dmg*0){ P.down=.9; P.jv=3; P.jz=Math.max(P.jz,.01); P.gather=null; P.move=null; } }
+    if(heavy&&P.hp>dmg*0){ P.down=DOWN_T; P.jv=3.4; P.jz=Math.max(P.jz,.01); P.gather=null; P.move=null; } }
   addText(P.x,P.y,P.h+1.9,'-'+dmg,'#ff6a5a',18); addParts(P.x,P.y,P.h,'#e0483c',8,2.2,3); sfx.hurt(); flash();
   if(P.hp<=0){ P.hp=0; die(); }
 }
 function die(){ P.dead=true; P.target=null; P.move=null; $('dead').classList.add('on'); for(const m of mobs){ if(m.state==='chase') m.state='return'; } }
 function revive(){ const wasDg=!!DG; if(DG){ leaveDG(); } P.dead=false; P.x=2.5; P.y=2.5; if(Y.owned){ Y.x=3.3; Y.y=2.8; } Y.target=null; P.hp=P.max; P.xp=Math.floor(P.xp*.75); P.combatT=0; $('dead').classList.remove('on'); if(wasDg){ placeParty(2.5,2.5); streamWorld(); } doSave(); }
 function killMob(m){
-  m.dead=true; m.deadT=.5; P.kills++;
+  m.dead=true; m.deadT=.5; P.kills++; if(!m.boss) sideKill(m.key);
   const pen=clamp(1-.2*(P.lvl-m.lvl-2),.15,1), xp=Math.max(1,Math.round(m.xp*pen));
   addText(m.x,m.y,m.h+m.vis.h*m.size+.2,'+'+xp+' XP','#f6d56e',15);
   if(['wolf','boar','bear','goblin','ogre'].includes(m.key)&&Math.random()<(m.key==='bear'||m.key==='ogre'?.9:.5)){ const n=m.key==='bear'||m.key==='ogre'?2:1; if(addItem('leather',n)===0) setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+.6,'+'+n+' Couro','#d19a62',14),250); }
@@ -2608,28 +2612,65 @@ function separate(){
 }
 
 /* ---------- animação dos bonecos ---------- */
+/* ---------- reações da Luíza: empurrão e queda ---------- */
+const DOWN_T=1.3, HIPH=.86;
+const REST={a:0,dr:0,tL:0,tR:0,sL:.06,sR:.06,xL:0,xR:0,z:.1,hx:0};
+const STAGP={a:-.3,dr:.05,tL:-.35,tR:.18,sL:.55,sR:.2,xL:-1.1,xR:-.85,z:.5,hx:.38};
+const DOWNK=[
+  [0,REST],
+  [.1,{a:-.42,dr:0,tL:-.55,tR:-.2,sL:.7,sR:.4,xL:-2.3,xR:-2.0,z:.7,hx:.45}],
+  [.3,{a:-1.02,dr:.28,tL:-.95,tR:-.55,sL:.65,sR:.4,xL:-2.7,xR:-2.5,z:.95,hx:.5}],
+  [.4,{a:-1.58,dr:.8,tL:-.3,tR:-.12,sL:.45,sR:.25,xL:-1.1,xR:-.95,z:1.25,hx:.15}],
+  [.5,{a:-1.44,dr:.71,tL:-.8,tR:-.35,sL:1.2,sR:.6,xL:-1.5,xR:-1.35,z:1.15,hx:.38}],
+  [.62,{a:-1.5,dr:.77,tL:-.95,tR:-.35,sL:1.5,sR:.6,xL:-1.45,xR:-1.3,z:1.15,hx:.3}],
+  [.82,{a:-1.48,dr:.76,tL:-1.0,tR:-.45,sL:1.6,sR:.8,xL:-1.5,xR:-1.3,z:1.1,hx:.45}],
+  [.98,{a:-.32,dr:.72,tL:-1.5,tR:-1.35,sL:.35,sR:.55,xL:.45,xR:.35,z:.4,hx:.12}],
+  [1.13,{a:.42,dr:.46,tL:-1.55,tR:-1.15,sL:2.05,sR:1.55,xL:-.35,xR:-.45,z:.3,hx:-.12}],
+  [DOWN_T,REST]
+];
+function downPose(t){
+  for(let i=1;i<DOWNK.length;i++){ const [t1,b]=DOWNK[i]; if(t<=t1){ const [t0,a]=DOWNK[i-1], u=clamp((t-t0)/(t1-t0),0,1), k=u*u*(3-2*u), o={};
+    for(const q in a) o[q]=a[q]+(b[q]-a[q])*k; return o; } }
+  return REST;
+}
+function poseLZ(v,p,w){
+  const L=(x,y)=>x+(y-x)*w;
+  const a=L(v.body.rotation.x,p.a); v.body.rotation.x=a;
+  // gira em volta do quadril, não dos pés (nada de "tábua caindo")
+  v.body.position.y=L(v.body.position.y,0)+HIPH-HIPH*Math.cos(a)-p.dr*w; v.body.position.z=-HIPH*Math.sin(a);
+  v.legL.rotation.x=L(v.legL.rotation.x,p.tL); v.legR.rotation.x=L(v.legR.rotation.x,p.tR);
+  if(v.legL.shin){ v.legL.shin.rotation.x=L(v.legL.shin.rotation.x,p.sL); v.legR.shin.rotation.x=L(v.legR.shin.rotation.x,p.sR); }
+  v.armL.rotation.x=L(v.armL.rotation.x,p.xL); v.armL.rotation.z=L(v.armL.rotation.z,-p.z);
+  if(!(P.swing>0||P.cast>0)) v.armR.rotation.x=L(v.armR.rotation.x,p.xR); v.armR.rotation.z=L(v.armR.rotation.z,p.z);
+  if(v.armL.fore){ v.armL.fore.rotation.x=L(v.armL.fore.rotation.x,-.5); v.armR.fore.rotation.x=L(v.armR.fore.rotation.x,-.45); }
+  v.head.rotation.x=L(v.head.rotation.x,p.hx); v.body.rotation.z*=1-w;
+}
+
 function angLerp(a,b,t){ let d=b-a; while(d>Math.PI) d-=6.2832; while(d<-Math.PI) d+=6.2832; return a+d*t; }
 function animate(ent,v,dt){
   const mv=ent===P?clamp(P.sp/4.6,0,1):(ent.moving?1:0), ph=ent===P?P.walkPh:ent.anim*(v.kind==='quad'?11:9.5);
   if(ent===P) ent.rot=angLerp(ent.rot||0,ent.face,Math.min(1,dt*9));
   if(ent!==P) ent.rot=angLerp(ent.rot||0,ent.face,Math.min(1,dt*12)); v.root.rotation.y=ent.rot;
   if(v.kind==='hum'){
-    const sw=Math.sin(ph)*.7*mv;
-    v.legL.rotation.x=sw; v.legR.rotation.x=-sw;
-    if(v.legL.shin){ v.legL.shin.rotation.x=.04+Math.max(0,-Math.cos(ph))*1.25*mv; v.legR.shin.rotation.x=.04+Math.max(0,Math.cos(ph))*1.25*mv; }
-    v.body.position.y=(Math.abs(Math.cos(ph))*.055-.03)*mv+Math.sin(ent.anim*2.4)*.008;
-    v.body.rotation.z=Math.sin(ph)*.035*mv;
-    v.armL.rotation.x=-sw*.8;
-    if(ent===P&&P.jz>.05&&!(P.down>0)){ v.legL.rotation.x=-.8; v.legR.rotation.x=.2; v.legL.shin.rotation.x=1.3; v.legR.shin.rotation.x=.7; v.armL.rotation.x=-1.1; v.armL.rotation.z=-.5; } else if(ent===P) v.armL.rotation.z=-.1;
-    let a=sw*.8;
+    const run=ent===P?clamp((P.sp-2.6)/1.9,0,1)*mv:0;
+    const sw=Math.sin(ph)*(.7+.28*run)*mv;
+    v.legL.rotation.x=sw-.12*run; v.legR.rotation.x=-sw-.12*run;
+    if(v.legL.shin){ const kb=1.25+.75*run; v.legL.shin.rotation.x=.04+Math.max(0,-Math.cos(ph))*kb*mv+.2*run; v.legR.shin.rotation.x=.04+Math.max(0,Math.cos(ph))*kb*mv+.2*run; }
+    v.body.position.y=(Math.abs(Math.cos(ph))*(.055+.075*run)-.03-.03*run)*mv+Math.sin(ent.anim*2.4)*.008;
+    v.body.position.z=0;
+    v.body.rotation.z=Math.sin(ph)*.035*mv*(1-.5*run);
+    v.armL.rotation.x=-sw*(.8+.55*run);
+    if(ent===P){ const fb=-.18-1.05*run; if(v.armL.fore) v.armL.fore.rotation.x=fb; if(v.armR.fore) v.armR.fore.rotation.x=(ent.swing>0||ent.cast>0||ent.wind>0)?-.18:fb; v.head.rotation.x=-.1*run+Math.abs(Math.cos(ph))*.04*run; v.head.rotation.y=-Math.sin(ph)*.1*run; }
+    if(ent===P&&P.jz>.05&&!(P.down>0)){ v.legL.rotation.x=-.8; v.legR.rotation.x=.2; v.legL.shin.rotation.x=1.3; v.legR.shin.rotation.x=.7; v.armL.rotation.x=-1.1; v.armL.rotation.z=-.5; } else if(ent===P){ v.armL.rotation.z=-.1-.12*run; v.armR.rotation.z=.1+.12*run; }
+    let a=sw*(.8+.55*run);
     if(ent.wind>0) a=-2.7+Math.sin(ent.wind*30)*.05;
     else if(ent.swing>0){ const t=1-ent.swing, e=1-Math.pow(1-t,3); a=-2.7+2.5*e; }
     if(ent.cast>0){ const k=Math.sin(Math.PI*Math.min(1,(1-ent.cast)*1.3)); a=a+(-1.5-a)*k; }
     v.armR.rotation.x=a;
-    if(ent===P){ v.body.rotation.x=.14*mv; if(P.stag>0) v.body.rotation.x=-.45*(P.stag/.32); if(P.down>0){ const k=Math.min(1,(.9-P.down)/.18)*(P.down>.25?1:P.down/.25); v.body.rotation.x=-1.25*k; v.body.position.y=-.1*k; v.legL.rotation.x=-.5*k; v.legR.rotation.x=-.3*k; } if(v.halo){ const k=1+.15*Math.sin(time*4)+ent.cast*.8; v.halo.scale.setScalar(.17*k); v.halo.material.opacity=.3+ent.cast*.5; } }
-    v.torso.rotation.y=ent.swing>0?(-.35+.7*(1-ent.swing)):ent.wind>0?-.3:Math.sin(ph)*.12*mv;
+    if(ent===P){ v.body.rotation.x=(.14+.16*run)*mv; if(P.down>0) poseLZ(v,downPose(DOWN_T-P.down),1); else if(P.stag>0){ const t=1-P.stag/.32, e=t<.16?1-Math.pow(1-t/.16,2):Math.pow(1-(t-.16)/.84,2)*(1+.35*Math.sin((t-.16)*14)); poseLZ(v,STAGP,e); } if(v.halo){ const k=1+.15*Math.sin(time*4)+ent.cast*.8; v.halo.scale.setScalar(.17*k); v.halo.material.opacity=.3+ent.cast*.5; } }
+    v.torso.rotation.y=ent.swing>0?(-.35+.7*(1-ent.swing)):ent.wind>0?-.3:Math.sin(ph)*(.12+.1*run)*mv;
     v.head.rotation.z=Math.sin(ent.anim*1.7)*.03;
-    if(v.pony){ v.pony.rotation.x=.15+Math.sin(ent.anim*3.2)*.08+mv*Math.abs(Math.sin(ph))*.25; v.pony.rotation.z=Math.sin(ent.anim*2.1)*.1; }
+    if(v.pony){ v.pony.rotation.x=.15+Math.sin(ent.anim*3.2)*.08+mv*Math.abs(Math.sin(ph))*(.25+.3*run)+.25*run+(ent===P&&P.down>0?.9:0); v.pony.rotation.z=Math.sin(ent.anim*2.1)*.1; }
   } else if(v.kind==='quad'){
     const sw=Math.sin(ph)*.6*mv;
     v.legs[0].rotation.x=sw; v.legs[3].rotation.x=sw; v.legs[1].rotation.x=-sw; v.legs[2].rotation.x=-sw;
@@ -2733,8 +2774,9 @@ function updateDrops(dt){
 
 /* ---------- câmera ---------- */
 const camT=new THREE.Vector3(P.x,hgt(P.x,P.y),P.y), _v=new THREE.Vector3();
+var dprMax=2;
 function resize(){
-  dpr=Math.min(lowQ?1.25:2,window.devicePixelRatio||1);
+  dpr=Math.min(dprMax,window.devicePixelRatio||1);
   W=window.innerWidth; H=window.innerHeight;
   renderer.setPixelRatio(dpr); renderer.setSize(W,H,false);
   camera.aspect=W/H; camera.updateProjectionMatrix();
@@ -2962,6 +3004,20 @@ $('mnew').onclick=()=>{ $('mmain').hidden=true; $('mconf').hidden=false; };
 $('mno').onclick=()=>{ $('mconf').hidden=true; $('mmain').hidden=false; };
 $('myes').onclick=()=>{ resetting=true; try{ localStorage.removeItem(KEY); }catch(e){} location.reload(); };
 $('mtitle').onclick=()=>{ doSave(); showMenu('title'); };
+/* sair do jogo + botão voltar do Android */
+const STANDALONE=(()=>{ try{ return matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true; }catch(e){ return false; } })();
+let exiting=false;
+function exitGame(){ doSave(); exiting=true; try{ if(isFS()) (document.exitFullscreen||document.webkitExitFullscreen).call(document); }catch(e){}
+  $('gmenu').classList.remove('on'); $('bye').classList.add('on'); paused=true;
+  setTimeout(()=>{ try{ window.close(); }catch(e){} if(STANDALONE){ try{ history.go(-(history.length-1)); setTimeout(()=>{ try{ history.back(); }catch(e){} },120); }catch(e){} } },250); }
+$('mexit').onclick=exitGame;
+$('byeback').onclick=()=>{ exiting=false; $('bye').classList.remove('on'); if(STANDALONE){ try{ history.pushState({bp:1},''); }catch(e){} } showMenu('pause'); };
+if(STANDALONE&&!window.__BP_DEBUG){ try{ history.pushState({bp:1},''); }catch(e){}
+  addEventListener('popstate',()=>{ if(exiting) return;
+    if(menuMode==='pause'||menuMode==='title'){ exitGame(); return; }
+    if(inv.classList.contains('on')&&typeof closeInv==='function') closeInv(); else if(!loading) showMenu('pause');
+    try{ history.pushState({bp:1},''); }catch(e){} }); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) doSave(); });
 $('menub').onclick=()=>{ if(!loading) showMenu('pause'); };
 $('gmenu').addEventListener('pointerdown',e=>e.stopPropagation());
 setTimeout(hideHint,14000);
@@ -3062,7 +3118,7 @@ let pYaw=.35, pQueued=false;
 function renderPortrait(){
   pQueued=false; if(!inv.classList.contains('on')) return;
   const keep={sp:P.sp,cast:P.cast,swing:P.swing,jz:P.jz,down:P.down,stag:P.stag,wp:P.walkPh,ht:P.hitT};
-  P.hitT=0; P.sp=0; P.cast=0; P.swing=0; P.jz=0; P.down=0; P.stag=0; gearTool=null; gearVis(); animate(P,LZ,.016); LZ.body.rotation.set(0,0,0); LZ.body.position.y=0;
+  P.hitT=0; P.sp=0; P.cast=0; P.swing=0; P.jz=0; P.down=0; P.stag=0; gearTool=null; gearVis(); animate(P,LZ,.016); LZ.body.rotation.set(0,0,0); LZ.body.position.set(0,0,0); LZ.head.rotation.set(0,0,0);
   Object.assign(P,{hitT:keep.ht,sp:keep.sp,cast:keep.cast,swing:keep.swing,jz:keep.jz,down:keep.down,stag:keep.stag,walkPh:keep.wp});
   const lp=LZ.root.position.clone(), lr=LZ.root.rotation.y;
   pScene.add(LZ.root); LZ.root.position.set(Y.owned?-.18:0,0,0); LZ.root.rotation.y=pYaw;
@@ -3213,11 +3269,59 @@ for(const n of NPCS){ n.x=NPCPOS[n.id][0]; n.y=NPCPOS[n.id][1]; n.face=0; n.rot=
 }
 function pickNPC(px,py){ let best=null,bd=60; for(const n of NPCS){ const p=proj(n.x,n.h+1,n.y); if(!p.ok) continue; const d=Math.hypot(px-p.x,py-p.y); if(d<bd){ bd=d; best=n; } } return best; }
 /* missões */
-const Q={cat:0,slime:0,sn:0,boss:0}; /* 0 nova, 1 ativa, 2 pronta para entregar, 3 concluída */
+const Q={cat:0,slime:0,sn:0,boss:0,f:0,fs:0,fc:0,v:0,vs:0,vc:0}; /* 0 nova, 1 ativa, 2 pronta para entregar, 3 concluída */
 if(save&&save.q) Object.assign(Q,save.q);
 const SLIMES=10;
+
+/* missões extras (pequenas): Vovó Fernanda e Dona Vivi */
+const SIDEQ={
+  cida:[
+    {n:'Lenha pra fogueira',k:'bring',need:[['wood',8]],o:'Leve 8 madeiras para a Vovó Fernanda.',
+     ask:'Querida, a lenha da fogueira tá acabando e minhas costas não ajudam mais. Você me traz 8 madeiras? É só bater nas árvores com o machado.',
+     done:'Ah, que cheirinho de lenha nova! Obrigada, minha flor. Tome uma poção, que eu sei que você vive se machucando por aí.',xp:40,give:()=>{ P.potions+=1; },gt:'1 poção'},
+    {n:'Chá da vovó',k:'bring',need:[['berry',6]],o:'Leve 6 frutinhas para a Vovó Fernanda.',
+     ask:'Tô com vontade de fazer meu chá de frutinhas, mas elas ficam nos arbustos pelo caminho. Me traz 6? Aí eu te conto umas histórias da floresta.',
+     done:'Hum, bem madurinhas! Dizem que a Floresta Antiga era cheia de magos como você, sabia? Toma, fica com essas pedrinhas bonitas que eu achei.',xp:50,give:()=>{ addItem('stone',3); },gt:'3 pedras'},
+    {n:'Lobos na estrada',k:'kill',mob:'wolf',cnt:5,o:'Derrote lobos',tx:100,
+     ask:'Ouvi uivos a noite toda... Os lobos estão chegando perto demais da estrada. Espanta 5 deles pra mim? E leva o Yuki junto, viu?',
+     done:'Dormi como um anjo essa noite! Você é muito corajosa. Tome, um pouco de couro que sobrou aqui.',xp:80,give:()=>{ addItem('leather',2); },gt:'2 couros'}
+  ],
+  tonho:[
+    {n:'Javalis na horta',k:'kill',mob:'boar',cnt:6,o:'Derrote javalis',tx:150,
+     ask:'Agora são os javalis! Fuçaram minha horta inteirinha. Dá uma lição em 6 deles pra mim?',
+     done:'Minha horta agradece! Olha, não tenho muito pra dar, mas toma essas frutinhas.',xp:70,give:()=>{ addItem('berry',3); },gt:'3 frutinhas'},
+    {n:'Cerca nova',k:'bring',need:[['wood',6],['stone',6]],o:'Leve 6 madeiras e 6 pedras para a Dona Vivi.',
+     ask:'Quero fazer uma cerca pra proteger os girassóis. Me arranja 6 madeiras e 6 pedras?',
+     done:'Perfeito! Com essa cerca ninguém mais entra aqui. Toma, uma poção pra você.',xp:60,give:()=>{ P.potions+=1; },gt:'1 poção'},
+    {n:'Goblins ladrões',k:'kill',mob:'goblin',cnt:6,o:'Derrote goblins',tx:200,
+     ask:'Uns goblins roubaram minha cesta de ovos lá na Floresta Antiga! Derrota 6 deles, que eles aprendem.',
+     done:'Recuperou minha cesta! Os ovos quebraram, mas tudo bem, hahaha. Toma esse ferro que achei no quintal.',xp:110,give:()=>{ addItem('iron',2); },gt:'2 ferros'}
+  ]
+};
+function sideKey(id){ return id==='cida'?['f','fs','fc']:['v','vs','vc']; }
+function sideOpen(id){ return id==='cida'?Q.cat===3:Q.boss===3; }
+function sideCur(id){ const [a]=sideKey(id), L=SIDEQ[id]; return sideOpen(id)&&Q[a]<L.length?L[Q[a]]:null; }
+function sideHave(q){ return q.need.every(([i,n])=>count(i)>=n); }
+function sideTalk(n){
+  const q=sideCur(n.id); if(!q) return null; const [a,st,c]=sideKey(n.id);
+  if(Q[st]===0) return {t:q.ask,b:[['Pode deixar!',()=>{ Q[st]=1; Q[c]=0; closeDialog(); toast('Missão: '+q.n); doSave(); }],['Agora não',closeDialog]]};
+  const ready=q.k==='bring'?sideHave(q):Q[st]===2;
+  if(!ready){ const falta=q.k==='bring'?'Você tem '+q.need.map(([i,k])=>Math.min(k,count(i))+' de '+k+' ('+IT[i].n.toLowerCase()+')').join(' e ')+'.':'Já foram '+Q[c]+' de '+q.cnt+'.';
+    return {t:falta+' Sem pressa, tá?',b:[['Tá bom',closeDialog]]}; }
+  return {t:q.done,b:[['Obrigada!',()=>{ if(q.k==='bring') for(const [i,k] of q.need) take(i,k); Q[a]++; Q[st]=0; Q[c]=0; q.give(); gainXp(q.xp); closeDialog(); toast('Missão concluída! +'+q.xp+' XP, '+q.gt); sfx.level(); doSave(); }]]};
+}
+function sideKill(key){ for(const id of ['cida','tonho']){ const q=sideCur(id), [,st,c]=sideKey(id); if(q&&q.k==='kill'&&q.mob===key&&Q[st]===1){ Q[c]++; if(Q[c]>=q.cnt){ Q[st]=2; const nm=id==='cida'?'Vovó Fernanda':'Dona Vivi'; setTimeout(()=>toast('Volte até a '+nm+'!'),600); } } } }
+function sideInfo(offer){
+  for(const id of ['cida','tonho']){ const q=sideCur(id), [,st,c]=sideKey(id), n=NPCS[id==='cida'?0:1]; if(!q||Q[st]===0) continue;
+    if(q.k==='bring') return {n:q.n,o:sideHave(q)?'Volte até a '+n.name+'.':q.need.map(([i,k])=>IT[i].n+': '+Math.min(k,count(i))+'/'+k).join(' · '),t:n};
+    return Q[st]===2?{n:q.n,o:'Volte até a '+n.name+'.',t:n}:{n:q.n,o:q.o+': '+Q[c]+'/'+q.cnt,t:{x:q.tx,y:roadY(q.tx)}}; }
+  if(offer) for(const id of ['cida','tonho']){ const q=sideCur(id), n=NPCS[id==='cida'?0:1]; if(q) return {n:'Pedido: '+q.n,o:'Fale com a '+n.name+'.',t:n}; }
+  return null;
+}
+function sideMark(id){ const q=sideCur(id); if(!q) return ''; const [,st]=sideKey(id); if(Q[st]===0) return '!'; return (q.k==='bring'?sideHave(q):Q[st]===2)?'?':''; }
 function talk(n){
   if(n.id==='cida'){
+    if(Q.cat===3){ const sq=sideTalk(n); if(sq) return sq; }
     if(Q.cat===0) return {t:'Oi, querida! Que bom ver você de pé. Eu sou a Vovó Fernanda e cuido desta fogueira. Um gatinho que eu estava criando fugiu pela estrada, lá pros Campos Floridos. Ele é branquinho, com manchas cinza. Se você achar ele, pode ficar com ele. Ele vai adorar ter uma dona aventureira!',
       b:[['Vou procurar!',()=>{ Q.cat=1; closeDialog(); toast('Missão: Encontre o gatinho'); }],['Agora não',closeDialog]]};
     if(Q.cat===1) return {t:'Siga a estrada para o leste. Ele deve estar escondido perto das flores, do lado da estrada. Toque no botão "Ir" da missão se quiser que eu te mostre o caminho.',b:[['Tá bom!',closeDialog]]};
@@ -3234,6 +3338,7 @@ function talk(n){
     if(Q.boss===0) return {t:'Sabe aquela toca de pedra depois da curva da estrada? É de lá que as gosmas vêm. Dizem que lá no fundo mora uma Gosma Rainha, enorme, de coroa e tudo. Se você acabar com ela, a praga termina de vez!',
       b:[['Vou lá!',()=>{ Q.boss=1; closeDialog(); toast('Missão: A Gosma Rainha'); doSave(); }],['Depois',closeDialog]]};
     if(Q.boss===1) return {t:'A toca fica do lado da estrada, um pouco depois daqui. Cuidado quando a Rainha pular: sai de perto do círculo vermelho, ou pule na hora certa!',b:[['Pode deixar',closeDialog]]};
+    if(Q.boss===3){ const sq=sideTalk(n); if(sq) return sq; }
     if(Q.boss===2) return {t:'Você derrotou a Gosma Rainha?! Moça, você é uma heroína! Tome, umas poções e uma cesta de frutinhas. E repara na pedra na frente da toca: agora ela brilha, dá pra viajar por ela!',
       b:[['Obrigada!',()=>{ Q.boss=3; P.potions+=3; addItem('berry',6); gainXp(90); closeDialog(); toast('Missão concluída!'); sfx.level(); doSave(); }]]};
     return {t:'Os girassóis nunca estiveram tão bonitos. Mais pra frente fica a Floresta Antiga, e dizem que tem outras masmorras pela estrada. Tome cuidado!',b:[['Pode deixar',closeDialog]]};
@@ -3246,13 +3351,16 @@ function openDialog(n){ const d=talk(n); if(!d) return; dlgNPC=n; paused=true; P
 function closeDialog(){ $('dlg').classList.remove('on'); dlgNPC=null; paused=false; }
 $('dlg').addEventListener('pointerdown',e=>e.stopPropagation());
 function questInfo(){
+  const m=mainInfo(); if(m&&!m.talk) return m; return sideInfo(false)||m||sideInfo(true);
+}
+function mainInfo(){
   if(Q.cat===0) return {n:'Conheça a Vovó Fernanda',o:'Fale com ela perto da fogueira.',t:NPCS[0]};
   if(Q.cat===1) return {n:'O gatinho perdido',o:'Procure o gatinho nos Campos Floridos.',t:{x:YHOME.x,y:YHOME.y}};
   if(Q.cat===2) return {n:'O gatinho perdido',o:'Volte até a Vovó Fernanda com o Yuki.',t:NPCS[0]};
-  if(Q.slime===0) return {n:'O sítio dos girassóis',o:'Fale com a Dona Vivi, na estrada.',t:NPCS[1]};
+  if(Q.slime===0) return {n:'O sítio dos girassóis',o:'Fale com a Dona Vivi, na estrada.',t:NPCS[1],talk:1};
   if(Q.slime===1) return {n:'Praga de gosmas',o:'Derrote gosmas: '+Q.sn+'/'+SLIMES,t:{x:60,y:roadY(60)}};
   if(Q.slime===2) return {n:'Praga de gosmas',o:'Volte até a Dona Vivi.',t:NPCS[1]};
-  if(Q.boss===0) return {n:'A toca de pedra',o:'Fale com a Dona Vivi.',t:NPCS[1]};
+  if(Q.boss===0) return {n:'A toca de pedra',o:'Fale com a Dona Vivi.',t:NPCS[1],talk:1};
   if(Q.boss===1) return {n:'A Gosma Rainha',o:DG&&DG.i===0?'Derrote a Gosma Rainha no fundo da toca.':'Entre na Toca das Gosmas.',t:{x:DGDEF[0].fx,y:DGDEF[0].fy}};
   if(Q.boss===2) return {n:'A Gosma Rainha',o:'Volte até a Dona Vivi.',t:NPCS[1]};
   return null;
@@ -3263,7 +3371,8 @@ function updateNPCs(dt){
   for(const n of NPCS){ n.anim+=dt; n.h=hgt(n.x,n.y); const d=Math.hypot(P.x-n.x,P.y-n.y); if(d<7) n.face=Math.atan2(P.x-n.x,P.y-n.y);
     n.vis.root.position.set(n.x,n.h,n.y); animate(n,n.vis,dt); }
 }
-function npcMark(n){ if(n.id==='cida') return Q.cat===0?'!':Q.cat===2?'?':(Q.cat===3&&Q.slime===0?'':''); if(n.id==='tonho') return Q.slime===0&&Q.cat>=1?'!':Q.slime===2||Q.boss===2?'?':Q.slime===3&&Q.boss===0?'!':''; return ''; }
+function npcMark(n){ { const mm=npcMark0(n); if(mm) return mm; if((n.id==='cida'&&Q.cat===3)||(n.id==='tonho'&&Q.boss===3)) return sideMark(n.id); return ''; } }
+function npcMark0(n){ if(n.id==='cida') return Q.cat===0?'!':Q.cat===2?'?':(Q.cat===3&&Q.slime===0?'':''); if(n.id==='tonho') return Q.slime===0&&Q.cat>=1?'!':Q.slime===2||Q.boss===2?'?':Q.slime===3&&Q.boss===0?'!':''; return ''; }
 
 
 /* ---------- masmorras, chefes, baús e pedras de teleporte ---------- */
@@ -3533,7 +3642,8 @@ function drawSiteLabels(g){
 
 /* ---------- pós-processamento: brilho (bloom) e correção de cor ---------- */
 let composer=null, bloomPass=null, postOn=false;
-let QUAL='alta'; try{ QUAL=localStorage.getItem('bp-qual')||'alta'; }catch(e){}
+let QUAL=null, qualUser=false; try{ QUAL=localStorage.getItem('bp-qual'); qualUser=!!localStorage.getItem('bp-qual-u'); }catch(e){}
+if(QUAL!=='alta'&&QUAL!=='media'&&QUAL!=='baixa'){ let mob=false; try{ mob=matchMedia('(pointer:coarse)').matches; }catch(e){} QUAL=mob?'media':'alta'; }
 const TiltShader={uniforms:{tDiffuse:{value:null},uDir:{value:new THREE.Vector2(1,0)},uAmt:{value:2.2},uRes:{value:new THREE.Vector2(800,400)}},
   vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
   fragmentShader:'uniform sampler2D tDiffuse; uniform vec2 uDir; uniform float uAmt; uniform vec2 uRes; varying vec2 vUv;\n'+
@@ -3565,17 +3675,25 @@ function setupPost(){
     return true;
   }catch(e){ composer=null; return false; }
 }
-function applyQual(){ postOn=QUAL==='alta'&&setupPost()!==false&&!!composer; $('qlb').textContent='Gráficos: '+(QUAL==='alta'?'Alta':'Média'); try{ localStorage.setItem('bp-qual',QUAL); }catch(e){} }
-$('qlb').onclick=()=>{ QUAL=QUAL==='alta'?'media':'alta'; applyQual(); };
+function applyQual(){
+  postOn=QUAL==='alta'&&setupPost()!==false&&!!composer;
+  dprMax=QUAL==='alta'?2:QUAL==='media'?1.5:1; resize(); if(composer){ composer.setPixelRatio(dpr); composer.setSize(W,H); setTiltRes(); }
+  const sh=QUAL!=='baixa', ms=QUAL==='alta'?2048:1024, ty=QUAL==='alta'?THREE.PCFSoftShadowMap:THREE.PCFShadowMap;
+  if(renderer.shadowMap.enabled!==sh||renderer.shadowMap.type!==ty||sun.shadow.mapSize.x!==ms){
+    renderer.shadowMap.enabled=sh; renderer.shadowMap.type=ty; sun.castShadow=sh; sun.shadow.mapSize.set(ms,ms);
+    if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; } scene.traverse(o=>{ if(o.material){ if(Array.isArray(o.material)) o.material.forEach(m=>m.needsUpdate=true); else o.material.needsUpdate=true; } }); }
+  const glo=QUAL==='baixa'; if(glo!==GRASS_LO){ GRASS_LO=glo; if(!loading&&!DG){ for(const [k,v] of built){ scene.remove(v.g); v.g.traverse(o=>{ if(o.isMesh&&!o.isInstancedMesh) o.geometry.dispose(); if(o.isInstancedMesh) o.dispose&&o.dispose(); }); } built.clear(); streamWorld(); } }
+  VIEW_R=QUAL==='baixa'?32:46; WORLD.fn=QUAL==='baixa'?18:30; WORLD.ff=QUAL==='baixa'?38:58; if(!DG){ scene.fog.near=WORLD.fn; scene.fog.far=WORLD.ff; }
+  $('qlb').textContent='Gráficos: '+({alta:'Alta',media:'Média',baixa:'Baixa'})[QUAL]; try{ localStorage.setItem('bp-qual',QUAL); }catch(e){} }
+$('qlb').onclick=()=>{ QUAL=({alta:'media',media:'baixa',baixa:'alta'})[QUAL]; qualUser=true; try{ localStorage.setItem('bp-qual-u','1'); }catch(e){} applyQual(); };
 window.addEventListener('resize',()=>{ if(composer){ composer.setPixelRatio(dpr); composer.setSize(W,H); bloomPass.resolution.set(W/2,H/2); setTiltRes(); } });
 
 /* ---------- laço principal ---------- */
 let perfT=0, perfN=0, lowQ=0, lastReg=-1;
 function adapt(dt){
-  if(loading||lowQ>=2) return; perfT+=dt; perfN++;
+  if(loading||qualUser||QUAL==='baixa'||paused) { perfT=0; perfN=0; return; } perfT+=dt; perfN++;
   if(perfT>3){ const fps=perfN/perfT; perfT=0; perfN=0;
-    if(fps<26&&postOn){ QUAL='media'; applyQual(); perfT=0; perfN=0; return; }
-    if(fps<26){ lowQ++; if(lowQ===1){ dpr=Math.min(dpr,1.25); renderer.setPixelRatio(dpr); } else { sun.shadow.mapSize.set(1024,1024); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; } renderer.shadowMap.type=THREE.PCFShadowMap; scene.traverse(o=>{ if(o.material) o.material.needsUpdate=true; }); } } }
+    if(fps<26){ QUAL=QUAL==='alta'?'media':'baixa'; applyQual(); if(typeof toast==='function') toast('Gráficos: '+(QUAL==='media'?'Média':'Baixa')+' (ajuste automático)'); } }
 }
 let last=performance.now(), spawnT=0, miniT=0, saveT=0, hudT=0, emberT=0, loading=true;
 function frame(now){
@@ -3600,7 +3718,7 @@ function frame(now){
   // posicionar bonecos
   P.h=hgt(P.x,P.y);
   if(!paused){ const gg=P.gather; gearTool=null; if(gg&&Math.hypot(gg.tx+.5-P.x,gg.ty+.5-P.y)<1.8){ if((gg.o===O.OAK||gg.o===O.PINE)&&hasTool('axe')) gearTool='axe'; else if(gg.o===O.BOULDER&&hasTool('pick')) gearTool='pick'; } gearVis(); }
-  LZ.root.position.set(P.x,P.h+P.jz,P.y); { const bb=LZ.root.userData.blob; bb.position.y=.025-P.jz; const k=1/(1+P.jz*.8); bb.scale.set(.85*k,1,.85*k); } if(!paused){ animate(P,LZ,dt); const stp=Math.floor(P.walkPh/Math.PI); if(stp!==P.lastStp){ P.lastStp=stp; if(P.moving&&P.jz<=0&&P.sp>1) sfx.step(!(typeof DG!=='undefined'&&DG)&&roadD(P.x,P.y)>RW); } }
+  LZ.root.position.set(P.x,P.h+P.jz,P.y); { const bb=LZ.root.userData.blob; bb.position.y=.025-P.jz; const k=1/(1+P.jz*.8); bb.scale.set(.85*k,1,.85*k); } if(!paused){ animate(P,LZ,dt); const stp=Math.floor(P.walkPh/Math.PI); if(stp!==P.lastStp){ P.lastStp=stp; if(P.moving&&P.jz<=0&&P.sp>1){ sfx.step(!(typeof DG!=='undefined'&&DG)&&roadD(P.x,P.y)>RW); if(P.sp>3.6) spark(P.x-P.dx*.25,P.h+.04,P.y-P.dy*.25,'#d8c9a8',2,.55,.35); } } }
   Y.h=hgt(Y.x,Y.y); YV.root.position.set(Y.x,Y.h+(Y.swing>0?Math.sin(Math.PI*(1-Y.swing))*.28:0),Y.y); if(!paused){ animate(Y,YV,dt); if(Y.idle>1.2&&!Y.moving){ YV.body.position.y=-.06; YV.legs[2].rotation.x=-1.1; YV.legs[3].rotation.x=-1.1; YV.tail.rotation.y=Math.sin(time*2)*.5; } }
   LZ.root.visible=true; if(P.dead) LZ.body.rotation.x=-1.3;
   for(const m of mobs){ m.h=hgt(m.x,m.y); const v=m.vis;
