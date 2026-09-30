@@ -206,7 +206,8 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
 #dlg .dt{font-size:14.5px;line-height:1.5;margin:6px 0 12px;color:var(--ink);min-height:3em}
 #dlg .da{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 #itab .rk{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}#itab .rk i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18)}#itab .rk i.on{background:#c9b4ff}
-#itab .hudslots{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 10px;margin-bottom:8px}#itab .hudslots b{display:block;font-size:13px}#itab .hudslots small{display:block;font-size:11.5px;color:var(--muted);margin:2px 0 6px}#itab .hudslots div{display:flex;gap:8px}#itab .hs{position:relative;width:44px;height:44px;border-radius:50%;border:2px solid #4a3a24;background:rgba(20,14,8,.7);padding:8px;cursor:pointer}#itab .hs svg{width:100%;height:100%}#itab .hs span{position:absolute;top:-6px;left:-4px;font:700 11px var(--ui);color:#ffe7a8}#itab .hs.on{border-color:#c9b4ff;box-shadow:0 0 0 2px #c9b4ff}
+#itab .hudslots{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 10px;margin-bottom:8px}#itab .hudslots b{display:block;font-size:13px}#itab .hudslots small{display:block;font-size:11.5px;color:var(--muted);margin:2px 0 6px}#itab .hudslots div{display:flex;gap:8px}#itab .hs{position:relative;width:44px;height:44px;border-radius:50%;border:2px solid #4a3a24;background:rgba(20,14,8,.7);padding:8px;cursor:pointer}#itab .hs svg{width:100%;height:100%}#itab .hs span{position:absolute;top:-6px;left:-4px;font:700 11px var(--ui);color:#ffe7a8}#itab .pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}#itab .pick .pb{display:inline-flex;align-items:center;gap:6px}#itab .pick .pi svg{width:18px;height:18px;display:block}
+#itab .hs.on{border-color:#c9b4ff;box-shadow:0 0 0 2px #c9b4ff}
 #itab .skh{margin:10px 0 4px;font:700 12px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}#itab .rrow.dim{opacity:.55}#itab em{color:#c9b4ff;font-style:normal;display:block}
 #itab .slots{display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);margin-top:4px}#itab .sb{width:24px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:var(--ink);font:700 11px var(--ui);padding:0;cursor:pointer}#itab .sb.on{background:#c9b4ff;color:#2a1a44;border-color:#fff}
 #dlg .da.shop{display:grid;grid-template-columns:1fr 1fr;justify-content:stretch}#dlg .da.shop .pb{font-size:13px;padding:9px 8px}
@@ -285,7 +286,7 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.21</div>
+    <div id="ver">v0.22</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <button class="mb" id="mnew">Novo jogo</button>
@@ -2367,7 +2368,7 @@ function catHit(m){
   if(m.hp<=0) killMob(m);
 }
 function updateYuki(dt){
-  Y.anim+=dt; Y.cd-=dt; Y.swing=Math.max(0,Y.swing-dt/.35); Y.moving=false;
+  Y.anim+=dt; Y.cd-=dt; Y.swing=Math.max(0,Y.swing-dt/.35); Y.moving=false; Y.hitT=Math.max(0,(Y.hitT||0)-dt);
   if(!Y.owned){
     const dP=Math.hypot(P.x-Y.x,P.y-Y.y);
     Y.wt=(Y.wt||0)-dt; if(Y.wt<=0){ Y.wt=rnd(2,4); const a=Math.random()*6.283; Y.wx=YHOME.x+Math.cos(a)*1.5; Y.wy=YHOME.y+Math.sin(a)*1.5; }
@@ -3854,14 +3855,16 @@ function renderInv(){
   $('idet').innerHTML=d;
 }
 
-let swapSel=-1;
+let swapSel=-1, pickSlot=-1;
 function skillsHtml(){
   const dots=r=>'<span class="rk">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=r?'on':'')+'"></i>').join('')+'</span>';
-  let t='<div class="hudslots"><b>Seus botões na tela</b><small>Toque em dois botões pra trocar de lugar. Pra colocar outra magia, use os números "Botão 1–5" embaixo dela.</small><div>'+[0,1,2,3,4].map(i=>{ const sk=SK.find(q=>q.id===SLOT[i]); return '<button class="hs'+(swapSel===i?' on':'')+'" data-hs="'+i+'"><span>'+(i+1)+'</span>'+(sk?sk.icon:'')+'</button>'; }).join('')+'</div></div>';
+  let t='<div class="hudslots"><b>Seus botões na tela</b><small>'+(pickSlot<0?'Toque num botão pra escolher qual magia fica nele.':'Escolha a magia pro botão '+(pickSlot+1)+':')+'</small><div>'+[0,1,2,3,4].map(i=>{ const sk=SK.find(q=>q.id===SLOT[i]); return '<button class="hs'+(pickSlot===i?' on':'')+'" data-hs="'+i+'"><span>'+(i+1)+'</span>'+(sk?sk.icon:'')+'</button>'; }).join('')+'</div>';
+  if(pickSlot>=0){ t+='<div class="pick">'+SK.filter(q=>rk(q.id)>0).map(q=>'<button class="pb sm'+(SLOT[pickSlot]===q.id?'':' gray')+'" data-pick="'+q.id+'"><span class="pi">'+q.icon+'</span>'+q.name+'</button>').join('')+'<button class="pb sm gray" data-pick="">Deixar vazio</button><button class="pb sm gray" data-pick="__x">Cancelar</button></div>'; }
+  t+='</div>';
   t+='<div class="sub" style="font-size:12.5px;color:var(--muted)">Pontos de magia: <b style="color:#c9b4ff">'+SPTS+'</b> · ganha 1 por nível. Cada ponto aprende ou fortalece uma magia (até 5).</div><h4 class="skh">Magias</h4>';
   for(const sk of SK){ const r=rk(sk.id), lock=P.lvl<sk.lvl;
     t+='<div class="rrow'+(lock?' dim':'')+'"><div class="ic">'+sk.icon+'</div><div class="nm"><b>'+sk.name+' '+dots(r)+'</b><small>'+(lock?'Libera no nível '+sk.lvl+'. ':'')+SKDESC[sk.id](Math.max(1,r))+(r&&r<5?' <em>Próximo: '+SKDESC[sk.id](r+1)+'</em>':'')+'</small>'+
-      (r?'<span class="slots">Botão: '+[0,1,2,3,4].map(i=>'<button class="sb'+(SLOT[i]===sk.id?' on':'')+'" data-slot="'+sk.id+':'+i+'">'+(i+1)+'</button>').join('')+'</span>':'')+'</div>'+
+      (r?'<span class="slots">Colocar no botão: '+[0,1,2,3,4].map(i=>'<button class="sb'+(SLOT[i]===sk.id?' on':'')+'" data-slot="'+sk.id+':'+i+'">'+(i+1)+'</button>').join('')+'</span>':'')+'</div>'+
       '<button class="pb sm" data-sku="'+sk.id+'"'+(lock||SPTS<=0||r>=5?' disabled':'')+'>'+(r?'+1':'Aprender')+'</button></div>'; }
   t+='<h4 class="skh">Passivas</h4>';
   for(const ps of PASS){ const r=rk(ps.id), lock=P.lvl<ps.lvl;
@@ -3880,7 +3883,8 @@ inv.addEventListener('click',e=>{
   if(b.dataset.bd){ closeInv(); startBuild(b.dataset.bd); return; }
   if(b.dataset.sku){ const id=b.dataset.sku, sk=SK.find(q=>q.id===id)||PASS.find(q=>q.id===id); if(!sk||SPTS<=0||P.lvl<sk.lvl||rk(id)>=5) return; SR[id]=rk(id)+1; SPTS--; sfx.level(); calcStats();
     if(SK.find(q=>q.id===id)&&SR[id]===1&&SLOT.indexOf(id)<0){ const e=SLOT.indexOf(null); if(e>=0){ SLOT[e]=id; refreshSlots(); } } renderInv(); doSave(); return; }
-  if(b.dataset.hs!==undefined){ const i=+b.dataset.hs; if(swapSel<0){ swapSel=i; } else { if(swapSel!==i){ const t=SLOT[swapSel]; SLOT[swapSel]=SLOT[i]; SLOT[i]=t; refreshSlots(); sfx.pick(); doSave(); } swapSel=-1; } renderInv(); return; }
+  if(b.dataset.hs!==undefined){ const i=+b.dataset.hs; pickSlot=pickSlot===i?-1:i; renderInv(); return; }
+  if(b.dataset.pick!==undefined){ const id=b.dataset.pick; if(id!=='__x'&&pickSlot>=0){ if(id){ const old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[pickSlot]; SLOT[pickSlot]=id; } else SLOT[pickSlot]=null; refreshSlots(); sfx.pick(); doSave(); } pickSlot=-1; renderInv(); return; }
   if(b.dataset.slot){ const [id,i]=b.dataset.slot.split(':'), j=+i, old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[j]; SLOT[j]=id; refreshSlots(); sfx.pick(); renderInv(); doSave(); return; }
   if(b.dataset.act&&sel){ const act=b.dataset.act;
     if(act==='unequip'){ const q=EQ[sel.eq]; if(addItem(q.id,1,q.d)===0){ EQ[sel.eq]=null; calcStats(); P.hp=Math.min(P.hp,P.max); P.mana=Math.min(P.mana,P.maxMana); } sel=null; }
