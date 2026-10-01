@@ -1,7 +1,7 @@
 {
- "name": "Bosque Perdido",
- "short_name": "Bosque",
- "description": "Aventura 3D da Luíza e da Yuki",
+ "name": "Quimera Sandbox",
+ "short_name": "Quimera",
+ "description": "Crie o impossível e viva do seu jeito.",
  "start_url": "./",
  "scope": "./",
  "display": "fullscreen",
