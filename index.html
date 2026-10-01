@@ -341,7 +341,7 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.33</div>
+    <div id="ver">v0.34</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <div class="mrow"><button class="mb" id="mnew">Novo jogo</button><button class="mb" id="mnet">Jogar com amigos</button></div>
@@ -2141,23 +2141,23 @@ function buildLuiza(){
   const hat=new THREE.Group(); hat.position.set(0,.16,-.03); hat.rotation.x=-.16; head.add(hat);
   const hatM=mat('#7b52c9',{roughness:.85}), hatD=mat('#5b3aa6',{roughness:.85}), hatR=mat('#f49ccf',{roughness:.6});
   { /* aba: anel com a borda levantadinha e ondulada */
-    const bp=[[.2,.012],[.27,.004],[.34,0],[.4,.008],[.44,.03],[.455,.055],[.45,.065],[.43,.05],[.39,.022],[.33,.012],[.26,.018],[.2,.026]].map(q=>new THREE.Vector2(q[0],q[1]));
-    const bg=new THREE.LatheGeometry(bp,48); { const q=bg.attributes.position; for(let k=0;k<q.count;k++){ const x=q.getX(k), z=q.getZ(k), r=Math.hypot(x,z), a=Math.atan2(z,x), t=clamp((r-.3)/.15,0,1); q.setY(k,q.getY(k)+t*(.018*Math.sin(a*6)+.03*Math.max(0,-Math.sin(a)))); } bg.computeVertexNormals(); }
+    const bp=[[.29,.012],[.34,.004],[.4,0],[.45,.008],[.49,.03],[.505,.055],[.5,.065],[.48,.05],[.44,.022],[.38,.012],[.33,.018],[.29,.026]].map(q=>new THREE.Vector2(q[0],q[1]));
+    const bg=new THREE.LatheGeometry(bp,48); { const q=bg.attributes.position; for(let k=0;k<q.count;k++){ const x=q.getX(k), z=q.getZ(k), r=Math.hypot(x,z), a=Math.atan2(z,x), t=clamp((r-.36)/.15,0,1); q.setY(k,q.getY(k)+t*(.018*Math.sin(a*6)+.03*Math.max(0,-Math.sin(a)))); } bg.computeVertexNormals(); }
     const brim=new THREE.Mesh(bg,hatM); brim.material.side=THREE.DoubleSide; brim.scale.set(1,1,.94); brim.castShadow=true; hat.add(brim); }
   { /* copa: cone fofinho com a ponta caída pra trás e um cachinho no fim */
-    const cp=[[.235,0],[.232,.05],[.215,.13],[.185,.22],[.15,.31],[.115,.39],[.082,.46],[.055,.52],[.034,.57],[.018,.61],[.006,.635],[0,.64]].map(q=>new THREE.Vector2(q[0],q[1]));
+    const cp=[[.335,0],[.33,.05],[.31,.12],[.275,.2],[.225,.28],[.17,.36],[.12,.44],[.08,.51],[.05,.57],[.028,.62],[.01,.655],[0,.665]].map(q=>new THREE.Vector2(q[0],q[1]));
     const cg=new THREE.LatheGeometry(cp,40); { const q=cg.attributes.position; for(let k=0;k<q.count;k++){ const y=q.getY(k), t=clamp((y-.22)/.42,0,1); q.setZ(k,q.getZ(k)-.26*t*t-.05*t*t*t*t); q.setY(k,y-.12*t*t*t); q.setX(k,q.getX(k)+.035*Math.sin(t*2.6)); } cg.computeVertexNormals(); }
     const crown=new THREE.Mesh(cg,hatM); crown.castShadow=true; hat.add(crown);
     /* dobrinhas de tecido na copa */
-    for(const [y,r] of [[.2,.19]]){ const f=new THREE.Mesh(new THREE.TorusGeometry(1,.035,5,32),hatD); f.rotation.x=Math.PI/2; f.scale.set(r,r,r*.6); f.position.set(0,y,-.02-(y>.25?.04:0)); hat.add(f); } }
+    for(const [y,r] of [[.2,.275]]){ const f=new THREE.Mesh(new THREE.TorusGeometry(1,.035,5,32),hatD); f.rotation.x=Math.PI/2; f.scale.set(r,r,r*.6); f.position.set(0,y,-.02-(y>.25?.04:0)); hat.add(f); } }
   /* faixa e laço */
-  { const band=new THREE.Mesh(new THREE.CylinderGeometry(.232,.24,.075,36,1,true),hatR); band.material.side=THREE.DoubleSide; band.position.y=.085; hat.add(band);
-    const bow=new THREE.Group(); bow.position.set(.19,.1,.13); bow.rotation.y=.95; bow.scale.setScalar(1.3); hat.add(bow);
+  { const band=new THREE.Mesh(new THREE.CylinderGeometry(.328,.336,.075,36,1,true),hatR); band.material.side=THREE.DoubleSide; band.position.y=.085; hat.add(band);
+    const bow=new THREE.Group(); bow.position.set(.27,.1,.19); bow.rotation.y=.95; bow.scale.setScalar(1.3); hat.add(bow);
     for(const sx of [-1,1]){ const l=part(G.sph,hatR,.06,.04,.022,sx*.055,.005,0,bow); l.rotation.z=sx*.35;
       const tl=part(G.box,hatR,.026,.085,.008,sx*.025,-.06,.004,bow); tl.rotation.z=sx*.3; }
     part(G.sph,gold,.022,.022,.018,0,0,.01,bow); }
   /* luazinha dourada na frente */
-  { const mo=new THREE.Mesh(new THREE.TorusGeometry(.04,.012,6,16,Math.PI*1.25),gold); mo.position.set(0,.1,.215); mo.rotation.set(-.18,0,-.9); hat.add(mo); }
+  { const mo=new THREE.Mesh(new THREE.TorusGeometry(.04,.012,6,16,Math.PI*1.25),gold); mo.position.set(0,.17,.3); mo.rotation.set(-.18,0,-.9); hat.add(mo); }
   /* estrelinha pendurada na ponta */
   { const sm=mat('#ffe38a',{emissive:C('#ffcf40'),emissiveIntensity:.9}); sm.userData.glow=1;
     const sh=new THREE.Shape(); for(let k=0;k<10;k++){ const a=k/10*6.283+Math.PI/2, r=k%2?.022:.05; k?sh.lineTo(Math.cos(a)*r,Math.sin(a)*r):sh.moveTo(Math.cos(a)*r,Math.sin(a)*r); }
@@ -4074,9 +4074,11 @@ const runB=mkBtn('run','<svg viewBox="0 0 24 24"><circle cx="14.5" cy="4.5" r="2
 runB.setAttribute('aria-label','Correr (Shift)');
 function runBtn(){ runB.classList.toggle('on',!!P.run); }
 const FLIP_T=.56, DASH_T=.2, DASH_SP=15;
-const JSTA=[5,10,15];
-/* força do pulo cresce com a estamina máxima (Destreza e nível): no começo dá pra subir na barraca e no beiral do telhado; depois voa bem mais alto */
-function jumpK(){ return 1+clamp(((P.maxSta||50)-50)/130,0,.7); }
+/* pulo estilo Age of Wushu: cada toque é um pulinho; no ar dá pra emendar vários (quantos depende da estamina máxima).
+   Tocando devagar = mais um pulinho; dois toques rápidos no ar = dash pra frente */
+const JUMP_V=5.4, JUMP_FAST=.2;
+function maxJumps(){ return clamp(4+Math.floor(((P.maxSta||50)-40)/25),5,9); }
+function jumpCost(n){ return 4+n; }
 function climbZ(){ return P.mounted||P.swim||DG?0:Math.max(0,(P.pz||0)+P.jz); }
 /* chão por baixo dos pés: terreno + o topo do que ela subiu (P.pz). P.jz continua sendo a altura do pulo acima desse chão */
 function climbFloor(){ const pz=P.pz||0, feet=pz+P.jz;
@@ -4088,13 +4090,17 @@ function climbFloor(){ const pz=P.pz||0, feet=pz+P.jz;
   else if(top<pz){ if(P.jz<=.02&&P.jv<=0&&pz-top<.35) P.pz=top; else { P.jz=feet-top; P.pz=top; } } }
 function staUse(n){ if((P.sta||0)<n){ addText(P.x,P.y,P.h+P.jz+2.2,'Sem fôlego!','#e8ff9a',14); return false; } P.sta-=n; P.staT=.9; return true; }
 function jump(){ if(P.dead||paused||P.swim||P.down>0) return;
-  const jn=P.jz<=.02&&!(P.jumps>=1)?0:P.jumps===1?1:P.jumps===2&&!(P.dashCd>0)?2:-1; if(jn>=0&&!P.mounted&&!staUse(JSTA[jn])) return;
-  if(P.jz<=.02&&!(P.jumps>=1)){ P.jv=6.6*(P.mounted?1:jumpK()); P.jz=.01; P.jumps=1; sfx.jump(); spark(P.x,P.h+.05,P.y,'#d8c9a8',5,1,.5); return; }
+  const now=time, fast=now-(P.lastJ||-9)<JUMP_FAST; P.lastJ=now;
+  const ground=P.jz<=.02&&!(P.jumps>=1);
+  if(ground){ if(!P.mounted&&!staUse(jumpCost(0))) return; P.jv=JUMP_V*(P.mounted?1.2:1); P.jz=.01; P.jumps=1; P.dashed=false; sfx.jump(); spark(P.x,P.h+.05,P.y,'#d8c9a8',5,1,.5); return; }
   if(P.mounted||!(P.jumps>=1)) return;
-  if(P.jumps===1){ P.jumps=2; P.jv=6.7*jumpK(); P.jz=Math.max(P.jz,.02); P.flip=.001; if(P.chan) chanCancel('Cancelado'); sfx.flip(); spark(P.x,P.h+P.jz+.3,P.y,'#fff4d8',8,1.6,.2,.35); return; }
-  if(P.jumps===2&&!(P.dashCd>0)){ P.jumps=3; P.flip=0; if(P.chan) chanCancel('Cancelado');
+  if(P.chan) chanCancel('Cancelado');
+  if(fast&&!P.dashed&&!(P.dashCd>0)){ if(!staUse(8)) return; P.dashed=true; P.flip=0;
     let dx=Math.sin(P.face), dy=Math.cos(P.face); if(P.sp>.6&&(P.dx||P.dy)){ dx=P.dx; dy=P.dy; }
-    const l=Math.hypot(dx,dy)||1; P.ddx=dx/l; P.ddy=dy/l; P.face=Math.atan2(P.ddx,P.ddy); P.dashT=DASH_T; P.dashCd=.9; P.jv=0; P.move=null; P.autoGo=null; P.gather=null; sfx.dash(); }
+    const l=Math.hypot(dx,dy)||1; P.ddx=dx/l; P.ddy=dy/l; P.face=Math.atan2(P.ddx,P.ddy); P.dashT=DASH_T; P.dashCd=.9; P.jv=0; P.move=null; P.autoGo=null; P.gather=null; sfx.dash(); return; }
+  if(P.jumps>=maxJumps()){ if(now-(P.jmT||0)>1){ P.jmT=now; addText(P.x,P.y,P.h+P.jz+2.2,'Sem impulso!','#e8ff9a',14); } return; }
+  if(!staUse(jumpCost(P.jumps))) return;
+  P.jumps++; P.jv=Math.max(P.jv,JUMP_V); P.jz=Math.max(P.jz,.02); P.flip=.001; sfx.flip(); spark(P.x,P.h+P.jz+.3,P.y,'#fff4d8',8,1.6,.2,.35);
 }
 function layoutSkills(){
   const sa=v=>'calc('+v+'px + env(safe-area-inset-right,0px))', sb=v=>'calc('+v+'px + env(safe-area-inset-bottom,0px))';
