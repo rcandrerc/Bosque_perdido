@@ -372,7 +372,7 @@ body.chatting #chatlog{bottom:calc(120px + env(safe-area-inset-bottom,0px))}body
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.43</div>
+    <div id="ver">v0.44</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -4264,10 +4264,10 @@ function layoutSkills(){
   [0,1,2].forEach((i)=>{ const a=i*Math.PI/4, el=slotB[i]; el.style.right=sa(cx+R*Math.cos(a)-27); el.style.bottom=sb(cx+R*Math.sin(a)-27); });
   [[3,.2],[4,.78]].forEach(([i,f])=>{ const a=f*Math.PI/2, el=slotB[i]; el.style.right=sa(cx+R2*Math.cos(a)-27); el.style.bottom=sb(cx+R2*Math.sin(a)-27); });
   potB.style.right=sa(cx+R2*Math.cos(Math.PI/4)-24); potB.style.bottom=sb(cx+R2*Math.sin(Math.PI/4)-24);
-  jumpB.style.left=''; jumpB.style.right=sa(cx+R+36); jumpB.style.bottom=sb(14); dashB.style.right=sa(cx+R+40); dashB.style.bottom=sb(80);
-  mntB.style.right=sa(cx+R+36+66); mntB.style.bottom=sb(16);
-  runB.style.right=sa(cx+R+36+66+62); runB.style.bottom=sb(18);
-  if(typeof boatB!=='undefined'&&boatB){ boatB.style.right=sa(cx+R+36+66+62+62); boatB.style.bottom=sb(20); fishB.style.right=sa(cx+R+36+66+62+124); fishB.style.bottom=sb(22); }
+  jumpB.style.left=''; jumpB.style.right=sa(cx+R+36); jumpB.style.bottom=sb(14); dashB.style.right=sa(cx+R+36+64); dashB.style.bottom=sb(18);
+  mntB.style.right=sa(cx+R+36+64+58); mntB.style.bottom=sb(16);
+  runB.style.right=sa(cx+R+36+64+58+62); runB.style.bottom=sb(18);
+  if(typeof boatB!=='undefined'&&boatB){ boatB.style.right=sa(cx+R+36+64+58+62+60); boatB.style.bottom=sb(20); fishB.style.right=sa(cx+R+36+64+58+62+122); fishB.style.bottom=sb(22); }
 }
 layoutSkills(); window.addEventListener('resize',layoutSkills); updMountBtn();
 /* recursos */
@@ -4812,7 +4812,7 @@ const TSTEPS=[
   {t:'Coletar',d:'Toque numa árvore pra cortar madeira (com machado) ou numa pedra pra minerar (com picareta). Galhos e pedrinhas na beira da estrada dá pra pegar com a mão.',chk:()=>count('wood')+count('stone')>=TUT.r0+3,btn:'Entendi'},
   {t:'Mochila e Criar',d:'Abra a mochila (botão da bolsa, lá em cima). Na aba "Criar" ficam as receitas: o que dá pra fazer aparece clarinho e mostra o que falta. Algumas precisam de bancada, forno ou fogueira por perto.',hl:'bagb',chk:()=>inv.classList.contains('on'),btn:'Entendi'},
   {t:'Magias e a barra de botões',d:'Na mochila, aba "Magias": cada nível dá 1 ponto pra aprender ou fortalecer magias. Lá em "Seus botões na tela" você escolhe qual magia vai em cada botão. O botão 6 é o grande e pode trocar o ataque básico.',btn:'Entendi'},
-  {t:'Correr, pular e poção',d:'O botão de correr gasta estamina (a barrinha amarela). Pular: toque uma vez; tocando de novo no ar ela dá pulos extras (cambalhota e depois planando). O botão da setinha, em cima do pulo, é o dash: um impulso rápido pra frente. A poção vermelha cura na hora.',hl:'run',btn:'Entendi'},
+  {t:'Correr, pular e poção',d:'O botão de correr gasta estamina (a barrinha amarela). Pular: toque uma vez; tocando de novo no ar ela dá pulos extras (cambalhota e depois planando). O botão da setinha, ao lado do pulo, é o dash: um impulso rápido pra frente. A poção vermelha cura na hora.',hl:'run',btn:'Entendi'},
   {t:'Missões e mapa',d:'O quadro de missão mostra o que fazer: toque em "Ir" que aparece o caminho. O mapa mostra lugares, pessoas e onde cada monstro aparece. Boa aventura!',hl:'qt',btn:'Concluir'}
 ];
 let tutEl=null, tutHl=null;
