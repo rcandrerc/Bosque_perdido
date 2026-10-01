@@ -119,7 +119,7 @@ body.incria .hud,body.incria #skills,body.incria #joy,body.incria #mmw,body.incr
 .mbtns{display:flex;flex-direction:column;gap:9px;align-items:stretch}
 .mbtns[hidden]{display:none}
 .mrow{display:flex;gap:8px}.mrow .mb{flex:1}
-#mslots .mb{padding:7px 6px;font-size:12px;line-height:1.2}#mslots .mb.on{border-color:#ffe08a;box-shadow:0 0 0 2px #ffe08a inset}#mslots small{display:block;font-weight:500;color:#cbbfa8;font-size:11px}
+.mslh{margin:2px 0 -4px;font:700 12.5px var(--ui);color:#ffe7a8;text-shadow:0 1px 3px #000}#mslots .mb{padding:8px 6px;font-size:13px;line-height:1.2;border-width:2px}#mslots .mb.empty{border-style:dashed;background:rgba(34,28,22,.7)}#mslots .mb.on{border-color:#ffe08a;box-shadow:0 0 0 2px #ffe08a inset}#mslots small{display:block;font-weight:500;color:#cbbfa8;font-size:11px}
 .mb{border:1px solid rgba(255,230,170,.35);border-radius:14px;background:rgba(34,28,22,.92);color:#f5ecd6;font:700 16px var(--ui);padding:13px 16px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 .mb:active{transform:scale(.97)}
 .mb.main{background:linear-gradient(#ffd46a,#e8a93a);color:#3a2604;border-color:#fff2c0;font-size:19px;padding:15px}
@@ -368,11 +368,12 @@ body.chatting #chatlog{bottom:calc(120px + env(safe-area-inset-bottom,0px))}body
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.37</div>
+    <div id="ver">v0.38</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
-      <div class="mrow"><button class="mb" id="mnew">Novo jogo</button><button class="mb" id="mnet">Jogar com amigos</button></div>
+      <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
       <div class="mrow" id="mslots"></div>
+      <div class="mrow"><button class="mb" id="mnew">Novo jogo</button><button class="mb" id="mnet">Jogar com amigos</button></div>
       <button class="mb small" id="mlook">Aparência da personagem</button>
       <button class="mb small" id="madm" hidden>Painel do criador (só você)</button>
       <div class="mrow"><button class="mb small" id="fsb">Tela cheia</button><button class="mb small" id="snd">Som ligado</button><button class="mb small" id="qlb">Gráficos: Alta</button></div>
@@ -4256,7 +4257,7 @@ let menuMode=null; const hadSave=!!save;
 function slotsRender(){ const el=$('mslots'); if(!el) return; let h='';
   for(let n=1;n<=3;n++){ let sv=null; try{ sv=JSON.parse(localStorage.getItem(n===1?'bosque-perdido-5':'bosque-perdido-5-s'+n)||'null'); }catch(e){}
     const nm=sv?((sv.ap&&sv.ap.n)||'Luíza'):'Vazio', sub=sv?('Nv '+((sv.p&&sv.p.lvl)||1)+(sv.ap&&sv.ap.model==='real'?' · realista':'')):'novo personagem';
-    h+='<button class="mb'+(n===SLOTN?' on':'')+'" data-slot="'+n+'">'+n+'. '+String(nm).replace(/[<>&"]/g,'')+'<small>'+sub+'</small></button>'; }
+    h+='<button class="mb'+(n===SLOTN?' on':'')+(sv?'':' empty')+'" data-slot="'+n+'">'+(sv?'':'＋ ')+n+'. '+String(nm).replace(/[<>&"]/g,'')+'<small>'+(n===SLOTN?'jogando agora':sub)+'</small></button>'; }
   el.innerHTML=h; }
 $('mslots').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const n=+b.dataset.slot; if(n===SLOTN) return; if(VISIT){ toast('Volte pro seu mundo primeiro'); return; } try{ doSave(); }catch(_){} resetting=true; try{ localStorage.setItem('bp-slot',String(n)); }catch(_){} location.reload(); });
 function showMenu(mode){ menuMode=mode; slotsRender(); const m=$('gmenu'); m.classList.add('on'); m.classList.toggle('title',mode==='title'); document.body.classList.toggle('intitle',mode==='title');
@@ -5099,7 +5100,7 @@ const TPU=(save&&Array.isArray(save.tp))?save.tp.slice(0,4).concat([0,0,0,0]).sl
 const DGC=(save&&Array.isArray(save.dgc))?save.dgc.slice(0,4).concat([0,0,0,0]).slice(0,4):[0,0,0,0];
 const DGD=(save&&Array.isArray(save.dgd))?save.dgd.slice(0,4).concat(['','','','']).slice(0,4):['','','',''];
 function todayStr(){ const t=new Date(); return t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate(); }
-function dgDoneToday(i){ return DGD[i]===todayStr(); }
+function dgDoneToday(i){ return DGD[i]===todayStr()&&!(typeof ADM_OK==='function'&&ADM_OK()); }
 function untilMidnight(){ const t=new Date(), m=new Date(t.getFullYear(),t.getMonth(),t.getDate()+1), ms=m-t, h=Math.floor(ms/3600000), mi=Math.floor(ms%3600000/60000); return (h?h+'h ':'')+mi+'min'; }
 const DTH=[
   {floor:'#aab39a',rock:'#8e9a7e',bg:'#0b120d',hemi:'#a8c8a0',deco:'#8dff6a',rune:'#7dff5a'},
@@ -5580,7 +5581,7 @@ function netWatchFriend(id){ const f={id,n:'...',l:0,on:null,off:null}; NET.frie
   const r=NET.db.ref('online/'+id), fn=s=>{ f.on=s.val(); if(f.on){ f.n=f.on.n||f.n; f.l=f.on.l||f.l; } netRender(); }; r.on('value',fn,()=>{}); f.off=()=>r.off('value',fn); }
 function netGoogle(){ const pr=new firebase.auth.GoogleAuthProvider(); firebase.auth().signInWithPopup(pr).catch(e=>{ const c=e&&e.code||''; if(/popup-blocked|operation-not-supported|cancelled-popup|web-storage/.test(c)) return firebase.auth().signInWithRedirect(pr); if(!/popup-closed/.test(c)) toast('Erro no login: '+c); }); }
 function netAnon(){ firebase.auth().signInAnonymously().catch(e=>toast('Erro: '+(e.code||e.message))); }
-function netLogout(){ if(NET.open) netCloseWorld(); if(NET.uid) NET.db.ref('online/'+NET.uid).remove(); try{ localStorage.removeItem('bp-net-on'); }catch(e){} firebase.auth().signOut(); }
+function netLogout(){ if(NET.open) netCloseWorld(); if(NET.uid) NET.db.ref('online/'+NET.uid).remove(); try{ localStorage.removeItem('bp-net-on'); localStorage.removeItem('bp-adm-ok'); }catch(e){} ADM_MEM=false; firebase.auth().signOut(); }
 function netAddFriend(code){ code=(code||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,''); if(code.length!==6){ toast('O código tem 6 letras/números'); return; } if(code===NET.code){ toast('Esse é o seu código!'); return; }
   NET.db.ref('codes/'+code).once('value').then(s=>{ const id=s.val(); if(!id){ toast('Código não encontrado'); return; } if(NET.friends.has(id)){ toast('Vocês já são amigos'); return; }
     return NET.db.ref('freq/'+id+'/'+NET.uid).set({n:NET.name,l:P.lvl}).then(()=>{ toast('Pedido de amizade enviado!'); sfx.ok(); }); }).catch(e=>toast('Erro: '+(e.code||e.message))); }
@@ -5694,7 +5695,10 @@ $('chati').addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Ente
 setInterval(()=>{ const on=inRoom()||ADM_OK(); $('chatb').hidden=!on; if(!on&&!$('chatbox').hidden) chatClose(); },1000);
 /* ---------- painel do criador: só pra conta do André ---------- */
 const ADM={cr:false,god:false,qty:10};
-function ADM_OK(){ try{ return !!(NET.user&&!NET.user.isAnonymous&&String(NET.user.email||'').toLowerCase()==='rcandrerc@gmail.com'); }catch(e){ return false; } }
+let ADM_MEM=null;
+function ADM_OK(){ try{ const u=NET.user; if(u){ const ok=!u.isAnonymous&&String(u.email||'').toLowerCase()==='rcandrerc@gmail.com';
+      if(ok!==ADM_MEM){ ADM_MEM=ok; try{ ok?localStorage.setItem('bp-adm-ok','1'):localStorage.removeItem('bp-adm-ok'); }catch(e){} } return ok; }
+    if(ADM_MEM===null){ try{ ADM_MEM=localStorage.getItem('bp-adm-ok')==='1'; }catch(e){ ADM_MEM=false; } } return ADM_MEM; }catch(e){ return false; } }
 try{ const a=JSON.parse(localStorage.getItem('bp-adm')||'null'); if(a){ ADM.cr=!!a.cr; ADM.god=!!a.god; } }catch(e){}
 function admSave(){ try{ localStorage.setItem('bp-adm',JSON.stringify({cr:ADM.cr,god:ADM.god})); }catch(e){} }
 function admActive(k){ return ADM_OK()&&ADM[k]; }
