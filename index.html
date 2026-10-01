@@ -372,7 +372,7 @@ body.chatting #chatlog{bottom:calc(120px + env(safe-area-inset-bottom,0px))}body
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.42</div>
+    <div id="ver">v0.43</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -2597,7 +2597,7 @@ function magaUpdate(dt){ const M=MAGA; if(AP.model!=='real'){ M.yawG.visible=fal
   else { const v=P.sp; if(v<.35) n='Idle_Loop'; else if(P.running&&v>5) { n='Sprint_Loop'; sp=clamp(v/6.6,.8,1.3); } else if(v<2.2){ n='Walk_Loop'; sp=clamp(v/1.5,.6,1.4); } else { n='Jog_Fwd_Loop'; sp=clamp(v/4,.75,1.35); } }
   if(!P.act) M.actRef=null;
   magaPlay(n,once,sp,fade,restart); M.mixer.update(dt);
-  { let want=0; if(!P.act&&P.jz<=.05&&!(P.dashT>0)&&!P.chan&&!P.swim&&!P.mounted){ want=P.sp<.35?0:M.curN==='Walk_Loop'?3:M.curN==='Jog_Fwd_Loop'?9:M.curN==='Sprint_Loop'?14:0; } M.lean+=(want-M.lean)*Math.min(1,dt*6);
+  { let want=0; if(!P.act&&P.jz<=.05&&!(P.dashT>0)&&!P.chan&&!P.swim&&!P.mounted){ want=P.sp<.35?0:M.curN==='Walk_Loop'?1.5:M.curN==='Jog_Fwd_Loop'?3.5:M.curN==='Sprint_Loop'?6:0; } M.lean+=(want-M.lean)*Math.min(1,dt*6);
     if(M.lean>.2){ M.yawG.updateMatrixWorld(true); const tot=-M.lean/57.3; for(const [bn,wt] of [['pelvis',.2],['spine_01',.45],['spine_02',.2],['spine_03',.15]]){ const b=M.bones[bn]; b.parent.getWorldQuaternion(_mq); _mx.set(1,0,0).applyQuaternion(M.yawG.quaternion).applyQuaternion(_mq.invert()); _mr.setFromAxisAngle(_mx,tot*wt); b.quaternion.premultiply(_mr); } } }
 }
 function applyAP(){ if(AP.model==='real') magaInit(); else if(MAGA.ready) MAGA.yawG.visible=false; const sk=APO.skin[AP.sk]||APO.skin[0], hc=APO.hair[AP.hc]||APO.hair[0];
@@ -3539,7 +3539,12 @@ function poseLZ(v,p,w){
   v.head.rotation.x=L(v.head.rotation.x,p.hx); v.body.rotation.z=v.body.rotation.z*(1-w)+(p.rz||0)*w;
 }
 
+const KNEEP={a:-.06,tL:-1.6,sL:2.0,tR:.2,sR:.18,xR:-.1,xL:-.1,zR:1.3,zL:1.3,fR:-.25,fL:-.25,hx:-.06,ty:0};
+const GLIDEP={a:.42,tL:.4,sL:.75,tR:.12,sR:.3,xR:.3,xL:.3,zR:1.45,zL:1.45,fR:-.12,fL:-.12,hx:-.28,ty:0};
+const GLIDEP2={a:.38,tL:.1,sL:.35,tR:.45,sR:.8,xR:.2,xL:.35,zR:1.5,zL:1.35,fR:-.2,fL:-.1,hx:-.25,ty:.12};
 function lzAir(v){
+  if(P.jz>.05&&!(P.flip>0)&&!(P.dashT>0)&&!P.act&&!P.chan&&P.airP){ const w=ease(clamp((P.airT||0)/.16,0,1))*clamp(P.jz/.25,0,1); const sw=Math.sin(time*7)*.08;
+    const pz=P.airP==='k'?KNEEP:P.airP==='g'?GLIDEP:GLIDEP2; applyPoseP(v,pz,w); v.armL.rotation.x+=sw*w; v.armR.rotation.x-=sw*w; }
   if(P.landT>0&&!P.act&&!P.chan&&!(P.flip>0)){ const t=1-P.landT/.24, w=(t<.25?ease(t/.25):1-ease((t-.25)/.75))*(P.landK||1)*(1-.5*clamp(P.sp/4.6,0,1)); applyPoseP(v,LANDP,w); }
   if(P.dashW>0) applyPoseP(v,DASHP,ease(P.dashW));
   if(P.flip>0){ const u=clamp(P.flip/FLIP_T,0,1), k=u<.16?ease(u/.16):u<.7?1:1-ease((u-.7)/.3);
@@ -3572,15 +3577,15 @@ function animate(ent,v,dt){
     v.body.position.y=(Math.abs(Math.cos(ph))*(.055+.075*run)-.03-.03*run)*mv+Math.sin(ent.anim*2.4)*.008;
     v.body.position.z=0;
     v.body.rotation.z=Math.sin(ph)*.035*mv*(1-.5*run);
-    v.armL.rotation.x=-sw*(.8+.55*run);
-    if(ent===P){ const fb=-.18-1.05*run; if(v.armL.fore) v.armL.fore.rotation.x=fb; if(v.armR.fore) v.armR.fore.rotation.x=(ent.swing>0||ent.cast>0||ent.wind>0)?-.18:fb; v.head.rotation.x=-.1*run+Math.abs(Math.cos(ph))*.04*run; v.head.rotation.y=-Math.sin(ph)*.1*run; }
-    if(ent===P&&P.jz>.05&&!(P.down>0)){ v.legL.rotation.x=-.8; v.legR.rotation.x=.2; v.legL.shin.rotation.x=1.3; v.legR.shin.rotation.x=.7; v.armL.rotation.x=-1.1; v.armL.rotation.z=-.5; } else if(ent===P){ v.armL.rotation.z=-.1-.12*run; v.armR.rotation.z=.1+.12*run; }
-    let a=sw*(.8+.55*run);
+    v.armL.rotation.x=-sw*(.75+.2*run);
+    if(ent===P){ const fb=-.22-.55*run; if(v.armL.fore) v.armL.fore.rotation.x=fb; if(v.armR.fore) v.armR.fore.rotation.x=(ent.swing>0||ent.cast>0||ent.wind>0)?-.18:fb; v.head.rotation.x=-.1*run+Math.abs(Math.cos(ph))*.04*run; v.head.rotation.y=-Math.sin(ph)*.1*run; }
+    if(ent===P&&P.jz>.05&&!(P.down>0)){ v.legL.rotation.x=-.8; v.legR.rotation.x=.2; v.legL.shin.rotation.x=1.3; v.legR.shin.rotation.x=.7; v.armL.rotation.x=-1.1; v.armL.rotation.z=-.5; } else if(ent===P){ v.armL.rotation.z=-.12-.2*run; v.armR.rotation.z=.12+.2*run; }
+    let a=sw*(.75+.2*run);
     if(ent.wind>0) a=-2.7+Math.sin(ent.wind*30)*.05;
     else if(ent.swing>0){ const t=1-ent.swing, e=1-Math.pow(1-t,3); a=-2.7+2.5*e; }
     if(ent.cast>0&&!(ent===P&&(P.act||P.chan))){ const k=Math.sin(Math.PI*Math.min(1,(1-ent.cast)*1.3)); a=a+(-1.5-a)*k; }
     v.armR.rotation.x=a;
-    if(ent===P){ v.body.rotation.x=(.14+.16*run)*mv; if(P.down>0) poseLZ(v,downPose(DOWN_T-P.down),1); else if(P.stag>0){ const t=1-P.stag/.32, e=t<.16?1-Math.pow(1-t/.16,2):Math.pow(1-(t-.16)/.84,2)*(1+.35*Math.sin((t-.16)*14)); poseLZ(v,STAGP,e); }
+    if(ent===P){ v.body.rotation.x=(.07+.07*run)*mv; if(P.down>0) poseLZ(v,downPose(DOWN_T-P.down),1); else if(P.stag>0){ const t=1-P.stag/.32, e=t<.16?1-Math.pow(1-t/.16,2):Math.pow(1-(t-.16)/.84,2)*(1+.35*Math.sin((t-.16)*14)); poseLZ(v,STAGP,e); }
       else if(P.brake>0&&!P.act){ const t=1-P.brake/.55, e=(t<.22?Math.sin(t/.22*1.5708):Math.pow(1-(t-.22)/.78,1.5)*Math.cos((t-.22)/.78*4.4))*(P.brakeK||1); poseLZ(v,BRAKEP,e); if(v.pony) v.pony.rotation.x-=e*.9; } if(v.halo){ const k=1+.15*Math.sin(time*4)+ent.cast*.8; v.halo.scale.setScalar(.17*k); v.halo.material.opacity=.3+ent.cast*.5; } }
     v.torso.rotation.y=ent.swing>0?(-.35+.7*(1-ent.swing)):ent.wind>0?-.3:Math.sin(ph)*(.12+.1*run)*mv;
     v.head.rotation.z=Math.sin(ent.anim*1.7)*.03;
@@ -3780,7 +3785,7 @@ function updatePlayer(dt){
       if(ADM.g0==null){ ADM.g0=P.gold; admSave(); } P.gold=999999; }
     else if(ADM.g0!=null&&!VISIT){ P.gold=ADM.g0; ADM.g0=null; admSave(); } }
   if(P.sb&&P.sb.dru4&&Y.owned&&!Y.hurt&&P.combatT>0&&!P.dead){ P.yhT=(P.yhT||8)-dt; if(P.yhT<=0){ P.yhT=8; const a=Math.round(P.max*.06); P.hp=Math.min(P.max,P.hp+a); addText(P.x,P.y,P.h+2.2,'+'+a+' (Yuki)','#86d36e',15); spark(P.x,P.h+.8,P.y,'#9be48a',10,1.4,2); } }
-  if(P.dashCd>0) P.dashCd-=dt; if(P.landT>0) P.landT-=dt;
+  if(P.dashCd>0) P.dashCd-=dt; if(P.landT>0) P.landT-=dt; P.airT=(P.airT||0)+dt; if(P.jz<=.02&&!(P.jumps>=1)) P.airP=null;
   if(P.flip>0){ P.flip+=dt; if(P.flip>FLIP_T) P.flip=0; else if(((P.flip*20)|0)!==(((P.flip-dt)*20)|0)) spark(P.x,P.h+P.jz+1,P.y,'#ffe0f2',1,.35,.1,.4); }
   if(P.dashT>0){ P.jv=0; } else P.jv-=17*dt;
   P.dashW=P.dashT>0?Math.min(1,(P.dashW||0)+dt*16):Math.max(0,(P.dashW||0)-dt*6);
@@ -4216,12 +4221,13 @@ const potB=mkBtn('pot','<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M10
 potB.querySelector('.n').id='pc'; potB.setAttribute('aria-label','Usar poção de vida (Q)');
 const mntB=mkBtn('mnt','<svg viewBox="0 0 24 24"><path d="M6 20l1-6-2-3 2-5 4-2 3 1 5 4-1 2-3-1-1 3 2 3v4h-2l-1-4-3-1-1 5z" fill="#e2b27a"/><path d="M9 4l3 1 2 3-3-1z" fill="#5a3520"/><circle cx="8.5" cy="7.5" r=".8" fill="#140c08"/></svg>',54,()=>mount(!P.mounted)); mntB.setAttribute('aria-label','Montar');
 const jumpB=mkBtn('jmp','<svg viewBox="0 0 24 24"><path d="M12 4l7 8h-4.5v7h-5v-7H5z" fill="#f1efe2"/></svg>',58,()=>jump()); jumpB.setAttribute('aria-label','Pular');
+const dashB=mkBtn('dsh','<svg viewBox="0 0 24 24"><path d="M3 12h10M5 8h7M5 16h7" stroke="#bfe8ff" stroke-width="2" stroke-linecap="round"/><path d="M13 5l8 7-8 7z" fill="#f1efe2"/></svg>',50,()=>dash()); dashB.setAttribute('aria-label','Dash (C)');
 const runB=mkBtn('run','<svg viewBox="0 0 24 24"><circle cx="14.5" cy="4.5" r="2.3" fill="#f1efe2"/><path d="M13 8l-4 3 1.5 1.8 2.6-1.8.6 3.2-3.4 4.8 1.8 1.2 4-5.2 2.4 2.4V22h2.2v-5.6l-3-3 .6-3 2 1.6H23v-2h-2.6l-3-2.6z" fill="#f1efe2"/><path d="M2 9h5M1 13h4M3 17h4" stroke="#d6ff7a" stroke-width="1.6" stroke-linecap="round"/></svg>',50,()=>{ if(P.mounted){ toast('No cavalo não precisa correr'); return; } P.run=!P.run; runBtn(); });
 runB.setAttribute('aria-label','Correr (Shift)');
 function runBtn(){ runB.classList.toggle('on',!!P.run); }
 const FLIP_T=.56, DASH_T=.2, DASH_SP=15;
 /* pulo estilo Age of Wushu: cada toque é um pulinho; no ar dá pra emendar vários (quantos depende da estamina máxima).
-   Tocando devagar = mais um pulinho; dois toques rápidos no ar = dash pra frente */
+   1º pulo: joelho pra cima e braços abertos; 2º: cambalhota; 3º em diante: planando. O dash é um botão separado */
 const JUMP_V=5.4, JUMP_FAST=.2;
 function maxJumps(){ return clamp(4+Math.floor(((P.maxSta||50)-40)/25),5,9); }
 function jumpCost(n){ return 4+n; }
@@ -4238,16 +4244,19 @@ function staUse(n){ if((P.sta||0)<n){ addText(P.x,P.y,P.h+P.jz+2.2,'Sem fôlego!
 function jump(){ if(P.dead||paused||P.swim||P.down>0||P.boat||P.ride) return;
   const now=time, fast=now-(P.lastJ||-9)<JUMP_FAST; P.lastJ=now;
   const ground=P.jz<=.02&&!(P.jumps>=1);
-  if(ground){ if(!P.mounted&&!staUse(jumpCost(0))) return; P.jv=JUMP_V*(P.mounted?1.2:1); P.jz=.01; P.jumps=1; P.dashed=false; sfx.jump(); spark(P.x,P.h+.05,P.y,'#d8c9a8',5,1,.5); return; }
+  if(ground){ if(!P.mounted&&!staUse(jumpCost(0))) return; P.jv=JUMP_V*(P.mounted?1.2:1); P.jz=.01; P.jumps=1; P.dashed=false; P.airP='k'; P.airT=0; sfx.jump(); spark(P.x,P.h+.05,P.y,'#d8c9a8',5,1,.5); return; }
   if(P.mounted||!(P.jumps>=1)) return;
   if(P.chan) chanCancel('Cancelado');
-  if(fast&&!P.dashed&&!(P.dashCd>0)){ if(!staUse(8)) return; P.dashed=true; P.flip=0;
-    let dx=Math.sin(P.face), dy=Math.cos(P.face); if(P.sp>.6&&(P.dx||P.dy)){ dx=P.dx; dy=P.dy; }
-    const l=Math.hypot(dx,dy)||1; P.ddx=dx/l; P.ddy=dy/l; P.face=Math.atan2(P.ddx,P.ddy); P.dashT=DASH_T; P.dashCd=.9; P.jv=0; P.move=null; P.autoGo=null; P.gather=null; sfx.dash(); return; }
   if(P.jumps>=maxJumps()){ if(now-(P.jmT||0)>1){ P.jmT=now; addText(P.x,P.y,P.h+P.jz+2.2,'Sem impulso!','#e8ff9a',14); } return; }
   if(!staUse(jumpCost(P.jumps))) return;
-  P.jumps++; P.jv=Math.max(P.jv,JUMP_V); P.jz=Math.max(P.jz,.02); P.flip=.001; sfx.flip(); spark(P.x,P.h+P.jz+.3,P.y,'#fff4d8',8,1.6,.2,.35);
+  P.jumps++; P.jv=Math.max(P.jv,JUMP_V); P.jz=Math.max(P.jz,.02); P.airT=0;
+  if(P.jumps===2){ P.flip=.001; P.airP='k'; sfx.flip(); } else { P.flip=0; P.airP=P.airP==='g'?'g2':'g'; sfx.jump(); fxAdd('ring',P.x,P.y,P.h+P.jz+.1,1.1,'#fff4d8',.35); }
+  spark(P.x,P.h+P.jz+.3,P.y,'#fff4d8',8,1.6,.2,.35);
 }
+/* dash: agora é um botão separado (no chão ou no ar) */
+function dash(){ if(P.dead||paused||P.swim||P.down>0||P.boat||P.ride||P.mounted||P.dashCd>0) return; if(!staUse(8)) return; if(P.chan) chanCancel('Cancelado');
+  let dx=Math.sin(P.face), dy=Math.cos(P.face); if(P.sp>.6&&(P.dx||P.dy)){ dx=P.dx; dy=P.dy; }
+  const l=Math.hypot(dx,dy)||1; P.ddx=dx/l; P.ddy=dy/l; P.face=Math.atan2(P.ddx,P.ddy); P.dashT=DASH_T; P.dashCd=.9; P.flip=0; if(P.jz>.02) P.jv=Math.max(0,P.jv); P.move=null; P.autoGo=null; P.gather=null; sfx.dash(); }
 function layoutSkills(){
   const sa=v=>'calc('+v+'px + env(safe-area-inset-right,0px))', sb=v=>'calc('+v+'px + env(safe-area-inset-bottom,0px))';
   const base=16, big=80, cx=base+big/2, R=Math.min(100,Math.max(88,window.innerHeight*.25)), R2=R+62;
@@ -4255,7 +4264,7 @@ function layoutSkills(){
   [0,1,2].forEach((i)=>{ const a=i*Math.PI/4, el=slotB[i]; el.style.right=sa(cx+R*Math.cos(a)-27); el.style.bottom=sb(cx+R*Math.sin(a)-27); });
   [[3,.2],[4,.78]].forEach(([i,f])=>{ const a=f*Math.PI/2, el=slotB[i]; el.style.right=sa(cx+R2*Math.cos(a)-27); el.style.bottom=sb(cx+R2*Math.sin(a)-27); });
   potB.style.right=sa(cx+R2*Math.cos(Math.PI/4)-24); potB.style.bottom=sb(cx+R2*Math.sin(Math.PI/4)-24);
-  jumpB.style.left=''; jumpB.style.right=sa(cx+R+36); jumpB.style.bottom=sb(14);
+  jumpB.style.left=''; jumpB.style.right=sa(cx+R+36); jumpB.style.bottom=sb(14); dashB.style.right=sa(cx+R+40); dashB.style.bottom=sb(80);
   mntB.style.right=sa(cx+R+36+66); mntB.style.bottom=sb(16);
   runB.style.right=sa(cx+R+36+66+62); runB.style.bottom=sb(18);
   if(typeof boatB!=='undefined'&&boatB){ boatB.style.right=sa(cx+R+36+66+62+62); boatB.style.bottom=sb(20); fishB.style.right=sa(cx+R+36+66+62+124); fishB.style.bottom=sb(22); }
@@ -4307,6 +4316,7 @@ window.addEventListener('keydown',e=>{
   else if(k==='f') toggleFS();
   else if(k==='h') mount(!P.mounted);
   else if(k==='n') boatToggle();
+  else if(k==='c') dash();
   else if(k==='p') fishPress();
   else if(k==='m'){ if($('wmap').classList.contains('on')) closeMap(); else openMap(); }
   else if(k==='z') yawT+=.6; else if(k==='x') yawT-=.6;
@@ -4802,7 +4812,7 @@ const TSTEPS=[
   {t:'Coletar',d:'Toque numa árvore pra cortar madeira (com machado) ou numa pedra pra minerar (com picareta). Galhos e pedrinhas na beira da estrada dá pra pegar com a mão.',chk:()=>count('wood')+count('stone')>=TUT.r0+3,btn:'Entendi'},
   {t:'Mochila e Criar',d:'Abra a mochila (botão da bolsa, lá em cima). Na aba "Criar" ficam as receitas: o que dá pra fazer aparece clarinho e mostra o que falta. Algumas precisam de bancada, forno ou fogueira por perto.',hl:'bagb',chk:()=>inv.classList.contains('on'),btn:'Entendi'},
   {t:'Magias e a barra de botões',d:'Na mochila, aba "Magias": cada nível dá 1 ponto pra aprender ou fortalecer magias. Lá em "Seus botões na tela" você escolhe qual magia vai em cada botão. O botão 6 é o grande e pode trocar o ataque básico.',btn:'Entendi'},
-  {t:'Correr, pular e poção',d:'O botão de correr gasta estamina (a barrinha amarela). Pular: toque uma vez; tocando de novo no ar ela dá pulinhos extras. A poção vermelha cura na hora.',hl:'run',btn:'Entendi'},
+  {t:'Correr, pular e poção',d:'O botão de correr gasta estamina (a barrinha amarela). Pular: toque uma vez; tocando de novo no ar ela dá pulos extras (cambalhota e depois planando). O botão da setinha, em cima do pulo, é o dash: um impulso rápido pra frente. A poção vermelha cura na hora.',hl:'run',btn:'Entendi'},
   {t:'Missões e mapa',d:'O quadro de missão mostra o que fazer: toque em "Ir" que aparece o caminho. O mapa mostra lugares, pessoas e onde cada monstro aparece. Boa aventura!',hl:'qt',btn:'Concluir'}
 ];
 let tutEl=null, tutHl=null;
