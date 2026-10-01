@@ -368,7 +368,7 @@ body.chatting #chatlog{bottom:calc(120px + env(safe-area-inset-bottom,0px))}body
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.38</div>
+    <div id="ver">v0.39</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -3000,9 +3000,9 @@ function updFlames(dt){
 }
 const _gp=new THREE.Vector3();
 function gemPos(){ (LZ.staff.visible?LZ.gem:LZ.hand).getWorldPosition(_gp); return _gp; }
-function useWeapon(){ const w=EQ.weapon; if(!w||w.d<=0) return; w.d--; if(w.d<=0){ w.d=0; addText(P.x,P.y,P.h+2.4,'Cajado quebrou!','#ff8a7a',16); toast('Seu cajado quebrou! O Tio Nando conserta.'); sfx.hurt(); calcStats(); } }
-function wearArmor(){ let br=null; for(const s of ['head','body','feet','back']){ const e=EQ[s]; if(!e||!(e.d>0)||Math.random()<.5) continue; e.d--; if(e.d<=0){ e.d=0; br=IT[e.id].n; } } if(br){ toast(br+' quebrou! O Tio Nando conserta.'); calcStats(); } }
-function useTool(t){ let i=-1, bt=0; BAG.forEach((q,j)=>{ if(q&&IT[q.id].tool===t&&!(q.d<=0)&&(IT[q.id].tier||1)>bt){ bt=IT[q.id].tier||1; i=j; } }); if(i<0) return; const q=BAG[i]; q.d--; if(q.d<=0){ q.d=0; addText(P.x,P.y,P.h+2.4,IT[q.id].n+' quebrou!','#ff8a7a',16); toast(IT[q.id].n+' quebrou! O Tio Nando conserta.'); sfx.hurt(); } }
+function useWeapon(){ const w=EQ.weapon; if(!w||w.d<=0||(typeof admActive==='function'&&admActive('cr'))) return; w.d--; if(w.d<=0){ w.d=0; addText(P.x,P.y,P.h+2.4,'Cajado quebrou!','#ff8a7a',16); toast('Seu cajado quebrou! O Tio Nando conserta.'); sfx.hurt(); calcStats(); } }
+function wearArmor(){ if((typeof admActive==='function'&&admActive('cr'))) return; let br=null; for(const s of ['head','body','feet','back']){ const e=EQ[s]; if(!e||!(e.d>0)||Math.random()<.5) continue; e.d--; if(e.d<=0){ e.d=0; br=IT[e.id].n; } } if(br){ toast(br+' quebrou! O Tio Nando conserta.'); calcStats(); } }
+function useTool(t){ if((typeof admActive==='function'&&admActive('cr'))) return; let i=-1, bt=0; BAG.forEach((q,j)=>{ if(q&&IT[q.id].tool===t&&!(q.d<=0)&&(IT[q.id].tier||1)>bt){ bt=IT[q.id].tier||1; i=j; } }); if(i<0) return; const q=BAG[i]; q.d--; if(q.d<=0){ q.d=0; addText(P.x,P.y,P.h+2.4,IT[q.id].n+' quebrou!','#ff8a7a',16); toast(IT[q.id].n+' quebrou! O Tio Nando conserta.'); sfx.hurt(); } }
 function spark(x,y,z,hex,n,spd,up,life){
   const col=C(hex);
   for(let i=0;i<n;i++){ const p=PPOOL.find(q=>q.life<=0); if(!p) return; const a=Math.random()*6.28, s=rnd(.3,1)*spd;
@@ -3682,7 +3682,7 @@ const RIDEP={a:.1,dr:0,tL:-.45,tR:-.45,sL:1.25,sR:1.25,xR:-.38,fR:-1.15,xL:-.38,
 const keys=new Set();
 function usePotion(){
   if(P.dead||P.potions<=0||P.potCd>0||P.hp>=P.max) return;
-  P.potions--; P.potCd=1; const heal=Math.round(P.max*.45); P.hp=Math.min(P.max,P.hp+heal);
+  if(!(typeof admActive==='function'&&admActive('cr'))) P.potions--; P.potCd=1; const heal=Math.round(P.max*.45); P.hp=Math.min(P.max,P.hp+heal);
   addText(P.x,P.y,P.h+1.9,'+'+heal,'#86d36e',18); addParts(P.x,P.y,P.h,'#86d36e',12,1.4,4); sfx.potion();
 }
 function nearestMob(maxd,onlyAwake){
@@ -3714,7 +3714,10 @@ function updatePlayer(dt){
   P.mana=Math.min(P.maxMana,P.mana+(P.safe?10:3+P.lvl*.2+ST.int*.1+rk('pmind')*.6)*(P.sb&&P.sb.cam4?1.5:1)*dt);
   if(P.running&&P.sp>1){ P.sta=Math.max(0,P.sta-10*dt); P.staT=.9; if(Math.random()<dt*12) spark(P.x-P.dx*.3,P.h+.08,P.y-P.dy*.3,'#d8c9a8',1,.6,.4,.4); if(P.sta<=0){ P.run=false; runBtn(); addText(P.x,P.y,P.h+2.3,'Sem fôlego!','#e8ff9a',14); } }
   else if(P.staT>0) P.staT-=dt; else P.sta=Math.min(P.maxSta,P.sta+P.maxSta*.17*((P.food??100)<=0?.5:1)*dt);
-  if(admActive('cr')){ P.sta=P.maxSta; P.mana=P.maxMana; }
+  { const cr=admActive('cr');
+    if(cr){ P.sta=P.maxSta; P.mana=P.maxMana; P.food=100; if(!P.dead) P.hp=P.max; for(const k in skCd) if(skCd[k]>.25) skCd[k]=.25;
+      if(ADM.g0==null){ ADM.g0=P.gold; admSave(); } P.gold=999999; }
+    else if(ADM.g0!=null&&!VISIT){ P.gold=ADM.g0; ADM.g0=null; admSave(); } }
   if(P.sb&&P.sb.dru4&&Y.owned&&!Y.hurt&&P.combatT>0&&!P.dead){ P.yhT=(P.yhT||8)-dt; if(P.yhT<=0){ P.yhT=8; const a=Math.round(P.max*.06); P.hp=Math.min(P.max,P.hp+a); addText(P.x,P.y,P.h+2.2,'+'+a+' (Yuki)','#86d36e',15); spark(P.x,P.h+.8,P.y,'#9be48a',10,1.4,2); } }
   if(P.dashCd>0) P.dashCd-=dt; if(P.landT>0) P.landT-=dt;
   if(P.flip>0){ P.flip+=dt; if(P.flip>FLIP_T) P.flip=0; else if(((P.flip*20)|0)!==(((P.flip-dt)*20)|0)) spark(P.x,P.h+P.jz+1,P.y,'#ffe0f2',1,.35,.1,.4); }
@@ -4336,7 +4339,7 @@ const RECIPES=[
 function nearFire(){ return nearFurnace()||(!DG&&Math.hypot(P.x,P.y)<5); }
 function nearFurnace(){ for(const [k,v] of structs){ if(v.t!=='furnace') continue; const tx=Math.floor(k/80000)-40000, ty=k%80000-40000; if(Math.hypot(tx+.5-P.x,ty+.5-P.y)<5) return true; } return false; }
 function nearBench(){ for(const [k,v] of structs){ if(v.t!=='bench') continue; const tx=Math.floor(k/80000)-40000, ty=k%80000-40000; if(Math.hypot(tx+.5-P.x,ty+.5-P.y)<5) return true; } return false; }
-function canPay(c){ for(const k in c) if(count(k)<c[k]) return false; return true; }
+function canPay(c){ if((typeof admActive==='function'&&admActive('cr'))) return true; for(const k in c) if(count(k)<c[k]) return false; return true; }
 let invTab='bag', sel=null;
 const inv=$('inv');
 function openInv(tab){ if(loading) return; sfx.open(); if(tab) invTab=tab; sel=null; paused=true; inv.classList.add('on'); hideHint(); P.sp=0; renderInv(); requestAnimationFrame(renderPortrait); }
@@ -4362,7 +4365,7 @@ function renderInv(){
   else if(invTab==='bag') t='<div class="grid">'+BAG.map((q,i)=>slotHtml(q,'data-bag="'+i+'"','',sel&&sel.bag===i)).join('')+'</div>';
   else if(invTab==='craft'){
     const nb=nearBench(), nf=nearFurnace(); t='<div class="sub" style="font-size:12px;color:var(--muted)">'+(nb?'Perto da bancada: receitas da bancada liberadas.':'Longe da bancada: só receitas básicas.')+(nf?' Forno aceso: dá pra fazer barras.':'')+'</div>';
-    for(const r of RECIPES){ const it=IT[r.id], ok=canPay(r.cost)&&(!r.needBench||nb)&&(!r.needFurnace||nf)&&(!r.needFire||nearFire());
+    for(const r of RECIPES){ const it=IT[r.id], ok=canPay(r.cost)&&((typeof admActive==='function'&&admActive('cr'))||(!r.needBench||nb)&&(!r.needFurnace||nf)&&(!r.needFire||nearFire()));
       const cost=Object.keys(r.cost).map(k=>'<span class="'+(count(k)>=r.cost[k]?'have':'lack')+'">'+count(k)+'/'+r.cost[k]+' '+IT[k].n.toLowerCase()+'</span>').join(' · ');
       t+='<div class="rrow"><div class="ic">'+ICO[r.id]+'</div><div class="nm"><b>'+it.n+(r.needBench?' <small style="display:inline;color:#c9b4ff">(bancada)</small>':r.needFurnace?' <small style="display:inline;color:#ffb07a">(forno)</small>':r.needFire?' <small style="display:inline;color:#ffb07a">(fogo)</small>':'')+'</b><small>'+cost+'</small><small>'+it.d+'</small></div><button class="pb sm" data-cr="'+r.id+'"'+(ok?'':' disabled')+'>Criar</button></div>'; }
   } else {
@@ -4405,8 +4408,8 @@ inv.addEventListener('click',e=>{
   if(b.dataset.yp){ if(P.potions<=0||Y.hurt) return; P.potions--; const a=Math.round(yMax()*.6); Y.hp=Math.min(yMax(),Y.hp+a); sfx.potion(); sfx.meow(); addText(Y.x,Y.y,Y.h+1,'+'+a,'#86d36e',15); renderInv(); doSave(); return; }
   if(b.dataset.eq!==undefined){ sel=EQ[b.dataset.eq]?{eq:b.dataset.eq}:null; renderInv(); return; }
   if(b.dataset.bag!==undefined){ const i=+b.dataset.bag; sel=BAG[i]?{bag:i}:null; renderInv(); return; }
-  if(b.dataset.cr){ const r=RECIPES.find(x=>x.id===b.dataset.cr); if(!canPay(r.cost)||(r.needBench&&!nearBench())||(r.needFurnace&&!nearFurnace())||(r.needFire&&!nearFire())) return; if(BAG.indexOf(null)<0&&!(IT[r.id].st&&BAG.some(x=>x&&x.id===r.id&&x.n<IT[r.id].st))){ sfx.hurt(); return; }
-    for(const k in r.cost) take(k,r.cost[k]); addItem(r.id,1); sfx.build(); renderInv(); return; }
+  if(b.dataset.cr){ const r=RECIPES.find(x=>x.id===b.dataset.cr); const crm=(typeof admActive==='function'&&admActive('cr')); if(!canPay(r.cost)||(!crm&&((r.needBench&&!nearBench())||(r.needFurnace&&!nearFurnace())||(r.needFire&&!nearFire())))) return; if(BAG.indexOf(null)<0&&!(IT[r.id].st&&BAG.some(x=>x&&x.id===r.id&&x.n<IT[r.id].st))){ sfx.hurt(); return; }
+    if(!crm) for(const k in r.cost) take(k,r.cost[k]); addItem(r.id,1); sfx.build(); renderInv(); return; }
   if(b.dataset.bd){ closeInv(); startBuild(b.dataset.bd); return; }
   if(b.dataset.sku){ const id=b.dataset.sku, sk=SK.find(q=>q.id===id)||PASS.find(q=>q.id===id); if(!sk||SPTS<=0||P.lvl<sk.lvl||rk(id)>=5) return; SR[id]=rk(id)+1; SPTS--; sfx.level(); calcStats();
     if(SK.find(q=>q.id===id)&&SR[id]===1&&SLOT.indexOf(id)<0){ const e=SLOT.indexOf(null); if(e>=0){ SLOT[e]=id; refreshSlots(); } } renderInv(); doSave(); return; }
@@ -5699,8 +5702,8 @@ let ADM_MEM=null;
 function ADM_OK(){ try{ const u=NET.user; if(u){ const ok=!u.isAnonymous&&String(u.email||'').toLowerCase()==='rcandrerc@gmail.com';
       if(ok!==ADM_MEM){ ADM_MEM=ok; try{ ok?localStorage.setItem('bp-adm-ok','1'):localStorage.removeItem('bp-adm-ok'); }catch(e){} } return ok; }
     if(ADM_MEM===null){ try{ ADM_MEM=localStorage.getItem('bp-adm-ok')==='1'; }catch(e){ ADM_MEM=false; } } return ADM_MEM; }catch(e){ return false; } }
-try{ const a=JSON.parse(localStorage.getItem('bp-adm')||'null'); if(a){ ADM.cr=!!a.cr; ADM.god=!!a.god; } }catch(e){}
-function admSave(){ try{ localStorage.setItem('bp-adm',JSON.stringify({cr:ADM.cr,god:ADM.god})); }catch(e){} }
+try{ const a=JSON.parse(localStorage.getItem('bp-adm')||'null'); if(a){ ADM.cr=!!a.cr; ADM.god=!!a.god; ADM.g0=a.g0==null?null:+a.g0; } }catch(e){}
+function admSave(){ try{ localStorage.setItem('bp-adm',JSON.stringify({cr:ADM.cr,god:ADM.god,g0:ADM.g0==null?null:ADM.g0})); }catch(e){} }
 function admActive(k){ return ADM_OK()&&ADM[k]; }
 const norm=t=>String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function admFind(q){ q=norm(q); if(IT[q]) return q; let best=null; for(const k in IT){ const n=norm(IT[k].n); if(n===q) return k; if(!best&&(n.startsWith(q)||n.includes(q))) best=k; } return best; }
@@ -5711,7 +5714,7 @@ function admCmd(txt){ if(!ADM_OK()){ chatShow('','Comandos são só pro criador 
   if(c==='itens'||c==='items'){ chatShow('',Object.keys(IT).join(', '),1); return; }
   if(c==='lvl'||c==='nivel'){ const n=clamp(num(a[1],P.lvl+1),1,60); for(let i=0;i<80&&P.lvl<n;i++) gainXp(Math.max(1,xpNeed(P.lvl)-P.xp+1)); chatShow('','Nível '+P.lvl,1); return; }
   if(c==='ouro'||c==='gold'||c==='moedas'){ P.gold+=num(a[1],1000); chatShow('','Moedas: '+P.gold,1); doSave(); return; }
-  if(c==='criativo'){ ADM.cr=!ADM.cr; admSave(); chatShow('','Modo criativo '+(ADM.cr?'LIGADO':'desligado'),1); return; }
+  if(c==='criativo'){ ADM.cr=!ADM.cr; admSave(); chatShow('','Modo criativo '+(ADM.cr?'LIGADO: craft sem material, construir sem gastar, tudo infinito, nada quebra':'desligado (seu ouro voltou ao normal)'),1); return; }
   if(c==='deus'||c==='god'){ ADM.god=!ADM.god; admSave(); chatShow('','Invencível '+(ADM.god?'LIGADO':'desligado'),1); return; }
   if(c==='cura'){ P.hp=P.max; P.mana=P.maxMana; P.sta=P.maxSta; P.food=100; chatShow('','Tudo cheio',1); return; }
   if(c==='hora'){ TOD=clamp(num(a[1],8),0,23)/24; chatShow('','Hora: '+num(a[1],8)+'h',1); return; }
