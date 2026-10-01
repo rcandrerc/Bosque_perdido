@@ -313,7 +313,7 @@ body.intitle #ov,body.intitle .hud,body.intitle #skills,body.intitle #bagb,body.
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Bosque Perdido</h1><p id="msub">Uma aventura da Luíza e da Yuki</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.28</div>
+    <div id="ver">v0.29</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <div class="mrow"><button class="mb" id="mnew">Novo jogo</button><button class="mb" id="mnet">Jogar com amigos</button></div>
@@ -2362,7 +2362,7 @@ function addItem(id,n,d){ const it=IT[id]; if(!it) return 0;
   while(n>0){ const i=BAG.indexOf(null); if(i<0) break; const k=it.st?Math.min(n,it.st):1; BAG[i]={id,n:k,d:it.dur?(d==null?it.dur:d):undefined}; n-=k; }
   return n; }
 function take(id,n){ for(let i=BAG.length-1;i>=0&&n>0;i--){ const q=BAG[i]; if(q&&q.id===id){ const k=Math.min(n,q.n); q.n-=k; n-=k; if(q.n<=0) BAG[i]=null; } } }
-function hasTool(t){ let b=0; for(const q of BAG) if(q&&IT[q.id].tool===t) b=Math.max(b,IT[q.id].tier||1); return b; }
+function hasTool(t){ let b=0; for(const q of BAG) if(q&&IT[q.id].tool===t&&!(q.d<=0)) b=Math.max(b,IT[q.id].tier||1); return b; }
 if(save&&Array.isArray(save.bag)){ save.bag.forEach((q,i)=>{ if(q&&IT[q[0]]&&i<BAG.length) BAG[i]={id:q[0],n:q[1],d:q[2]==null?undefined:q[2]}; });
   if(save.eq) for(const k in EQ){ const e=save.eq[k]; EQ[k]=e&&IT[e[0]]?{id:e[0],d:e[1]==null?undefined:e[1]}:null; } }
 else { if(save&&save.res) for(const k in save.res) if(IT[k]&&save.res[k]>0) addItem(k,save.res[k]|0);
@@ -2811,7 +2811,7 @@ const _gp=new THREE.Vector3();
 function gemPos(){ (LZ.staff.visible?LZ.gem:LZ.hand).getWorldPosition(_gp); return _gp; }
 function useWeapon(){ const w=EQ.weapon; if(!w||w.d<=0) return; w.d--; if(w.d<=0){ w.d=0; addText(P.x,P.y,P.h+2.4,'Cajado quebrou!','#ff8a7a',16); toast('Seu cajado quebrou! O Tio Nando conserta.'); sfx.hurt(); calcStats(); } }
 function wearArmor(){ let br=null; for(const s of ['head','body','feet']){ const e=EQ[s]; if(!e||!(e.d>0)||Math.random()<.5) continue; e.d--; if(e.d<=0){ e.d=0; br=IT[e.id].n; } } if(br){ toast(br+' quebrou! O Tio Nando conserta.'); calcStats(); } }
-function useTool(t){ let i=-1, bt=0; BAG.forEach((q,j)=>{ if(q&&IT[q.id].tool===t&&(IT[q.id].tier||1)>bt){ bt=IT[q.id].tier||1; i=j; } }); if(i<0) return; const q=BAG[i]; q.d--; if(q.d<=0){ BAG[i]=null; addText(P.x,P.y,P.h+2.4,IT[q.id].n+' quebrou!','#ff8a7a',16); sfx.hurt(); } }
+function useTool(t){ let i=-1, bt=0; BAG.forEach((q,j)=>{ if(q&&IT[q.id].tool===t&&!(q.d<=0)&&(IT[q.id].tier||1)>bt){ bt=IT[q.id].tier||1; i=j; } }); if(i<0) return; const q=BAG[i]; q.d--; if(q.d<=0){ q.d=0; addText(P.x,P.y,P.h+2.4,IT[q.id].n+' quebrou!','#ff8a7a',16); toast(IT[q.id].n+' quebrou! O Tio Nando conserta.'); sfx.hurt(); } }
 function spark(x,y,z,hex,n,spd,up,life){
   const col=C(hex);
   for(let i=0;i<n;i++){ const p=PPOOL.find(q=>q.life<=0); if(!p) return; const a=Math.random()*6.28, s=rnd(.3,1)*spd;
@@ -3867,7 +3867,7 @@ function updateHud(){
 }
 function doSave(){ if(resetting) return; try{ const ms=[...mods.entries()].slice(-500).map(([k,v])=>[k,v.o,v.at]); const eq={}; for(const k in EQ) eq[k]=EQ[k]?[EQ[k].id,EQ[k].d]:0; const SO=({seed,yuki:{lvl:Y.lvl,xp:Y.xp,owned:Y.owned,hp:Math.round(Y.hp),hurt:!!Y.hurt},q:Q,bag:BAG.map(q=>q?[q.id,q.n,q.d]:0),eq,mods:ms,st:ST,pts:statPts,sr:SR,spts:SPTS,slots:SLOT,structs:[...structs.entries()].map(([k,v])=>[k,v.t||'',v.r,v.f?1:0,v.roof?1:0]),tp:TPU,dgc:DGC,dgd:DGD,disc:[...DISC],tod:TOD,p:{x:DG?DG.d.fx:P.x,y:DG?DG.d.fy+(DG.d.rot?-.4:.4):P.y,lvl:P.lvl,xp:P.xp,potions:P.potions,kills:P.kills,gold:P.gold,horse:HORSE.own,food:Math.round(P.food??100),bed:P.bed||null}});
   if(VISIT){ let old=null; try{ old=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){} if(old){ SO.seed=old.seed; SO.structs=old.structs||[]; SO.mods=old.mods||[]; SO.tod=old.tod; SO.disc=old.disc||SO.disc; if(old.p){ SO.p.x=old.p.x; SO.p.y=old.p.y; SO.p.bed=old.p.bed||null; } } else { SO.seed=null; SO.structs=[]; SO.mods=[]; delete SO.p.x; delete SO.p.y; } }
-  localStorage.setItem(KEY,JSON.stringify(SO)); }catch(e){} }
+  SO.ts=Date.now(); localStorage.setItem(KEY,JSON.stringify(SO)); if(typeof CLOUD!=='undefined') CLOUD.dirty=true; }catch(e){} }
 
 /* ---------- entrada ---------- */
 let holding=false;
@@ -5224,9 +5224,26 @@ function netUser(u){ NET.user=u; NET.uid=u?u.uid:null;
   NET.st='on'; try{ localStorage.setItem('bp-net-on','1'); }catch(e){}
   NET.db.ref('users/'+u.uid).once('value').then(s=>{ const v=s.val()||{}; NET.name=(v.n||((u.displayName||'').split(' ')[0])||'Maga').slice(0,16); NET.code=v.c||'';
       return (NET.code?Promise.resolve():netClaimCode()).then(netProfile); })
-    .then(()=>{ netPresence(); netListen(); if(VISIT) netJoinRoom(); netRender(); })
+    .then(()=>{ netPresence(); netListen(); if(VISIT) netJoinRoom(); else cloudCheck(false); netRender(); })
     .catch(e=>{ NET.st='err'; NET.err='Erro ao entrar: '+(e.code||e.message); netRender(); });
 }
+/* ---------- save na nuvem (conta Google) ---------- */
+var CLOUD={dirty:false,last:0,checked:false,err:'',t:0};
+function cloudOk(){ return NET.st==='on'&&NET.uid&&NET.db&&!VISIT; }
+function cloudPush(force){ if(!cloudOk()||!CLOUD.checked||(!CLOUD.dirty&&!force)) return; let raw=null; try{ raw=localStorage.getItem(KEY); }catch(e){} if(!raw) return; CLOUD.dirty=false;
+  const T=Date.now(); NET.db.ref('saves/'+NET.uid).set({d:raw,t:T,l:P.lvl}).then(()=>{ CLOUD.last=T; try{ localStorage.setItem('bp-cloud-t',String(T)); }catch(e){} CLOUD.err=''; netRender(); if(force===2) toast('Save enviado pra nuvem!'); })
+    .catch(e=>{ CLOUD.err=(e&&e.code)||'erro'; netRender(); if(force===2) toast('Não deu pra salvar na nuvem'); }); }
+function cloudUse(raw,t){ resetting=true; try{ localStorage.setItem(KEY,raw); localStorage.setItem('bp-cloud-t',String(t||0)); }catch(e){} toast('Carregando o save da nuvem...'); setTimeout(()=>location.reload(),600); }
+const fmtT=t=>{ if(!t) return '?'; const d=new Date(t); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); };
+function cloudCheck(ask){ if(!cloudOk()) return; NET.db.ref('saves/'+NET.uid).once('value').then(sn=>{ const v=sn.val(); let loc=null, raw=null; try{ raw=localStorage.getItem(KEY); loc=JSON.parse(raw||'null'); }catch(e){}
+    CLOUD.t=v&&v.t||0; const lt=loc&&loc.ts||0; let st=0; try{ st=+localStorage.getItem('bp-cloud-t')||0; }catch(e){}
+    if(v&&v.d&&v.d!==raw&&(ask||v.t!==st)){ openMenu('Save na nuvem','',[['Usar o da nuvem',()=>{ closeDialog(); cloudUse(v.d,v.t); }],['Ficar com este',()=>{ closeDialog(); CLOUD.checked=true; cloudPush(2); },1]],
+      '<div style="text-align:left;line-height:1.5">Achei um save na sua conta.<br><b>Nuvem:</b> Nível '+(v.l|0)+' · '+fmtT(v.t)+'<br><b>Este aparelho:</b> Nível '+P.lvl+' · '+fmtT(lt)+'<br><small style="color:#cbbfa8">O que você não escolher é substituído.</small></div>'); return; }
+    if(ask&&!(v&&v.d)) toast('Ainda não tem save na nuvem');
+    CLOUD.checked=true; CLOUD.err=''; cloudPush(true); netRender(); })
+  .catch(e=>{ CLOUD.err=(e&&e.code)||'erro'; netRender(); }); }
+setInterval(()=>cloudPush(false),45000);
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&!resetting){ doSave(); cloudPush(true); } });
 function netClaimCode(n){ n=n||0; const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; for(let i=0;i<6;i++) c+=A[Math.floor(Math.random()*A.length)];
   return NET.db.ref('codes/'+c).set(NET.uid).then(()=>{ NET.code=c; }).catch(()=>n<6?netClaimCode(n+1):null); }
 function netProfile(){ return NET.db.ref('users/'+NET.uid).set({n:NET.name,c:NET.code||'',l:P.lvl}); }
@@ -5294,7 +5311,7 @@ function netMinDist(x,y){ let d=Math.hypot(x-P.x,y-P.y); if(NET.host) for(const 
 function netSpawnPeers(){ if(!NET.host) return; for(const pe of NET.peers.values()) if(pe.live&&!pe.d.dead&&Math.hypot(pe.d.x-P.x,pe.d.y-P.y)>30&&!inVillage(pe.d.x,pe.d.y)) spawnTick(pe.d.x,pe.d.y); }
 
 /* ---- visitante ---- */
-function netAskJoin(fid){ if(VISIT){ toast('Volte pro seu mundo primeiro'); return; } if(NET.open){ toast('Feche seu mundo antes de visitar outro'); return; }
+function netAskJoin(fid){ if(VISIT){ toast('Volte pro seu mundo primeiro'); return; } if(NET.open){ netCloseWorld(); toast('Seu mundo foi fechado pra você visitar'); }
   const R='rooms/'+fid; NET.db.ref(R+'/req/'+NET.uid).set({n:NET.name,l:P.lvl}).then(()=>{ NET.waiting=fid; netRender(); toast('Pedido enviado! Esperando aceitar...');
     const r=NET.db.ref(R+'/ok/'+NET.uid), fn=s=>{ if(s.val()){ r.off('value',fn); NET.waitOff=null; netEnter(fid); } }; r.on('value',fn,()=>{}); NET.waitOff=()=>r.off('value',fn); })
   .catch(e=>toast('Não deu pra pedir: '+(e.code||e.message))); }
@@ -5404,9 +5421,16 @@ function netRender(){ const el=$n('netb'); if(!el) return; netDot(); if(!$n('net
     h+='<div class="nsec"><h4>Amigos</h4>';
     if(!NET.friends.size) h+='<p class="nmut">Nenhum amigo ainda. Adicione pelo código abaixo.</p>';
     for(const f of NET.friends.values()){ const on=f.on, st=!on?'<i class="off">offline</i>':on.o?'<i class="opn">mundo aberto</i>':on.v?'<i class="onl">visitando alguém</i>':'<i class="onl">online</i>';
-      let b=''; if(on&&on.o&&!VISIT&&!NET.open) b=NET.waiting===f.id?'<button class="pb gray sm" data-ncan="1">Cancelar pedido</button>':'<button class="pb sm" data-nask="'+esc(f.id)+'">Pedir pra entrar</button>';
-      h+='<div class="nfr"><span><b>'+esc(f.n)+'</b> · Nv '+(f.l|0)+' '+st+'</span>'+b+'</div>'; }
+      let b='', tip='';
+      if(on&&on.o&&!VISIT) b=NET.waiting===f.id?'<button class="pb gray sm" data-ncan="1">Cancelar pedido</button>':'<button class="pb sm" data-nask="'+esc(f.id)+'">Pedir pra entrar</button>';
+      if(on&&on.o&&NET.open&&!VISIT) tip='Seu mundo está aberto: ao pedir pra entrar, ele fecha sozinho.';
+      else if(on&&!on.o&&!on.v) tip='Pra você entrar, '+esc(f.n)+' precisa tocar em "Abrir meu mundo pros amigos".';
+      else if(on&&on.o&&VISIT) tip='Volte pro seu mundo pra poder entrar no dele.';
+      h+='<div class="nfr"><span><b>'+esc(f.n)+'</b> · Nv '+(f.l|0)+' '+st+'</span>'+b+'</div>'+(tip?'<p class="nmut" style="margin:-2px 0 6px">'+tip+'</p>':''); }
     h+='</div><div class="nsec"><h4>Adicionar amigo</h4><div class="nrow"><input id="nfc" maxlength="6" placeholder="Código (6 letras)" autocapitalize="characters"><button class="pb sm" data-nadd="1">Enviar pedido</button></div></div>';
+    if(!VISIT){ h+='<div class="nsec"><h4>Save na nuvem</h4>'; if(NET.user&&NET.user.isAnonymous) h+='<p class="nmut">Entre com Google pra levar seu save pra outro celular ou computador.</p>';
+      if(/permission/i.test(CLOUD.err)) h+='<p class="nerr">O Firebase ainda não deixa guardar saves. Falta adicionar a regra "saves" no console.</p>'; else if(CLOUD.err) h+='<p class="nerr">Erro: '+esc(CLOUD.err)+'</p>'; else h+='<p class="nmut">Salva sozinho a cada minuto e quando você sai do jogo.'+(CLOUD.last?' Último envio: '+fmtT(CLOUD.last)+'.':'')+'</p>';
+      h+='<div class="nrow"><button class="pb sm" data-ncs="1">Salvar agora</button><button class="pb gray sm" data-ncl="1">Baixar da nuvem</button></div></div>'; }
     h+='<div class="nsec"><button class="pb gray sm" data-nout="1">Sair da conta</button> <small class="nmut">'+(NET.user&&NET.user.isAnonymous?'Conta sem login (só neste celular)':esc(NET.user&&NET.user.email||''))+'</small></div>';
   }
   const ae=document.activeElement, keep=ae&&ae.id&&el.contains(ae)?{id:ae.id,v:ae.value}:null; el.innerHTML=h; if(keep){ const k=$n(keep.id); if(k){ k.value=keep.v; k.focus(); } } }
@@ -5417,7 +5441,7 @@ $n('netp').addEventListener('click',e=>{ const b=e.target.closest('button'); if(
   else if(D.nsav){ const v=($n('nname').value||'').trim().slice(0,16); if(v){ NET.name=v; netProfile(); netOnline(); toast('Nome salvo!'); } }
   else if(D.nopen) netOpenWorld(); else if(D.nclose) netCloseWorld(); else if(D.nkick) netKick(D.nkick);
   else if(D.nfa) netAccept(D.nfa); else if(D.nfd) netDecline(D.nfd); else if(D.nadd) netAddFriend($n('nfc').value);
-  else if(D.nask) netAskJoin(D.nask); else if(D.ncan) netCancelAsk(); else if(D.nleave) netLeaveVisit('Voltando pro seu mundo...'); });
+  else if(D.ncs){ doSave(); CLOUD.checked=true; cloudPush(2); } else if(D.ncl) cloudCheck(true); else if(D.nask) netAskJoin(D.nask); else if(D.ncan) netCancelAsk(); else if(D.nleave) netLeaveVisit('Voltando pro seu mundo...'); });
 $n('netreq').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.nacc) netReqAnswer(b.dataset.nacc,true); if(b.dataset.ndec) netReqAnswer(b.dataset.ndec,false); });
 if(VISIT){ const s=$n('msub'); if(s) s.textContent='Visitando o mundo de '+VISIT.hn; }
 try{ if(VISIT||localStorage.getItem('bp-net-on')) setTimeout(netStart,1500); }catch(e){}
