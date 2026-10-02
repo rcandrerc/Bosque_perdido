@@ -200,10 +200,10 @@ body.chatting #chatlog{bottom:calc(120px + env(safe-area-inset-bottom,0px))}body
 #fur .farr{width:64px;height:16px;background:#6a5a48;clip-path:polygon(0 30%,70% 30%,70% 0,100% 50%,70% 100%,70% 70%,0 70%);position:relative}#fur .farr i{position:absolute;left:0;top:0;bottom:0;background:#f2f0e6}
 #fur .fhelp{font-size:12.5px;color:var(--muted);margin:8px 2px}#furd{min-height:54px;background:rgba(255,255,255,.05);border-radius:12px;padding:8px 10px;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}#furd .sp{flex:1;min-width:180px}#fur .slot.no{opacity:.35}
 @media (max-width:600px){ #fur .tcols{grid-template-columns:1fr} }
-#qlog .tabs{flex:none}#qlog.keys .tabs{display:none}#qlb{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}#qlb h4{margin:8px 0 2px;font:700 12px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
-#qlb .ql{position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;padding-right:64px}#qlb .ql b{display:block;font-size:13.5px}#qlb .ql b i{font-style:normal;font-weight:500;font-size:11.5px;color:var(--muted)}#qlb .ql small{display:block;font-size:12px;color:#d8cfb8;margin-top:2px}
-#qlb .ql.cur{border-color:#e8b84a;background:rgba(232,184,74,.1)}#qlb .ql.done{opacity:.6;padding:5px 10px}#qlb .ql.done b{color:#9fe07e;font-size:12.5px}#qlb .ql.fut{opacity:.4}#qlb .ql .pb{position:absolute;right:8px;top:8px}#qlb .qlh{font-size:12.5px;color:var(--muted);margin:2px 0}
-#qlb .krow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+#qlog .tabs{flex:none}#qlog.keys .tabs{display:none}#qlbody{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}#qlbody h4{margin:8px 0 2px;font:700 12px var(--ui);letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+#qlbody .ql{position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;padding-right:64px}#qlbody .ql b{display:block;font-size:13.5px}#qlbody .ql b i{font-style:normal;font-weight:500;font-size:11.5px;color:var(--muted)}#qlbody .ql small{display:block;font-size:12px;color:#d8cfb8;margin-top:2px}
+#qlbody .ql.cur{border-color:#e8b84a;background:rgba(232,184,74,.1)}#qlbody .ql.done{opacity:.6;padding:5px 10px}#qlbody .ql.done b{color:#9fe07e;font-size:12.5px}#qlbody .ql.fut{opacity:.4}#qlbody .ql .pb{position:absolute;right:8px;top:8px}#qlbody .qlh{font-size:12.5px;color:var(--muted);margin:2px 0}
+#qlbody .krow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
 #qt .qx{cursor:pointer}
 #packc{position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(178px + env(safe-area-inset-top,0px));z-index:14;padding:6px 8px;display:flex;flex-direction:column;gap:4px;pointer-events:auto;max-width:300px}#packc .pkr{display:flex;align-items:center;gap:8px;font-size:12px}#packc .pkr b{display:block;font-size:12.5px;color:#ffe7a8}#packc .pkr small{display:block;color:var(--muted);font-size:11px}#packc .pki svg{width:30px;height:30px;display:block}
 body.inbuild #packc{display:none!important}
@@ -215,7 +215,7 @@ body:not(.pc) .pconly{display:none!important}
 body.mv-tap #joy{display:none!important}
 #pcbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:5px;padding:6px;z-index:16;pointer-events:auto}
 body.pcbar #pcbar{display:flex}body.pcbar #sl0,body.pcbar #sl1,body.pcbar #sl2,body.pcbar #sl3,body.pcbar #sl4,body.pcbar #atk,body.pcbar #pot,body.pcbar #jmp,body.pcbar #dsh,body.pcbar #run,body.pcbar #mnt,body.pcbar #joy{display:none!important}
-body.inbuild #pcbar,body.inbuild #pcpal{display:none!important}
+body.inbuild #pcbar,body.inbuild #pcpal{display:none!important}#gmenu.on~#pcbar,#gmenu.on~#pcpal,#inv.on~#pcbar,#trade.on~#pcbar,#fur.on~#pcbar,#qlog.on~#pcbar{display:none!important}
 #pcbar .pcs{position:relative;width:52px;height:52px;flex:none;border-radius:11px;border:2px solid rgba(255,230,170,.28);background:rgba(28,22,16,.9);padding:7px;cursor:pointer;color:#f5ecd6;overflow:hidden}
 #pcbar .pcs .ic{display:block;width:100%;height:100%}#pcbar .pcs svg{width:100%;height:100%;display:block}#pcbar .pcs.empty{border-style:dashed;opacity:.6}
 #pcbar .pcs .k{position:absolute;top:1px;left:4px;font:800 11px var(--ui);color:#ffe7a8;text-shadow:0 1px 2px #000;z-index:3}
@@ -378,7 +378,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
   <div id="trd"></div>
 </div>
 <div id="fur" role="dialog" aria-label="Forno"><div class="ihead"><h3>Forno</h3><button class="pb sm" id="furx">Fechar</button></div><div class="tcols"><div class="tcol"><div id="furbox"></div></div><div class="tcol"><h4>Sua mochila <small>· toque pra colocar no forno</small></h4><div class="grid" id="furbag"></div></div></div><div id="furd"></div></div>
-<div id="qlog" role="dialog" aria-label="Diário de missões"><div class="ihead"><h3 id="qlt">Diário de missões</h3><button class="pb sm" id="qlx">Fechar</button></div><div class="tabs"><button data-ql="m">História</button><button data-ql="s">Pedidos</button><button data-ql="c">Comércio</button></div><div id="qlb"></div></div>
+<div id="qlog" role="dialog" aria-label="Diário de missões"><div class="ihead"><h3 id="qlt">Diário de missões</h3><button class="pb sm" id="qlx">Fechar</button></div><div class="tabs"><button data-ql="m">História</button><button data-ql="s">Pedidos</button><button data-ql="c">Comércio</button></div><div id="qlbody"></div></div>
 <div id="netp" role="dialog" aria-label="Jogar com amigos"><div class="ihead"><h3>Jogar com amigos</h3><button class="pb sm" id="netx">Fechar</button></div><div id="netb"></div></div>
 <div id="netreq"></div>
 <div id="ptr" role="dialog" aria-label="Troca"><div class="ihead"><h3 id="ptn">Troca</h3><button class="pb sm" id="ptx">Fechar</button></div><div class="tcols"><div class="tcol"><h4>Sua mochila</h4><div class="grid" id="ptm"></div></div><div class="tcol"><h4 id="pth">Mochila do amigo</h4><div class="grid" id="pto"></div></div></div><div id="ptd"></div></div>
@@ -419,7 +419,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.50</div>
+    <div id="ver">v0.51</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -2083,6 +2083,26 @@ function makeFace(o){ o=o||{}; const EY=o.eye||['#2a150b','#5a3218','#9a6a3a'];
   const c=document.createElement('canvas'); c.width=1024; c.height=512; const g=c.getContext('2d');
   g.fillStyle=o.skin||'#f8d3b5'; g.fillRect(0,0,1024,512);
   const cx=256;
+  if(window.__CMP&&!o.old){ /* rosto novo: olhos amendoados de anime, cílio grosso, nariz e boca pequenos */
+    for(const s of [-1,1]){ const ex=cx+s*60, ey=290;
+      let gr=g.createRadialGradient(ex+s*4,ey+26,6,ex,ey+18,70); gr.addColorStop(0,'rgba(244,140,140,.42)'); gr.addColorStop(1,'rgba(244,140,140,0)'); g.fillStyle=gr; g.beginPath(); g.ellipse(cx+s*104,ey+34,40,22,0,0,6.283); g.fill();
+      const ix=ex-s*27, iy=ey+5, ox=ex+s*29, oy=ey-7;
+      const alm=()=>{ g.beginPath(); g.moveTo(ix,iy); g.quadraticCurveTo(ex-s*4,ey-44,ox,oy); g.quadraticCurveTo(ex+s*8,ey+34,ix,iy); g.closePath(); };
+      g.fillStyle='#fdf8f4'; alm(); g.fill();
+      g.save(); alm(); g.clip();
+      gr=g.createLinearGradient(0,ey-24,0,ey+20); gr.addColorStop(0,EY[0]); gr.addColorStop(.5,EY[1]); gr.addColorStop(1,EY[2]);
+      g.fillStyle=gr; g.beginPath(); g.ellipse(ex+s*2,ey-2,18,23,0,0,6.283); g.fill();
+      g.fillStyle='rgba(20,10,6,.95)'; g.beginPath(); g.ellipse(ex+s*2,ey-3,8.5,12,0,0,6.283); g.fill();
+      g.fillStyle='rgba(40,20,10,.25)'; g.fillRect(ex-40,ey-34,80,10);
+      g.fillStyle='#fff'; g.beginPath(); g.ellipse(ex-s*4-3,ey-11,7,8,0,0,6.283); g.fill(); g.globalAlpha=.85; g.beginPath(); g.arc(ex+s*7,ey+8,2.6,0,6.283); g.fill(); g.globalAlpha=1;
+      g.restore();
+      g.strokeStyle='#1e0f08'; g.lineCap='round'; g.lineJoin='round'; g.lineWidth=8; g.beginPath(); g.moveTo(ix-s*2,iy+1); g.quadraticCurveTo(ex-s*4,ey-45,ox,oy); g.lineTo(ox+s*10,oy-7); g.stroke();
+      g.lineWidth=2.5; g.globalAlpha=.55; g.beginPath(); g.moveTo(ox-s*4,oy+9); g.quadraticCurveTo(ex+s*8,ey+31,ix+s*10,iy+4); g.stroke(); g.globalAlpha=1;
+      if(o.fr){ g.fillStyle='rgba(150,80,50,.5)'; for(let k=0;k<7;k++){ g.beginPath(); g.arc(cx+s*(72+((k*37)%40)),ey+24+((k*23)%22),2.4,0,6.283); g.fill(); } }
+      g.strokeStyle=o.brow||'#6a3e26'; g.lineWidth=4.5; g.beginPath(); g.moveTo(ex-s*16,ey-56); g.quadraticCurveTo(ex+s*4,ey-64,ex+s*24,ey-56); g.stroke(); }
+    g.strokeStyle='rgba(170,100,80,.45)'; g.lineWidth=3.5; g.lineCap='round'; g.beginPath(); g.moveTo(cx+2,322); g.lineTo(cx+5,329); g.stroke();
+    g.strokeStyle='#a8504a'; g.lineWidth=4; g.beginPath(); g.moveTo(cx-13,347); g.quadraticCurveTo(cx,355,cx+13,347); g.stroke();
+    const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; t.anisotropy=4; return t; }
   for(const s of [-1,1]){
     const ex=cx+s*58, ey=284;
     let gr=g.createRadialGradient(ex+s*4,ey+26,6,ex,ey+18,70); gr.addColorStop(0,'rgba(244,150,150,.5)'); gr.addColorStop(1,'rgba(244,150,150,0)');
@@ -2110,12 +2130,12 @@ function tlimb(m,r0,r1,len,parent,x,y,z){
 function rboxG(w,h,d,r){ const sh=new THREE.Shape(), x=-w/2+r, y=-h/2+r, W=w-2*r, H=h-2*r;
   sh.moveTo(x,y-r); sh.lineTo(x+W,y-r); sh.quadraticCurveTo(x+W+r,y-r,x+W+r,y); sh.lineTo(x+W+r,y+H); sh.quadraticCurveTo(x+W+r,y+H+r,x+W,y+H+r); sh.lineTo(x,y+H+r); sh.quadraticCurveTo(x-r,y+H+r,x-r,y+H); sh.lineTo(x-r,y); sh.quadraticCurveTo(x-r,y-r,x,y-r);
   const g=new THREE.ExtrudeGeometry(sh,{depth:Math.max(.001,d-2*r),bevelEnabled:true,bevelSize:r*.9,bevelThickness:r,bevelSegments:3,curveSegments:5}); g.center(); g.computeVertexNormals(); return g; }
-function buildLuiza(){
+function buildLuiza(OLD){
   const root=new THREE.Group(), body=new THREE.Group(); root.add(body);
   const skin=mat('#f8d3b5',{roughness:.55}), jacket=mat('#7fc4b3',{roughness:.88,normalMap:NRM.cloth,normalScale:new THREE.Vector2(.1,.1)}), jacketD=mat('#5ea796',{roughness:.88}), shirt=jacket,
     pants=mat('#7fa3d1',{roughness:.82,normalMap:NRM.cloth,normalScale:new THREE.Vector2(.25,.25)}), pantsD=mat('#6186b8',{roughness:.85}), belt=mat('#6b4428',{roughness:.5}),
     bag=mat('#d98b4a',{roughness:.62}), bagD=mat('#8a4f26',{roughness:.6}), shoe=mat('#f7ecdc',{roughness:.6}), sole=mat('#f2a55a',{roughness:.7}), hair=mat('#4a2c1d',{roughness:.42,normalMap:NRM.hair,normalScale:new THREE.Vector2(.3,.3)}),
-    faceM=new THREE.MeshStandardMaterial({map:makeFace(),roughness:.6}),
+    faceM=new THREE.MeshStandardMaterial({map:makeFace(OLD?{old:true}:undefined),roughness:.6}),
     steel=mat('#d9e0e8',{metalness:.7,roughness:.25}), gold=mat('#d7a83c',{metalness:.55,roughness:.35}), grip=mat('#6a4326'),
     rim=mat('#3a2a22',{metalness:.3,roughness:.35}), lens=mat('#d8f0ff',{transparent:true,opacity:.14,roughness:.05});
   lens.userData.glow=1;
@@ -2609,6 +2629,14 @@ function calcStats(){ const L=P.lvl, rp=id=>(SR[id]|0); P.max=Math.round(30+2*L+
   P.sb={cam4:setHas('cam',4),dru4:setHas('dru',4),roc4:setHas('roc',4),lua4:setHas('lua',4)}; if(setHas('cam',2)) P.maxMana+=15; if(setHas('dru',2)) P.dmg*=1.1; if(setHas('roc',2)) P.def+=20; if(setHas('lua',2)) P.crit+=.08; P.aoeM=P.sb.lua4?1.3:1; }
 calcStats(); P.hp=P.max; P.mana=P.maxMana; P.jz=0; P.jv=0; P.pz=0;
 const LZ=buildLuiza(); scene.add(LZ.root);
+/* modo de comparação (só na página de teste): a versão antiga anda do lado, copiando os movimentos */
+const LZOLD=window.__CMP?buildLuiza(true):null; let CMPN=null;
+if(LZOLD){ scene.add(LZOLD.root); const a=[],b=[]; LZ.root.traverse(o=>a.push(o)); LZOLD.root.traverse(o=>b.push(o)); CMPN=[a,b]; for(let i=0;i<a.length&&i<b.length;i++) if(a[i].isMesh&&b[i].isMesh&&a[i].material!==LZ.faceM) b[i].material=a[i].material;
+  const lab=(t,c)=>{ const cv=document.createElement('canvas'); cv.width=256; cv.height=72; const g=cv.getContext('2d'); g.fillStyle=c; g.fillRect(8,8,240,56); g.fillStyle='#fff'; g.font='800 34px system-ui,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(t,128,38); const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),depthTest:false})); sp.scale.set(.9,.25,1); sp.renderOrder=20; return sp; };
+  CMPN.la=lab('NOVA','#2f9a4a'); CMPN.lb=lab('VELHA','#8a5a3a'); scene.add(CMPN.la); scene.add(CMPN.lb); }
+function cmpTick(){ if(!CMPN) return; const [a,b]=CMPN; for(let i=1;i<a.length&&i<b.length;i++){ const A=a[i], B=b[i]; if(A.isMesh||B.isMesh||A.type!==B.type){ if(A.isMesh&&B.isMesh) B.visible=A.visible; continue; } B.position.copy(A.position); B.quaternion.copy(A.quaternion); B.visible=A.visible; }
+  const r=LZ.root.rotation.y; LZOLD.root.position.set(LZ.root.position.x+Math.cos(r)*1.1,LZ.root.position.y,LZ.root.position.z-Math.sin(r)*1.1); LZOLD.root.rotation.y=r; LZOLD.root.visible=LZ.root.visible&&!DG;
+  CMPN.la.position.set(LZ.root.position.x,LZ.root.position.y+2.75,LZ.root.position.z); CMPN.lb.position.set(LZOLD.root.position.x,LZOLD.root.position.y+2.75,LZOLD.root.position.z); }
 /* ---------- aparência da personagem ---------- */
 const APO={skin:['#f8d3b5','#eab38f','#c98d62','#8d5a3c'],eye:[['#2a150b','#5a3218','#9a6a3a'],['#123a1c','#2f7a3e','#7ac08a'],['#0f2a4a','#2f6ab0','#8ac0f0'],['#4a2a08','#a8661a','#e0b060']],eyeN:['Castanho','Verde','Azul','Mel'],
   hair:['#4a2c1d','#1e1612','#d9b46a','#b4532a','#f08ab8','#8a5cd0','#4a7ad0','#e8e4dc'],hs:['Rabo de cavalo','Coque','Chiquinhas','Solto','Curtinho'],
@@ -2664,7 +2692,7 @@ function magaUpdate(dt){ const M=MAGA; if(AP.model!=='real'){ M.yawG.visible=fal
     if(M.lean>.2){ M.yawG.updateMatrixWorld(true); const tot=-M.lean/57.3; for(const [bn,wt] of [['pelvis',.2],['spine_01',.45],['spine_02',.2],['spine_03',.15]]){ const b=M.bones[bn]; b.parent.getWorldQuaternion(_mq); _mx.set(1,0,0).applyQuaternion(M.yawG.quaternion).applyQuaternion(_mq.invert()); _mr.setFromAxisAngle(_mx,tot*wt); b.quaternion.premultiply(_mr); } } }
 }
 function applyAP(){ if(AP.model==='real') magaInit(); else if(MAGA.ready) MAGA.yawG.visible=false; const sk=APO.skin[AP.sk]||APO.skin[0], hc=APO.hair[AP.hc]||APO.hair[0];
-  LZ.skinM.color.set(sk); LZ.hairM.color.set(hc); const old=LZ.faceM.map; LZ.faceM.map=makeFace({skin:sk,eye:APO.eye[AP.ey],fr:AP.fr,brow:'#'+C(hc).multiplyScalar(.75).getHexString()}); LZ.faceM.needsUpdate=true; if(old) old.dispose();
+  LZ.skinM.color.set(sk); LZ.hairM.color.set(hc); const old=LZ.faceM.map; LZ.faceM.map=makeFace({skin:sk,eye:APO.eye[AP.ey],fr:AP.fr,brow:'#'+C(hc).multiplyScalar(.75).getHexString()}); LZ.faceM.needsUpdate=true; if(old) old.dispose(); if(typeof LZOLD!=='undefined'&&LZOLD){ LZOLD.faceM.map=makeFace({skin:sk,eye:APO.eye[AP.ey],fr:AP.fr,brow:'#'+C(hc).multiplyScalar(.75).getHexString(),old:true}); LZOLD.faceM.needsUpdate=true; }
   LZ.hairSt.forEach((g,i)=>{ if(g) g.visible=i===AP.hs; });
   const cl=APO.cloth[AP.cl]||APO.cloth[0]; JC.a.set(cl[0]); JC.b.set(cl[1]); LZ._bd='__'; gearVis();
   const nm=$('nm'); if(nm&&nm.firstChild) nm.firstChild.nodeValue=AP.n; const dh=document.querySelector('#dead h2'); if(dh) dh.textContent=AP.n+' caiu'; }
@@ -6086,7 +6114,7 @@ function frame(now){
   cartPlace(); packPlace(); camOffTick();
   if(P.mounted&&HORSE.vis){ const hv=HORSE.vis; hv.root.position.set(P.x,P.h+P.jz,P.y); hv.root.rotation.y=P.rot||0; if(!paused) animHorse(hv,P.sp,dt,time); LZ.root.position.y+=.72+hv.body.position.y; const k=Math.sin(hv.trunk.rotation.x)*.2; LZ.root.position.x+=Math.sin(P.rot||0)*(-.12+k); LZ.root.position.z+=Math.cos(P.rot||0)*(-.12+k); } { const bb=LZ.root.userData.blob; bb.position.y=.025-P.jz; const k=1/(1+P.jz*.8); bb.scale.set(.85*k,1,.85*k); } if(!paused){ animate(P,LZ,dt); const stp=Math.floor(P.walkPh/Math.PI); if(stp!==P.lastStp){ P.lastStp=stp; if(P.moving&&P.jz<=0&&P.sp>1){ sfx.step(!(typeof DG!=='undefined'&&DG)&&roadD(P.x,P.y)>RW); if(P.sp>3.6) spark(P.x-P.dx*.25,P.h+.04,P.y-P.dy*.25,'#d8c9a8',P.mounted?4:2,.55,.35); } } }
   Y.h=hgt(Y.x,Y.y); YV.root.position.set(Y.x,Y.h+(Y.swing>0?Math.sin(Math.PI*(1-Y.swing))*.28:0),Y.y); if(!paused){ animate(Y,YV,dt); if(Y.idle>1.2&&!Y.moving){ YV.body.position.y=-.06; YV.legs[2].rotation.x=-1.1; YV.legs[3].rotation.x=-1.1; YV.tail.rotation.y=Math.sin(time*2)*.5; } }
-  LZ.root.visible=true; if(P.dead) LZ.body.rotation.x=-1.3;
+  LZ.root.visible=true; if(P.dead) LZ.body.rotation.x=-1.3; if(CMPN) cmpTick();
   if(MAGA.ready&&!loading) magaUpdate(paused?0:dt);
   if(!paused&&P._secV) secMotion(P._secV,dt);
   farmTick(dt); furTick(dt);
@@ -6921,7 +6949,7 @@ function qlogRender(){ document.querySelectorAll('#qlog .tabs button').forEach(b
   else { h+='<p class="qlh">Faça packs na bancada (mochila → Criar). Leve nas costas ou no carrinho pra um posto longe de onde foi feito. Quanto mais longe, mais paga (até 3,2 vezes). Com pack nas costas: anda devagar, não corre e não monta.</p>';
     for(const id in POSTS){ const n=npcById(id); h+='<div class="ql"><b>'+POSTS[id].n+' <i>'+n.name+'</i></b><small>Compra: '+POSTS[id].buy.map(i=>PACKS[i].n.replace('Pack de ','')).join(', ')+'</small><button class="pb gray sm" data-qnpc="'+id+'">Ir</button></div>'; }
     h+='<h4>Packs</h4>'; for(const id in PACKS){ const p=PACKS[id]; h+='<div class="ql"><b>'+p.n+'</b><small>'+Object.keys(p.cost).map(k=>p.cost[k]+' '+IT[k].n.toLowerCase()).join(', ')+' · vale de '+Math.round(p.base*.5)+' a '+Math.round(p.base*3.2)+' moedas</small></div>'; } }
-  $('qlb').innerHTML=h; }
+  $('qlbody').innerHTML=h; }
 $('qlog').addEventListener('pointerdown',e=>e.stopPropagation());
 $('qlx').onclick=qlogClose;
 $('qlog').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.ql){ QLT=b.dataset.ql; qlogRender(); sfx.pick(); return; }
@@ -6955,7 +6983,7 @@ let kWait=null;
 function keysOpen(){ let h='<p class="qlh">Clique numa ação e aperte a tecla nova. Andar é sempre WASD ou setas; Z/X giram a câmera; F tela cheia; Esc menu.</p>';
   for(const q of KACT) h+='<div class="krow"><span>'+q[1]+'</span><button class="pb sm'+(kWait===q[0]?'':' gray')+'" data-ka="'+q[0]+'">'+(kWait===q[0]?'Aperte uma tecla…':kName(kOf(q[0])))+'</button></div>';
   h+='<div class="krow"><button class="pb gray sm" data-kr="1">Restaurar padrão</button></div>';
-  $('qlb').innerHTML=h; $('qlt').textContent='Teclas do teclado'; $('qlog').classList.add('on','keys'); paused=true; }
+  $('qlbody').innerHTML=h; $('qlt').textContent='Teclas do teclado'; $('qlog').classList.add('on','keys'); paused=true; }
 $('qlog').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.ka){ kWait=b.dataset.ka; keysOpen(); } if(b.dataset.kr){ KB={}; try{ localStorage.removeItem('bp-keys'); }catch(_){} kWait=null; kbLabels(); keysOpen(); } });
 window.addEventListener('keydown',e=>{ if(!kWait) return; e.preventDefault(); e.stopImmediatePropagation(); const k=e.key.toLowerCase(); if(k!=='escape'){ for(const a in KB) if(KB[a]===k) delete KB[a]; for(const q of KACT) if(q[0]!==kWait&&kOf(q[0])===k) KB[q[0]]='?'; KB[kWait]=k; try{ localStorage.setItem('bp-keys',JSON.stringify(KB)); }catch(_){} } kWait=null; kbLabels(); keysOpen(); },true);
 function kDo(a){ switch(a){
