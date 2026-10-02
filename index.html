@@ -2848,6 +2848,7 @@ const SBUF={}; let sndLoading=false;
 function loadSnd(){ if(sndLoading||!ac) return; sndLoading=true;
   for(const k in SNDB){ SBUF[k]=[]; SNDB[k].forEach((b64,i)=>{ try{ const bin=atob(b64), u=new Uint8Array(bin.length); for(let j=0;j<bin.length;j++) u[j]=bin.charCodeAt(j);
     const pr=ac.decodeAudioData(u.buffer,buf=>{ SBUF[k][i]=buf; },()=>{}); if(pr&&pr.catch) pr.catch(()=>{}); }catch(e){} }); } }
+if(SNDB.cloth&&SNDB.cloth.length>1) SNDB.cloth=SNDB.cloth.slice(0,1); /* tirou o chocalho do pulo e do dash */
 function play(k,o){ o=o||{}; if(!audio()) return false; const L=SBUF[k]; if(!L||!L.length) return false; const buf=L[Math.floor(Math.random()*L.length)]; if(!buf) return false;
   try{ const src=ac.createBufferSource(); src.buffer=buf; src.playbackRate.value=(o.rate||1)*(1+(o.rv==null?.08:o.rv)*(Math.random()*2-1));
     const g=ac.createGain(); g.gain.value=(o.v==null?.6:o.v); src.connect(g); g.connect(AU.master); if(o.rev){ const r=ac.createGain(); r.gain.value=o.rev; g.connect(r); r.connect(AU.conv); }
@@ -2863,7 +2864,7 @@ const sfx={
   hit:()=>{ if(!lim('hit',45)) return; if(!play('hit',{v:.55})){ tone(170,.12,{to:60,v:.22,a:.002}); noise(.07,{f:1400,f2:500,q:.9,v:.12}); } },
   crit:()=>{ if(!play('crit',{v:.75})){ tone(150,.18,{to:50,v:.28,a:.002}); noise(.1,{f:2600,f2:900,q:.8,v:.14}); } bell(1760,.35,.04,0,.6); },
   hurt:()=>{ if(!lim('hurt',80)) return; if(!play('hurt',{v:.6})){ tone(120,.2,{to:55,v:.3,a:.003}); noise(.16,{f:900,f2:300,q:1.2,v:.16,brown:true}); } tone(310,.16,{type:'triangle',to:190,v:.05,lp:900}); },
-  kill:m=>{ const [k,r]=mvox(m), v=mvol(m); if(!play(k==='slime'?'slime':'mDie',{v:.6*v,rate:k==='slime'?.8:r})) noise(.4,{ft:'lowpass',f:2600,f2:250,q:.6,v:.16,rev:.3}); play('soft',{v:.35*v,rate:.8,at:.05}); bell(784,.5,.02,.15); bell(1175,.6,.016,.22); },
+  kill:m=>{ const [k,r]=mvox(m), v=mvol(m); if(!play(k==='slime'?'slime':'mDie',{v:.6*v,rate:k==='slime'?.8:r})) noise(.4,{ft:'lowpass',f:2600,f2:250,q:.6,v:.16,rev:.3}); play('soft',{v:.3*v,rate:.8,at:.05}); },
   pick:()=>{ if(!lim('pick',60)) return; if(!play('sel',{v:.45})){ bell(1319,.35,.055,0); bell(1976,.45,.045,.07); } },
   coin:()=>{ if(!lim('coin',90)) return; play(Math.random()<.6?'coins2':'coins',{v:.5}); },
   leather:()=>{ if(!lim('lth',90)) return; play('leather',{v:.55}); },
@@ -3016,7 +3017,7 @@ function hurtPlayer(m){
 function die(){ if(P.cart) P.cart=false; if(P.pack&&!DG) packDrop(); P.dead=true; P.target=null; P.move=null; $('dead').classList.add('on'); for(const m of mobs){ if(m.state==='chase') m.state='return'; } }
 function revive(){ const wasDg=!!DG; if(DG){ leaveDG(); } P.dead=false; P.x=2.5; P.y=2.5; if(P.bed&&canStand(P.bed.x,P.bed.y,.27)){ P.x=P.bed.x; P.y=P.bed.y; } if(Y.owned){ Y.x=P.x+.8; Y.y=P.y+.3; } Y.target=null; P.hp=P.max; P.xp=Math.floor(P.xp*.75); P.combatT=0; $('dead').classList.remove('on'); if(wasDg){ placeParty(P.x,P.y); streamWorld(); } doSave(); }
 function killLoot(m){
-  if(Math.random()<.75){ setTimeout(()=>sfx.coin(),230); const gd=Math.max(1,Math.round(Math.round((m.lvl||1)*rnd(.8,2.2))*(m.boss?8:m.elite?5:m.night?2:1)*(1+.08*rk('pluck')))); P.gold+=gd; setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+.55,'+'+gd+' moedas','#ffd23f',14),220); }
+  if(Math.random()<.75){ const gd=Math.max(1,Math.round(Math.round((m.lvl||1)*rnd(.8,2.2))*(m.boss?8:m.elite?5:m.night?2:1)*(1+.08*rk('pluck')))); P.gold+=gd; setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+.55,'+'+gd+' moedas','#ffd23f',14),220); }
   if({boar:.6,wolf:.35,bear:.9}[m.key]>Math.random()&&addItem('meat',m.key==='bear'?2:1)===0) setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+1.2,'+Carne crua','#f5b0b5',13),600);
   { const DR={slime:['gel',.6,1],wolf:['fang',.4,1],boar:['fang',.35,1],bear:['fang',.8,2],skeleton:['bone',.7,1],ogre:['fang',.6,2]}[m.key]; if(DR&&Math.random()<DR[1]&&addItem(DR[0],DR[2])===0) setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+.9,'+'+DR[2]+' '+IT[DR[0]].n,'#e8dcc0',13),420); }
   if(['wolf','boar','bear','goblin','ogre'].includes(m.key)&&Math.random()<(m.key==='bear'||m.key==='ogre'?.9:.5)){ const n=m.key==='bear'||m.key==='ogre'?2:1; if(addItem('leather',n)===0) setTimeout(()=>addText(m.x,m.y,m.h+m.vis.h*m.size+.6,'+'+n+' Couro','#d19a62',14),250); }
