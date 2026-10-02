@@ -137,6 +137,11 @@ body.intitle #bldb,body.intitle #ov,body.intitle .hud,body.intitle #skills,body.
 #load.gone{opacity:0;pointer-events:none}
 #rev:focus-visible,#pot:focus-visible,#snd:focus-visible{outline:2px solid var(--xp);outline-offset:3px}
 #stat{width:min(260px,58vw)}
+#istats:empty{display:none}
+#stat{pointer-events:auto;cursor:pointer}#stat #lv{position:relative}#stat #lv.pts::after{content:'+';position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#7fdc68;color:#14300c;font:900 13px/16px var(--ui);text-align:center;box-shadow:0 0 6px #7fdc68;animation:lvp 1.2s ease-in-out infinite}
+@keyframes lvp{50%{transform:scale(1.18)}}
+#lvup{position:fixed;z-index:60;display:flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;border-radius:12px;background:rgba(28,22,16,.88);border:1px solid rgba(127,220,104,.6);color:#f5ecd6;font:600 12px var(--ui);pointer-events:auto;max-width:min(300px,80vw);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#lvup[hidden]{display:none}#lvup button{border:0;border-radius:8px;padding:5px 10px;font:800 12px var(--ui);cursor:pointer}#lvup #lvy{background:#7fdc68;color:#14300c}#lvup #lvn{background:rgba(255,255,255,.12);color:#f5ecd6;padding:5px 8px}
 #gdw{float:right;display:inline-flex;align-items:center;gap:3px;font:700 12px var(--ui);font-style:normal;color:#ffe08a;margin-left:10px}#gdw svg{width:14px;height:14px}
 #nm span{font:600 10px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:#c9b4ff;margin-left:4px}
 .bar.hp i{background:linear-gradient(#ff8f7c,#d8352a 55%,#8c1a12)}
@@ -344,6 +349,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 
 <canvas id="cv"></canvas>
 <canvas id="ov"></canvas>
+<div id="lvup" hidden><span id="lvt">Você ganhou pontos de status! Distribuir agora?</span><button id="lvy">Sim</button><button id="lvn" aria-label="Agora não">✕</button></div>
 <div class="hud panel" id="stat">
   <div id="lv"><span id="lvl">1</span><small>Nível</small></div>
   <div id="bars">
@@ -371,7 +377,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
       <div id="istats"></div>
     </div>
     <div class="icol">
-      <div class="tabs"><button data-tab="all" id="taball" style="display:none">Todos ∞</button><button data-tab="bag">Mochila</button><button data-tab="craft">Criar</button><button data-tab="build">Construir</button><button data-tab="skills">Magias</button></div>
+      <div class="tabs"><button data-tab="all" id="taball" style="display:none">Todos ∞</button><button data-tab="bag">Mochila</button><button data-tab="craft">Criar</button><button data-tab="build">Construir</button><button data-tab="status">Status</button><button data-tab="skills">Magias</button></div>
       <div id="itab"></div>
       <div id="idet"></div>
     </div>
@@ -425,7 +431,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.56</div>
+    <div id="ver">v0.57</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -2211,12 +2217,15 @@ const FOLD=(()=>{ const sm=(a,b,x)=>{ const t=Math.max(0,Math.min(1,(x-a)/(b-a))
   return out; })();
 function foldOn(m,k,ns){ const F=FOLD[k]; if(!m||!F) return; m.map=F.map; m.normalMap=F.n; m.normalScale=new THREE.Vector2(ns||.7,ns||.7); m.needsUpdate=true; }
 function hairStyleApply(J,hn){ if(!J||!J.lockRoot) return; J.lockRoot.visible=!!hn; const h=J.hairM; if(J.hairTex){ h.map=J.hairTex; h.roughness=.78; h.normalScale&&h.normalScale.set(.18,.18); } else if(hn){ h.map=HAIRTEX; h.roughness=.88; } else { h.map=null; h.roughness=.42; } h.needsUpdate=true; }
-function hairTick(J,dt){ if(!J.locks||!dt) return; J.head.updateMatrixWorld(); const wp=new THREE.Vector3().setFromMatrixPosition(J.head.matrixWorld);
-  if(!J.hp){ J.hp=wp.clone(); return; } const v=wp.clone().sub(J.hp).multiplyScalar(1/dt); J.hp.copy(wp);
-  const q=new THREE.Quaternion(); J.head.getWorldQuaternion(q); v.applyQuaternion(q.invert());
-  for(const L of J.locks){ const tx=clamp(v.z*.09*L.k,-.7,.7)+clamp(-v.y*.05*L.k,-.4,.5), tz=clamp(-v.x*.09*L.k,-.6,.6);
-    L.vx=(L.vx||0)+((tx-(L.ox||0))*90-(L.vx||0)*9)*dt; L.ox=(L.ox||0)+L.vx*dt; L.vz=(L.vz||0)+((tz-(L.oz||0))*90-(L.vz||0)*9)*dt; L.oz=(L.oz||0)+L.vz*dt;
-    L.g.rotation.x=L.bx+L.ox; L.g.rotation.z=L.bz+L.oz; } }
+function hairTick(J,dt){ if(!J.locks||!dt) return; dt=Math.min(dt,.05); J.head.updateMatrixWorld(); const wp=new THREE.Vector3().setFromMatrixPosition(J.head.matrixWorld);
+  if(!J.hp){ J.hp=wp.clone(); J.hv=new THREE.Vector3(); return; } const v=wp.clone().sub(J.hp).multiplyScalar(1/dt); J.hp.copy(wp); J.hv.lerp(v,Math.min(1,dt*10));
+  const q=new THREE.Quaternion(); J.head.getWorldQuaternion(q); q.invert(); const lv=J.hv.clone().applyQuaternion(q), gd=new THREE.Vector3(0,-1,0).applyQuaternion(q), t=time;
+  J.locks.forEach((L,i)=>{ const ph=L.ph||(L.ph=1+i*1.618), k=L.k, sp=Math.min(1,Math.hypot(lv.x,lv.z)/5);
+    const tx=clamp(lv.z*.1*k,-.85,.85)+clamp(-lv.y*.045*k,-.4,.5)+clamp(gd.z*.35,-.3,.3)*k+(Math.sin(t*(1.1+.13*(i%5))+ph)*.025+Math.sin(t*(9+i%3)+ph)*.03*sp)*k,
+      tz=clamp(-lv.x*.09*k,-.6,.6)-clamp(gd.x*.35,-.3,.3)*k+Math.sin(t*(1.4+.1*(i%4))+ph*1.3)*.02*k;
+    const K=62+10*Math.sin(ph*3), D=2*.42*Math.sqrt(K);
+    L.vx=(L.vx||0)+((tx-(L.ox||0))*K-(L.vx||0)*D)*dt; L.ox=(L.ox||0)+L.vx*dt; L.vz=(L.vz||0)+((tz-(L.oz||0))*K-(L.vz||0)*D)*dt; L.oz=(L.oz||0)+L.vz*dt;
+    L.g.rotation.x=L.bx+L.ox; L.g.rotation.z=L.bz+L.oz; }); }
 function buildLuiza(OLD){ const NEWH=!OLD;
   const root=new THREE.Group(), body=new THREE.Group(); root.add(body);
   const skin=mat('#f8d3b5',{roughness:.55}), jacket=mat('#7fc4b3',{roughness:.88,normalMap:NRM.cloth,normalScale:new THREE.Vector2(.1,.1)}), jacketD=mat('#5ea796',{roughness:.88}), shirt=jacket,
@@ -2228,7 +2237,7 @@ function buildLuiza(OLD){ const NEWH=!OLD;
     rim=mat('#3a2a22',{metalness:.3,roughness:.35}), lens=mat('#d8f0ff',{transparent:true,opacity:.14,roughness:.05});
   lens.userData.glow=1;
   if(NL){ const warm=C('#5a1c10'); for(const m of [skin,faceM]){ m.roughness=.74; m.emissive=warm; m.emissiveIntensity=.1; } skin.map=NLTEX.skn; skin.needsUpdate=true;
-    foldOn(jacket,'shirt',1.15); jacket.roughness=.95; jacketD.map=NLTEX.fab; foldOn(pants,'pants',1.2); pantsD.map=NLTEX.denim; foldOn(bag,'soft',.35); foldOn(shoe,'soft',.3); for(const m of [jacketD,pantsD]) m.needsUpdate=true; }
+    foldOn(jacket,'shirt',1.5); jacket.roughness=.95; jacketD.map=NLTEX.fab; foldOn(pants,'pants',1.2); pantsD.map=NLTEX.denim; foldOn(bag,'soft',.35); foldOn(shoe,'soft',.3); for(const m of [jacketD,pantsD]) m.needsUpdate=true; }
   const seamG=new THREE.TorusGeometry(1,.03,6,44);
   const leg=x=>{
     const th=new THREE.Group(); th.position.set(x,.86,0); body.add(th);
@@ -2261,13 +2270,14 @@ function buildLuiza(OLD){ const NEWH=!OLD;
   part(G.box,bagD,.025,.06,.012,0,.07,-.085,pack);
   const hl=new THREE.Mesh(new THREE.TorusGeometry(.04,.009,5,14,Math.PI),bagD); hl.position.set(0,.17,-.005); pack.add(hl);
   const buckM=mat('#e2c170',{metalness:.6,roughness:.3});
+  const straps=new THREE.Group(); torso.add(straps);
   for(const sx of [-1,1]){
     const pts=[[.1,.2,-.14],[.103,.335,-.06],[.104,.365,.01],[.1,.315,.105],[.096,.17,.152],[.1,.03,.128],[.115,-.02,.09],[.11,-.04,.02]].map(q=>new THREE.Vector3(sx*q[0],q[1],q[2]));
     const tg=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,.017,6,false);
-    const st=new THREE.Mesh(tg,bagD); st.castShadow=true; torso.add(st);
-    part(G.box,buckM,.038,.016,.012,sx*.098,.075,.142,torso).rotation.x=-.15;
+    const st=new THREE.Mesh(tg,bagD); st.castShadow=true; straps.add(st);
+    part(G.box,buckM,.038,.016,.012,sx*.098,.075,.142,straps).rotation.x=-.15;
   }
-  part(G.box,bagD,.19,.024,.014,0,.16,.158,torso); part(G.box,buckM,.034,.034,.014,0,.16,.166,torso);
+  part(G.box,bagD,.19,.024,.014,0,.16,.158,straps); part(G.box,buckM,.034,.034,.014,0,.16,.166,straps);
   /* roupa de maga / vestido (aparece quando equipado) */
   const trim=gold.clone(); const robeM=mat('#7b52c9',{roughness:.8}), robeD=mat('#5b3aa6',{roughness:.8}); if(NL){ foldOn(robeM,'robe',1.35); foldOn(robeD,'robe',.9); }
   const robe=new THREE.Group(); torso.add(robe);
@@ -2286,6 +2296,7 @@ function buildLuiza(OLD){ const NEWH=!OLD;
   const petM=mat('#ffc21a',{roughness:.6});
   for(let i=0;i<7;i++){ const a=i/7*6.283, p=part(G.sph,petM,.022,.012,.008,Math.cos(a)*.026,Math.sin(a)*.026,0,sunB); p.rotation.z=a; }
   part(G.sph,mat('#7a4a22'),.018,.018,.01,0,0,.006,sunB);
+  const sleeves=[], trimCuff=jacketD;
   const arm=sx=>{
     const up=tlimb(skin,.05,.043,.25,torso,sx*.215,.265,0);
     const sl=new THREE.Mesh(new THREE.CylinderGeometry(.064,.068,.12,16),shirt); sl.position.y=-.045; sl.castShadow=true; up.add(sl);
@@ -2296,6 +2307,11 @@ function buildLuiza(OLD){ const NEWH=!OLD;
     const c=new THREE.Mesh(NL?new THREE.CylinderGeometry(.029,.043,.23,16):new THREE.CylinderGeometry(.034,.042,.23,14),skin); c.position.y=-.115; c.castShadow=true; fo.add(c); if(NL) part(G.sph,skin,.038,.05,.036,0,-.07,.004,fo);
     part(G.torus,mat('#f2d27a',{metalness:.5,roughness:.3}),.037,.037,.03,0,-.2,0,fo).rotation.x=Math.PI/2;
     const hand=NL?part(G.sph,skin,.04,.046,.026,0,-.255,0,fo):part(G.sph,skin,.043,.055,.034,0,-.265,0,fo); if(NL){ part(G.sph,skin,.036,.034,.022,0,-.3,.006,fo); part(G.sph,skin,.014,.028,.015,sx*-.03,-.25,.022,fo).rotation.z=sx*.6; } else part(G.sph,skin,.018,.03,.018,sx*-.026,-.25,.028,fo).rotation.z=sx*.5;
+    { const sv=new THREE.Group(); sv.visible=false; sv.userData.keep=1; fo.add(sv); sleeves.push(sv);
+      const sg=new THREE.CylinderGeometry(.05,.058,.2,18,4,true); { const p=sg.attributes.position; for(let i=0;i<p.count;i++){ const x=p.getX(i), y=p.getY(i), z=p.getZ(i), a=Math.atan2(z,x), k=1+.06*Math.sin(a*5+y*30)*(.5-y*2); p.setX(i,x*k); p.setZ(i,z*k); } sg.computeVertexNormals(); }
+      const sm=new THREE.Mesh(sg,shirt); sm.material.side=THREE.DoubleSide; sm.position.y=-.1; sm.castShadow=true; sm.userData.keep=1; sv.add(sm);
+      const el=new THREE.Mesh(G.sph,shirt); el.scale.set(.056,.05,.056); el.userData.keep=1; sv.add(el);
+      const cf=new THREE.Mesh(new THREE.TorusGeometry(1,.16,6,22),trimCuff); cf.rotation.x=Math.PI/2; cf.scale.set(.057,.057,.05); cf.position.y=-.2; cf.userData.keep=1; sv.add(cf); }
     up.fore=fo; up.hand=hand; return up;
   };
   const armL=arm(-1), armR=arm(1); armL.rotation.z=-.1; armR.rotation.z=.1;
@@ -2410,7 +2426,7 @@ function buildLuiza(OLD){ const NEWH=!OLD;
     const st=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.012,bevelEnabled:false}),sm); st.position.set(0,.16,.175); st.rotation.x=-.1; st.userData.keep=1; neckG.add(st); const lk=new THREE.Mesh(new THREE.TorusGeometry(1,.15,5,16),gold); lk.scale.setScalar(.06); lk.position.set(0,.23,.15); lk.rotation.x=-.4; lk.userData.keep=1; neckG.add(lk); }
   if(NL){ /* cabelo com raiz mais escura */ }
   for(let i=6;i<wseg.length;i++) wseg[i].visible=false;
-  return {trimM:trim,hairTex:NL?NLTEX.hr:null,locks,lockRoot,neckG,pack,wcape,wseg,wcapeM,wcapeL,root,body,legL,legR,armL,armR,head,pony,hairSt,skinM:skin,hairM:hair,faceM,torso,gem,gemM,halo,staff,axe,pick,hat,hatM,hatD,hatR,robe,robeM,robeD,cape,sunB,pants,pantsD,shoe,steel,glasses,hand,jmats,kind:'hum',mats:flashable(root).filter(m=>m!==OUTM),h:2.1};
+  return {straps,sleeves,trimM:trim,hairTex:NL?NLTEX.hr:null,locks,lockRoot,neckG,pack,wcape,wseg,wcapeM,wcapeL,root,body,legL,legR,armL,armR,head,pony,hairSt,skinM:skin,hairM:hair,faceM,torso,gem,gemM,halo,staff,axe,pick,hat,hatM,hatD,hatR,robe,robeM,robeD,cape,sunB,pants,pantsD,shoe,steel,glasses,hand,jmats,kind:'hum',mats:flashable(root).filter(m=>m!==OUTM),h:2.1};
 }
 function buildBiped(o){
   const root=new THREE.Group(), body=new THREE.Group(); root.add(body);
@@ -3131,7 +3147,7 @@ function gainXp(n){
   while(P.xp>=xpNeed(P.lvl)){ P.xp-=xpNeed(P.lvl); P.lvl++; up=true; }
   if(up){ for(const sk of SK){ if(sk.lvl>old&&sk.lvl<=P.lvl) setTimeout(()=>{ toast('Magia disponível: '+sk.name+' (aba Magias)'); sfx.level(); },2000); }
     statPts+=3*(P.lvl-old); SPTS+=(P.lvl-old); setTimeout(()=>addText(P.x,P.y,P.h+2.9,'+'+(P.lvl-old)+' ponto de magia','#c9b4ff',15),1500); setTimeout(()=>addText(P.x,P.y,P.h+2.4,'+'+3*(P.lvl-old)+' pontos de atributo','#ffe28a',15),900);
-    calcStats(); P.hp=P.max; P.mana=P.maxMana; toast('Nível '+P.lvl); sfx.level(); LVR[0].t=0; LVR[1].t=-.15; addParts(P.x,P.y,P.h,'#ffe28a',28,3,4); doSave(); }
+    calcStats(); P.hp=P.max; P.mana=P.maxMana; toast('Nível '+P.lvl); setTimeout(lvupShow,1200); sfx.level(); LVR[0].t=0; LVR[1].t=-.15; addParts(P.x,P.y,P.h,'#ffe28a',28,3,4); doSave(); }
 }
 
 /* ---------- monstros: criar, IA, combate ---------- */
@@ -3862,11 +3878,11 @@ function capeTick(v,dt){ if(!v.wseg||!v.wcape.visible) return; dt=Math.min(dt,.0
   const turn=clamp(angDiff(P.face||0,P.rot||0)*1.5,-1,1), lean=v.body.rotation.x||0;
   if(!v._cs) v._cs=S.map(()=>({a:0,va:0,b:0,vb:0}));
   let pa=0, pb=0;
-  const NS=v._capeN||6, FX=v._capeFx||1; for(let k=0;k<S.length;k++){ const c=v._cs[k], f=Math.min(1.45,k/(NS-1));
+  const NS=v._capeN||6, FX=v._capeFx||1; for(let k=0;k<S.length;k++){ const c=v._cs[k], f=Math.min(1.45,k/(NS-1)), run=Math.max(0,sp-.15);
     /* ângulo absoluto que cada pedaço quer: parada cai quase reto; correndo o vento joga pra trás; caindo do pulo ela sobe */
-    const ta=.06+.06*f-lean*.8+sp*(.25+.55*f)+up*(.35+.7*f)+Math.sin(t*(3+7*sp)-k*1.1)*(.02+.12*sp+.06*(air?1:0))*f*FX, tb=-turn*.15*f+Math.sin(t*1.9-k*.8)*(.015+.025*sp)*f*FX;
-    const kk=55-25*f, dmp=8-3.5*f; c.va+=((ta-c.a)*kk-c.va*dmp)*dt; c.a+=c.va*dt; c.vb+=((tb-c.b)*kk-c.vb*dmp)*dt; c.b+=c.vb*dt;
-    S[k].rotation.x=c.a-pa; S[k].rotation.z=c.b-pb; pa=c.a; pb=c.b; } }
+    const ta=.06+.06*f-lean*.8+sp*(.35+.95*f)+up*(.4+.85*f)+(Math.sin(t*(3+9*sp)-k*1.3)*(.03+.2*sp+.08*(air?1:0))+Math.sin(t*(8+6*sp)-k*2.2)*.07*run)*f*FX, tb=-turn*.28*f+Math.sin(t*2.3-k*.9)*(.02+.08*sp)*f*FX;
+    const kk=48-26*Math.min(1,f), dmp=6.5-3*Math.min(1,f); c.va+=((ta-c.a)*kk-c.va*dmp)*dt; c.a+=c.va*dt; c.vb+=((tb-c.b)*kk-c.vb*dmp)*dt; c.b+=c.vb*dt;
+    S[k].rotation.x=c.a-pa; S[k].rotation.z=c.b-pb; S[k].rotation.y=Math.sin(t*(4+6*sp)-k*1.4)*.1*run*f*FX; pa=c.a; pb=c.b; } }
 function angDiff(a,b){ let d=a-b; while(d>Math.PI) d-=6.2832; while(d<-Math.PI) d+=6.2832; return d; }
 function animate(ent,v,dt){
   if(v.wseg&&ent===P) capeTick(v,dt);
@@ -4468,7 +4484,7 @@ const hudCache={};
 function setTxt(id,v){ if(hudCache[id]!==v){ hudCache[id]=v; $(id).textContent=numFix(v); } }
 function circ(g,x,y,r){ g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill(); }
 function updateHud(){
-  setTxt('lvl',String(P.lvl));
+  setTxt('lvl',String(P.lvl)); { const lvE=$('lv'); if(lvE) lvE.classList.toggle('pts',statPts>0||SPTS>0); }
   $('hpf').style.transform='scaleX('+clamp(P.hp/P.max,0,1).toFixed(3)+')'; setTxt('hpt',Math.ceil(P.hp)+' / '+P.max);
   $('stf').style.transform='scaleX('+clamp((P.sta||0)/(P.maxSta||1),0,1).toFixed(3)+')'; $('stb').classList.toggle('low',(P.sta||0)<P.maxSta*.2);
   $('mpf').style.transform='scaleX('+clamp(P.mana/P.maxMana,0,1).toFixed(3)+')'; setTxt('mpt',Math.floor(P.mana)+' / '+P.maxMana);
@@ -4761,7 +4777,7 @@ function nearBench(){ for(const [k,v] of structs){ if(v.t!=='bench') continue; c
 function canPay(c){ if((typeof admActive==='function'&&admActive('cr'))) return true; for(const k in c) if(count(k)<c[k]) return false; return true; }
 let invTab='bag', sel=null;
 const inv=$('inv');
-function openInv(tab){ if(loading) return; sfx.open(); if(tab) invTab=tab; sel=null; paused=true; inv.classList.add('on'); hideHint(); P.sp=0; renderInv(); requestAnimationFrame(renderPortrait); }
+function openInv(tab){ if(loading) return; sfx.open(); if(tab) invTab=tab; else if(invTab==='status'||invTab==='skills') invTab='bag'; sel=null; paused=true; inv.classList.add('on'); hideHint(); P.sp=0; renderInv(); requestAnimationFrame(renderPortrait); }
 function closeInv(){ sfx.close(); inv.classList.remove('on'); paused=false; sel=null; doSave(); }
 function slotHtml(q,attr,label,isSel){
   let h='<button class="slot'+(isSel?' sel':'')+'" '+attr+'>';
@@ -4777,11 +4793,13 @@ function renderInv(){
   for(const k in STINFO) h+='<div class="srow"><div class="nm"><b>'+STINFO[k][0]+'</b><small>'+STINFO[k][1]+'</small></div><div class="v">'+ST[k]+'</div><button class="pb sm" data-st="'+k+'"'+(statPts>0?'':' disabled')+'>+1</button></div>';
   h+='<div class="sum2"><span>Vida <b>'+Math.ceil(P.hp)+'/'+P.max+'</b></span><span>Mana <b>'+Math.floor(P.mana)+'/'+P.maxMana+'</b></span><span>Defesa <b>'+Math.round(P.def)+' ('+Math.round(P.def/(P.def+25)*100)+'% menos dano)</b></span><span>Dano mágico <b>'+Math.round(P.dmg)+'</b></span><span>Crítico <b>'+Math.round(P.crit*100)+'%</b></span><span>Recarga <b>-'+Math.round(P.cdr*100)+'%</b></span></div>';
   h+='<div class="srow"><div class="nm"><b>Yuki, a gata'+(Y.hurt?' <small style="display:inline;color:#ff9ab8">(machucada)</small>':'')+'</b><small>Nível '+Y.lvl+' · vida '+Math.round(Y.hp)+'/'+yMax()+' · dano '+yDmg().toFixed(0)+' · XP '+Math.floor(Y.xp)+'/'+yNeed(Y.lvl)+'. '+(Y.hurt?'Leve à Vovó Fernanda para cuidar dela.':'A cada nível: +14 de vida, +1,3 de dano e mais resistência.')+'</small>'+(Y.owned&&!Y.hurt?'<button class="pb sm" data-yp="1" style="margin-top:6px"'+(P.potions>0?'':' disabled')+'>Dar poção pra Yuki ('+P.potions+')</button>':'')+'</div></div>';
-  $('istats').innerHTML=h;
+  $('istats').innerHTML=''; const STH=h, CHM=invTab==='status'||invTab==='skills';
+  inv.querySelector('.ihead h3').textContent=CHM?'Personagem':'Inventário'; inv.classList.toggle('chm',CHM);
   const crA=creativeFast(); $('taball').style.display=crA?'':'none'; if(!crA&&invTab==='all') invTab='bag';
-  inv.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===invTab));
+  inv.querySelectorAll('.tabs button').forEach(b=>{ b.classList.toggle('on',b.dataset.tab===invTab); const ch=b.dataset.tab==='status'||b.dataset.tab==='skills'; if(b.id!=='taball') b.style.display=ch===CHM?'':'none'; else if(CHM) b.style.display='none'; });
   let t='';
   if(invTab==='skills') t=skillsHtml();
+  else if(invTab==='status') t=STH;
   else if(invTab==='all'){ const ks=Object.keys(IT).filter(k=>ICO[k]&&!IT[k].hide);
     t='<div class="sub" style="font-size:12px;color:var(--muted)">Modo criativo: toque num item e ele vai pra mochila (pilha cheia). Itens não acabam. <button class="pb gray sm" data-clrbag="1" style="margin-left:6px">Esvaziar mochila</button></div><div class="grid">'+ks.map(k=>slotHtml({id:k,n:1,d:IT[k].dur},'data-ci="'+k+'" title="'+IT[k].n+'"','',false)).join('')+'</div>'; }
   else if(invTab==='bag') t='<div class="grid">'+BAG.map((q,i)=>slotHtml(q,'data-bag="'+i+'"','',sel&&sel.bag===i)).join('')+'</div>';
@@ -4801,11 +4819,11 @@ function renderInv(){
     if(!pl.some(k=>count(k)>0)) t+='<div style="font-size:12px;color:var(--muted);padding-top:6px">Crie uma bancada ou paredes na aba Criar.</div>';
   }
   $('itab').innerHTML=t;
-  let d='<span>Toque num item para ver detalhes.</span>';
+  let d=CHM?'<span>Toque num equipamento ao lado do retrato pra ver detalhes.</span>':'<span>Toque num item para ver detalhes.</span>';
   const q=sel?(sel.eq?EQ[sel.eq]:BAG[sel.bag]):null;
   if(q){ const it=IT[q.id]; d=it.wz?'<b style="color:'+RAR[it.rar].c+'">'+qName(q)+'</b>'+wzDesc(q)+'<div class="acts">':'<b>'+it.n+(q.n>1?' ×'+q.n:'')+'</b>'+it.d+(it.dur?(q.d<=0?' <b style="color:#ff7a5a">Quebrado! Não dá bônus até o Tio Nando consertar.</b>':' Durabilidade: '+Math.round(q.d)+'/'+it.dur+'.'):'')+(it.set?setInfo(q.id):'')+'<div class="acts">';
     if(sel.eq) d+='<button class="pb sm" data-act="unequip">Tirar</button>';
-    else { if(it.slot) d+='<button class="pb sm" data-act="equip"'+(it.slot[0]==='y'&&!Y.owned?' disabled':'')+'>'+(it.slot[0]==='y'?'Vestir na Yuki':'Equipar')+'</button>'; if(it.eat) d+='<button class="pb sm" data-act="eat">Comer</button>'; if(it.place) d+='<button class="pb alt sm" data-act="build">Construir</button>'; if(q.id==='cart') d+='<button class="pb alt sm" data-act="cartput">Colocar no chão</button>'; d+='<button class="pb gray sm" data-act="drop">Jogar fora</button>'; }
+    else { if(it.slot) d+='<button class="pb sm" data-act="equip"'+(it.slot[0]==='y'&&!Y.owned?' disabled':'')+'>'+(it.slot[0]==='y'?'Vestir na Yuki':'Equipar')+'</button>'; if(it.eat) d+='<button class="pb sm" data-act="eat">Comer</button>'; if(it.place) d+='<button class="pb alt sm" data-act="build">Construir</button>'; if(q.id==='cart') d+='<button class="pb alt sm" data-act="cartput">Colocar no chão</button>'; if(q.id==='boat') d+='<button class="pb alt sm" data-act="boatput">Colocar na água</button>'; d+='<button class="pb gray sm" data-act="drop">Jogar fora</button>'; }
     if(it.wz&&RAR[it.rar].max&&(q.e|0)<RAR[it.rar].max) d+='<button class="pb alt sm" data-act="enh">Reforçar ('+enhCost(it.rar,q.e)+' moedas)</button>';
     d+='</div>'; }
   $('idet').innerHTML=d;
@@ -4846,7 +4864,7 @@ inv.addEventListener('click',e=>{
   if(b.dataset.pick!==undefined){ const id=b.dataset.pick; if(id!=='__x'&&pickSlot>=0){ if(id){ const old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[pickSlot]; SLOT[pickSlot]=id; } else SLOT[pickSlot]=null; refreshSlots(); sfx.pick(); doSave(); } pickSlot=-1; renderInv(); return; }
   if(b.dataset.slot){ const [id,i]=b.dataset.slot.split(':'), j=+i, old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[j]; SLOT[j]=id; refreshSlots(); sfx.pick(); renderInv(); doSave(); return; }
   if(b.dataset.pk){ packCraft(b.dataset.pk); return; }
-  if(b.dataset.act&&sel){ const act=b.dataset.act; if(act==='cartput'){ closeInv(); cartFromBag(); return; }
+  if(b.dataset.act&&sel){ const act=b.dataset.act; if(act==='cartput'){ closeInv(); cartFromBag(); return; } if(act==='boatput'){ closeInv(); if(!nearWater(4.5)){ toast('Chegue na beirinha da água pra colocar o barco'); sfx.err(); return; } boatToggle(); return; }
     if(act==='enh'){ enhTry(sel.eq?EQ[sel.eq]:BAG[sel.bag]); renderInv(); requestAnimationFrame(renderPortrait); return; }
     if(act==='unequip'){ const q=EQ[sel.eq]; if(addItem(q.id,1,q.d,q.e)===0){ EQ[sel.eq]=null; calcStats(); P.hp=Math.min(P.hp,P.max); P.mana=Math.min(P.mana,P.maxMana); } sel=null; }
     else { const i=sel.bag, q=BAG[i]; if(!q){ sel=null; renderInv(); return; } const it=IT[q.id];
@@ -4910,7 +4928,7 @@ function setMatLook(m,hex,em,ro,k){ if(!m) return; m.color.set(hex); if(m.emissi
 function gearLook(v,rr,ee){ ee=ee||{};
   if(rr.h>=0){ const W=WZC[rr.h], k=.04*(ee.h||0); setMatLook(v.hatM,W.a,W.em,W.ro,k); setMatLook(v.hatD,W.d,W.em*.6,W.ro,k); setMatLook(v.hatR,W.r,W.em*1.4,Math.min(W.ro,.6),k); }
   if(rr.b>=0){ const W=WZC[rr.b], k=.04*(ee.b||0), a=C(W.a); setMatLook(v.robeM,W.a,W.em,W.ro,k); setMatLook(v.robeD,W.d,W.em*.6,W.ro,k);
-    v.jmats.a.color.copy(rr.b?a.clone().lerp(C('#ffffff'),.62):JC.ra); v.jmats.b.color.copy(rr.b?a.clone().lerp(C('#ffffff'),.42):JC.rb); v.pants.color.copy(C(W.d).multiplyScalar(.6)); v.pantsD.color.copy(C(W.d).multiplyScalar(.45)); }
+    v.jmats.a.roughness=.58; v.jmats.a.metalness=.04; v.jmats.a.color.copy(rr.b?a.clone().lerp(C('#ffffff'),.62):JC.ra); v.jmats.b.color.copy(rr.b?a.clone().lerp(C('#ffffff'),.42):JC.rb); v.pants.color.copy(C(W.d).multiplyScalar(.6)); v.pantsD.color.copy(C(W.d).multiplyScalar(.45)); }
   if(rr.c>=0&&v.wcapeM){ const W=WZC[rr.c], k=.04*(ee.c||0); setMatLook(v.wcapeM,W.cp[0],W.em,W.ro,k); setMatLook(v.wcapeL,W.cp[1],W.em*.8,W.ro,k);
     const n=rr.c>=4?9:rr.c>=3?7:6; v._capeN=n; v._capeFx=rr.c>=4?1.6:rr.c>=3?1.25:1; for(let i=6;i<v.wseg.length;i++) v.wseg[i].visible=n>i; }
   if(rr.f>=0){ const W=WZC[rr.f]; setMatLook(v.shoe,W.a,W.em*.8,W.ro,.04*(ee.f||0)); }
@@ -4923,10 +4941,10 @@ function gearVis(){
   LZ.staff.visible=!!EQ.weapon&&!gearTool;
   LZ.glasses.visible=!!(EQ.acc&&EQ.acc.id==='glasses'); LZ.neckG.visible=!!(EQ.acc&&EQ.acc.id==='neck');
   const rr={h:wzR('head'),b:wzR('body'),c:wzR('back'),f:wzR('feet'),w:wzR('weapon')}, ee={h:wzE('head'),b:wzE('body'),c:wzE('back'),f:wzE('feet'),w:wzE('weapon')};
-  LZ.wcape.visible=rr.c>=0; LZ.pack.visible=!LZ.wcape.visible; /* a capa cobre a mochilinha */
+  LZ.wcape.visible=rr.c>=0&&!P.pack; LZ.pack.visible=!LZ.wcape.visible&&!P.pack; if(LZ.straps) LZ.straps.visible=!LZ.wcape.visible; if(LZ.sleeves) for(const q of LZ.sleeves) q.visible=rr.b>=0; /* a capa cobre a mochilinha */
   LZ.hat.visible=rr.h>=0; LZ.robe.visible=rr.b>=0; LZ.cape.visible=rr.b>=0; LZ.sunB.visible=false;
   const key=JSON.stringify([rr,ee]); if(LZ._gk!==key){ LZ._gk=key;
-    if(rr.b<0){ LZ.jmats.a.color.copy(JC.a); LZ.jmats.b.color.copy(JC.b); LZ.pants.color.copy(JC.p); LZ.pantsD.color.copy(JC.pd); }
+    if(rr.b<0){ LZ.jmats.a.roughness=.95; LZ.jmats.a.metalness=0; LZ.jmats.a.color.copy(JC.a); LZ.jmats.b.color.copy(JC.b); LZ.pants.color.copy(JC.p); LZ.pantsD.color.copy(JC.pd); }
     if(rr.f<0){ LZ.shoe.color.copy(JC.sh); LZ.shoe.emissiveIntensity=0; }
     gearLook(LZ,rr,ee); }
 }
@@ -5100,6 +5118,10 @@ function boatPlace(){ const B=P.boat, V=boatVis(true), bob=Math.sin(time*1.7)*.0
   V.tilt.updateMatrixWorld(true); _pv.set(0,BOATSEAT.y,BOATSEAT.dz).applyMatrix4(V.tilt.matrixWorld);
   P.h=_pv.y-HIPH+SEATOFF; LZ.root.position.set(_pv.x,P.h,_pv.z); LZ.root.rotation.y=B.rot; }
 function ridePlace(){ const bob=Math.sin(time*1.7)*.035; P.h=WATER_Y+BOATY+bob+BOATSEAT.y-HIPH+SEATOFF; LZ.root.position.set(P.x,P.h,P.y); LZ.root.rotation.y=P.rot; }
+function peerCart(pe,d,e){ if(!d.ct){ if(pe.cart) pe.cart.root.visible=false; return; }
+  if(!pe.cart) pe.cart=buildCart(); const V=pe.cart, [x,y,r,dr,br]=d.ct, cx=dr?e.x:x, cy=dr?e.y:y, h=hgt(cx,cy); V.root.visible=pe.live; V.root.position.set(cx,h,cy); V.root.rotation.y=r;
+  V.body.rotation.z=br?.18:(dr?Math.sin(time*31)*.006:0); if(dr&&(d.sp||0)>.3) for(const w of V.wheels) w.rotation.x+=.05;
+  if(dr){ pe.v.root.position.set(cx+Math.sin(r)*.6,h+.42,cy+Math.cos(r)*.6); pe.v.root.rotation.y=r; seatPose(pe.v,null); } }
 function peerBoat(pe,d,e){
   if(d.bt){ if(!pe.boat) pe.boat=buildBoat(); const b=pe.boat, bob=Math.sin(time*1.7+(pe.bph||(pe.bph=Math.random()*6)))*.035;
     b.root.visible=pe.live; b.root.position.set(e.x,WATER_Y+BOATY+bob,e.y); b.root.rotation.y=d.bt[0];
@@ -5228,7 +5250,7 @@ const TSTEPS=[
   {t:'Compre suas ferramentas',d:'Dica pra ir mais rápido: em vez de fabricar, compre o Machado e a Picareta com o Tio Nando, na barraca de armas da vila. Sem eles não dá pra cortar árvore nem quebrar pedra.',chk:()=>!!(hasTool('axe')||hasTool('pick')),btn:'Depois eu compro'},
   {t:'Coletar',d:'Toque numa árvore pra cortar madeira (com machado) ou numa pedra pra minerar (com picareta). Galhos e pedrinhas na beira da estrada dá pra pegar com a mão.',chk:()=>count('wood')+count('stone')>=TUT.r0+3,btn:'Entendi'},
   {t:'Mochila e Criar',d:'Abra a mochila (botão da bolsa, lá em cima). Na aba "Criar" ficam as receitas: o que dá pra fazer aparece clarinho e mostra o que falta. Algumas precisam de bancada, forno ou fogueira por perto.',hl:'bagb',chk:()=>inv.classList.contains('on'),btn:'Entendi'},
-  {t:'Magias e a barra de botões',d:'Na mochila, aba "Magias": cada nível dá 1 ponto pra aprender ou fortalecer magias. Lá em "Seus botões na tela" você escolhe qual magia vai em cada botão. O botão 6 é o grande e pode trocar o ataque básico.',btn:'Entendi'},
+  {t:'Status, magias e botões',hl:'stat',d:'Toque no seu retrato com o nível (lá em cima, à esquerda) pra abrir o Personagem. Na aba "Status" você distribui os pontos de atributo; na aba "Magias", cada nível dá 1 ponto pra aprender ou fortalecer magias. Lá em "Seus botões na tela" você escolhe qual magia vai em cada botão. O botão 6 é o grande e pode trocar o ataque básico.',btn:'Entendi'},
   {t:'Correr, pular e poção',d:'O botão de correr gasta estamina (a barrinha amarela). Pular: toque uma vez; tocando de novo no ar ela dá pulos extras (cambalhota e depois planando). O botão da setinha, ao lado do pulo, é o dash: um impulso rápido pra frente. A poção vermelha cura na hora.',hl:'run',btn:'Entendi'},
   {t:'Missões e mapa',d:'O quadro de missão mostra o que fazer: toque em "Ir" que aparece o caminho. Tocando no texto da missão abre o Diário, com a história, os pedidos e as rotas de comércio. O mapa mostra lugares, pessoas e onde cada monstro aparece. Boa aventura!',hl:'qt',btn:'Concluir'}
 ];
@@ -5518,6 +5540,16 @@ function toggleFS(){
 function fsFail(){ const h=$('mhint'); if(h) h.textContent='A tela cheia está bloqueada nesta página. Use a versão app (instalada) pra jogar em tela cheia.'; }
 $('fsb').onclick=toggleFS;
 $('bagb').onclick=()=>openInv(); 
+function openChar(tab){ $('lvup').hidden=true; openInv(tab||'status'); }
+$('stat').addEventListener('click',e=>{ if(document.body.classList.contains('hudedit')||paused) return; e.stopPropagation(); openChar('status'); });
+$('stat').addEventListener('pointerdown',e=>{ if(!document.body.classList.contains('hudedit')) e.stopPropagation(); });
+let LVUPT=0;
+function lvupShow(){ if(statPts<=0&&SPTS<=0) return; const el=$('lvup'), r=$('stat').getBoundingClientRect(); $('lvt').textContent='Você ganhou pontos de status'+(SPTS>0?' e de magia':'')+'! Distribuir agora?';
+  el.style.left=Math.max(8,r.left)+'px'; el.style.top=(r.bottom+6)+'px'; el.hidden=false; clearTimeout(LVUPT); LVUPT=setTimeout(()=>{ el.hidden=true; },25000); }
+$('lvy').onclick=e=>{ e.stopPropagation(); openChar('status'); sfx.pick(); };
+$('lvn').onclick=e=>{ e.stopPropagation(); $('lvup').hidden=true; };
+$('lvup').addEventListener('pointerdown',e=>e.stopPropagation());
+
 ['bagb','bbar','inv'].forEach(id=>$(id).addEventListener('pointerdown',e=>e.stopPropagation()));
 
 /* ---------- NPCs ---------- */
@@ -6649,16 +6681,16 @@ function netPeers(v){ v=v||{}; const now=performance.now();
 function netMakePeer(id,d){ const v=buildLuiza(); v.axe.visible=false; v.pick.visible=false; v.hat.visible=false; v.robe.visible=false; v.cape.visible=false; v.sunB.visible=false; v.staff.visible=false;
   scene.add(v.root); const e={x:d.x,y:d.y,face:d.f||0,rot:d.f||0,anim:Math.random()*5,moving:false,swing:0,cast:0,wind:0,hitT:0,h:hgt(d.x,d.y)};
   return {id,v,e,d,rt:performance.now(),live:true,cat:null,ce:null,g:''}; }
-function netDropPeer(id){ const pe=NET.peers.get(id); if(!pe) return; scene.remove(pe.v.root); if(pe.boat) scene.remove(pe.boat.root); if(P.ride===id) rideOff(true); if(pe.cat) scene.remove(pe.cat.root); NET.peers.delete(id); if(NET.host||VISIT) toast((pe.d.n||'Alguém')+' saiu do mundo'); }
+function netDropPeer(id){ const pe=NET.peers.get(id); if(!pe) return; scene.remove(pe.v.root); if(pe.boat) scene.remove(pe.boat.root); if(pe.cart) scene.remove(pe.cart.root); if(P.ride===id) rideOff(true); if(pe.cat) scene.remove(pe.cat.root); NET.peers.delete(id); if(NET.host||VISIT) toast((pe.d.n||'Alguém')+' saiu do mundo'); }
 function netFrame(dt){ if(!NET.db||!NET.uid) return; const inRoom=NET.host||(VISIT&&NET.hostUid);
   const now=performance.now();
   for(const pe of NET.peers.values()){ const d=pe.d, e=pe.e; pe.live=now-pe.rt<10000; pe.v.root.visible=pe.live; if(pe.cat) pe.cat.root.visible=pe.live&&d.yx!=null; if(!pe.live) continue;
     if(Math.hypot(d.x-e.x,d.y-e.y)>8){ e.x=d.x; e.y=d.y; } else { const k=Math.min(1,dt*9); e.x+=(d.x-e.x)*k; e.y+=(d.y-e.y)*k; }
     e.moving=(d.sp||0)>.5; e.face=d.f||0; e.anim+=dt*(e.moving?clamp((d.sp||0)/3.2,.7,1.5):1); e.cast=d.c?.6:0; e.h=hgt(e.x,e.y);
     if(pe.g!==d.g){ pe.g=d.g||''; pe.v.hat.visible=pe.g.includes('h'); pe.v.robe.visible=pe.g.includes('r')||pe.g.includes('s'); pe.v.cape.visible=pe.g.includes('r'); pe.v.sunB.visible=pe.g.includes('s'); pe.v.staff.visible=pe.g.includes('w');
-      { const gp=pe.g.split('|')[1]||''; if(gp){ const rr={}; WZK.forEach((k,i)=>{ const ch=gp[i]; rr[k]=ch>='0'&&ch<='4'?+ch:-1; }); gearLook(pe.v,rr,{}); pe.v.wcape.visible=rr.c>=0; if(pe.v.pack) pe.v.pack.visible=rr.c<0; } } }
+      { const gp=pe.g.split('|')[1]||''; if(gp){ const rr={}; WZK.forEach((k,i)=>{ const ch=gp[i]; rr[k]=ch>='0'&&ch<='4'?+ch:-1; }); gearLook(pe.v,rr,{}); pe.v.wcape.visible=rr.c>=0; if(pe.v.pack) pe.v.pack.visible=rr.c<0; if(pe.v.straps) pe.v.straps.visible=rr.c<0; if(pe.v.sleeves) for(const q of pe.v.sleeves) q.visible=rr.b>=0; } } }
     animate(e,pe.v,dt); if(d.fl){ pe.fa=(pe.fa||0)+dt*11; pe.v.body.rotation.x+=pe.fa; } else pe.fa=0; if(d.dead) pe.v.body.rotation.x=-1.3;
-    pe.v.root.position.set(e.x,e.h+(d.j||0),e.y); if(d.bt||d.rd||pe.boat) peerBoat(pe,d,e);
+    pe.v.root.position.set(e.x,e.h+(d.j||0),e.y); if(d.bt||d.rd||pe.boat) peerBoat(pe,d,e); if(d.ct||pe.cart) peerCart(pe,d,e);
     if(d.yx!=null){ if(!pe.cat){ pe.cat=buildCat(); scene.add(pe.cat.root); pe.ce={x:d.yx,y:d.yy,face:0,rot:0,anim:0,moving:false,swing:0,cast:0,wind:0,hitT:0}; }
       const c=pe.ce; if(Math.hypot(d.yx-c.x,d.yy-c.y)>6){ c.x=d.yx; c.y=d.yy; } else { const k=Math.min(1,dt*9); c.x+=(d.yx-c.x)*k; c.y+=(d.yy-c.y)*k; } c.moving=!!d.ym; c.face=d.yf||0; c.anim+=dt; animate(c,pe.cat,dt); pe.cat.root.position.set(c.x,hgt(c.x,c.y),c.y); } }
   if(!inRoom) return;
@@ -6667,6 +6699,7 @@ function netFrame(dt){ if(!NET.db||!NET.uid) return; const inRoom=NET.host||(VIS
     const d={n:NET.name,l:P.lvl,x:+P.x.toFixed(2),y:+P.y.toFixed(2),f:+(P.face||0).toFixed(2),sp:+(P.sp||0).toFixed(1),j:+((P.pz||0)+(P.jz||0)).toFixed(2),c:(P.chan||P.act)?1:0,hp:Math.round(P.hp),mx:Math.round(P.max),g:(LZ.staff.visible?'w':'')+(LZ.hat.visible?'h':'')+(LZ.cape.visible?'r':'')+(LZ.sunB.visible?'s':'')+'|'+WZSL.map(sl=>{ const r=wzR(sl); return r<0?'-':r; }).join(''),fl:P.flip>0?1:0,dead:P.dead?1:0};
     if(TRD.with){ d.bg=BAG.filter(Boolean).slice(0,40).map(q=>q.id+':'+q.n).join(','); d.tw=TRD.with; }
     if(P.boat) d.bt=[+P.boat.rot.toFixed(2),+P.boat.ph.toFixed(2),P.boat.sd,P.boat.row?1:0]; if(P.ride) d.rd=P.ride;
+    if(CART.own&&!DG) d.ct=[+(P.cart?P.x:CART.x).toFixed(2),+(P.cart?P.y:CART.y).toFixed(2),+CART.r.toFixed(2),P.cart?1:0,CART.broken?1:0];
     if(Y.owned&&!Y.hurt){ d.yx=+Y.x.toFixed(2); d.yy=+Y.y.toFixed(2); d.yf=+(Y.face||0).toFixed(2); d.ym=Y.moving?1:0; }
     const sig=JSON.stringify(d); if(sig!==NET.lastSent||now-NET.lastSentT>1500){ NET.lastSent=sig; NET.lastSentT=now; d.s=++NET.ps; NET.db.ref(R+'/p/'+NET.uid).set(d).catch(()=>{}); } }
   if(NET.host){
@@ -6935,7 +6968,8 @@ var GP=[]; /* packs largados no chão */
 var CART={own:false,x:0,y:0,r:0,hp:400,max:400,fuel:0,packs:[],broken:false};
 const CARTF=160;
 { const s=save||{}; if(s.pk&&PACKS[s.pk.id]) P.pack=s.pk; if(Array.isArray(s.gp)) GP=s.gp.filter(g=>g&&PACKS[g.id]).map(g=>({id:g.id,ox:g.ox,oy:g.oy,x:g.x,y:g.y}));
-  if(s.cart&&s.cart.own){ Object.assign(CART,s.cart); CART.packs=(s.cart.packs||[]).filter(p=>p&&PACKS[p.id]); } }
+  if(s.cart){ Object.assign(CART,s.cart); CART.packs=(s.cart.packs||[]).filter(p=>p&&PACKS[p.id]); }
+  if(CART.own){ /* desligou sem guardar: volta pra mochila (packs no chão de casa) */ if(CART.packs.length){ CART.packs.forEach((p,i)=>GP.push({id:p.id,ox:p.ox,oy:p.oy,x:CART.x+(i?1:-1)*1.2,y:CART.y+.8})); CART.packs=[]; } if(addItem('cart',1)===0) CART.own=false; } }
 function packCanCraft(id){ const c=PACKS[id].cost; return creativeFast()||Object.keys(c).every(k=>count(k)>=c[k]); }
 function packCraft(id){ if(VISIT){ toast('Packs só no seu mundo'); return; } if(!packCanCraft(id)) return; if(!creativeFast()&&!nearBench()){ toast('Precisa estar perto de uma bancada'); sfx.err(); return; }
   const p={id,ox:Math.round(P.x),oy:Math.round(P.y)};
@@ -6952,7 +6986,8 @@ let packBack=null, packBackId='';
 function packPlace(){ /* nas costas */
   if(P.pack&&!DG){ if(packBackId!==P.pack.id){ if(packBack) scene.remove(packBack); packBack=makePackMesh(P.pack.id); packBack.scale.setScalar(.95); scene.add(packBack); packBackId=P.pack.id; }
     const R0=LZ.root.position, r=LZ.root.rotation.y, hb=P.cart?.36:.62, bk=P.cart?.3:.36; packBack.visible=true; packBack.position.set(R0.x-Math.sin(r)*bk,R0.y+hb+(P.cart?0:Math.abs(Math.sin(P.walkPh||0))*.03),R0.z-Math.cos(r)*bk); packBack.rotation.y=r; if(LZ.pack) LZ.pack.visible=false; }
-  else { if(packBack) packBack.visible=false; if(LZ.pack&&!P.pack) LZ.pack.visible=true; }
+  else { if(packBack) packBack.visible=false; if(LZ.pack&&!P.pack) LZ.pack.visible=!LZ.wcape.visible; }
+  if(LZ.straps) LZ.straps.visible=!LZ.wcape.visible;
   for(const g of GP){ if(!g.m){ g.m=makePackMesh(g.id); g.m.position.set(g.x,hgt(g.x,g.y),g.y); g.m.rotation.y=(g.x*7)%6; scene.add(g.m); } g.m.visible=!DG&&!VISIT; } }
 function pickGP(px,py){ let best=null,bd=50; for(const g of GP){ const p=proj(g.x,hgt(g.x,g.y)+.4,g.y); if(!p.ok) continue; const d=Math.hypot(px-p.x,py-p.y); if(d<bd){ bd=d; best=g; } } return best; }
 /* chip do pack na tela */
@@ -6972,10 +7007,17 @@ function buildCart(){ const root=new THREE.Group(), body=new THREE.Group(); root
   const slots=[new THREE.Group(),new THREE.Group()]; slots[0].position.set(0,.61,-.45); slots[1].position.set(0,.61,.05); for(const s of slots) body.add(s);
   root.traverse(q=>{ if(q.isMesh){ q.castShadow=true; q.receiveShadow=true; } }); scene.add(root); return {root,body,wheels,slots,sk:['','']}; }
 function cartVis(){ if(!CARTV) CARTV=buildCart(); return CARTV; }
+/* carrinho volta pra mochila: ao desligar o jogo, ou depois de 10 minutos longe dele (os packs ficam no chão) */
+function cartToBag(why){ if(!CART.own) return false; if(P.cart) cartExit(); if(addItem('cart',1)>0) return false;
+  if(CART.packs.length){ CART.packs.forEach((p,i)=>GP.push({id:p.id,ox:p.ox,oy:p.oy,x:CART.x+(i?1:-1)*1.2,y:CART.y+.8})); CART.packs=[]; }
+  CART.own=false; CART.v=0; CART.farT0=0; if(CARTV) CARTV.root.visible=false; if(CENG) cartEngine(false); if(why) toast(why); updCartBtn(); doSave(); return true; }
+function cartAway(){ if(!CART.own||P.cart){ CART.farT0=0; return; } const far=DG||Math.hypot(CART.x-P.x,CART.y-P.y)>25, now=Date.now();
+  if(!far){ CART.farT0=0; return; } if(!CART.farT0) CART.farT0=now;
+  if(now-CART.farT0>600000){ if(!cartToBag('Você ficou 10 minutos longe: o carrinho voltou pra mochila'+(CART.packs.length?' e os packs ficaram no chão':'')+'.')){ CART.farT0=now-540000; toast('Mochila cheia: o carrinho não conseguiu voltar'); } } }
 function cartPlaceAt(x,y){ if(!canStand(x,y,.5)) return false; CART.own=true; CART.x=x; CART.y=y; CART.r=P.rot||0; CART.hp=CART.max; CART.broken=false; return true; }
-function cartFromBag(){ if(VISIT){ toast('O carrinho fica no seu mundo'); return; } if(CART.own){ toast('Você já tem um carrinho no mundo'); return; }
+function cartFromBag(){ if(DG){ toast('Aqui dentro não cabe o carrinho'); return; } if(CART.own){ toast('Você já tem um carrinho no mundo'); return; }
   const x=P.x+Math.sin(P.rot||0)*1.6, y=P.y+Math.cos(P.rot||0)*1.6; if(!cartPlaceAt(x,y)){ toast('Sem espaço aqui pro carrinho'); sfx.err(); return; } take('cart',1); if(creativeFast()){} sfx.build(); toast('Carrinho no chão! Toque nele pra abastecer, dirigir e carregar packs.'); mqEv('cart'); updCartBtn(); doSave(); }
-function nearCart(r){ return CART.own&&!DG&&!VISIT&&Math.hypot(CART.x-P.x,CART.y-P.y)<(r||3.2); }
+function nearCart(r){ return CART.own&&!DG&&Math.hypot(CART.x-P.x,CART.y-P.y)<(r||3.2); }
 function cartEnter(){ if(!nearCart(3.5)) return; if(CART.broken){ toast('O carrinho está quebrado. Toque nele pra consertar.'); sfx.err(); return; } if(P.boat||P.ride||P.swim) return; if(P.mounted) mount(false); if(fishOn()) fishEnd(''); if(P.chan) chanCancel('');
   P.cart=true; CART.v=0; P.x=CART.x; P.y=CART.y; P.rot=P.face=CART.r; P.move=null; P.autoGo=null; P.gather=null; P.run=false; runBtn(); sfx.build(); if(CART.fuel<=0) toast('Sem combustível! Abasteça (toque no carrinho).'); updCartBtn(); packHud(); }
 function cartExit(){ if(!P.cart) return; P.cart=false; const r=CART.r; for(const s of [1,-1]){ const x=CART.x+Math.cos(r)*1.2*s, y=CART.y-Math.sin(r)*1.2*s; if(canStand(x,y,.27)){ P.x=x; P.y=y; break; } } P.jv=2.4; P.jz=.01; sfx.land(); updCartBtn(); packHud(); doSave(); }
@@ -6988,7 +7030,7 @@ function cartMove(dt,wx,wy,mag){ const v0=CART.v||0; let turn=0;
   const sp=CART.v*dt; if(Math.abs(sp)>1e-4){ const ox=P.x, oy=P.y; const ok=tryMove(P,Math.sin(CART.r)*sp,Math.cos(CART.r)*sp,.42); const moved=Math.hypot(P.x-ox,P.y-oy); if(!ok&&moved<sp*.3){ if(CART.v>3){ shake=Math.min(.2,shake+.06); sfx.land(); } CART.v*=.2; } if(!creativeFast()) CART.fuel=Math.max(0,CART.fuel-moved); CART.dist=(CART.dist||0)+moved; }
   CART.x=P.x; CART.y=P.y; P.rot=P.face=CART.r; P.dx=Math.sin(CART.r); P.dy=Math.cos(CART.r); P.sp=0; P.moving=false; P.ramp=0; P.dashT=0;
   CART.hudT=(CART.hudT||0)-dt; if(CART.hudT<=0){ CART.hudT=.5; packHud(); } }
-function cartPlace(){ if(!CART.own||DG||VISIT){ if(CARTV) CARTV.root.visible=false; if(CENG) cartEngine(false); return; } const V=cartVis(); V.root.visible=true;
+function cartPlace(){ cartAway(); if(!CART.own||DG){ if(CARTV) CARTV.root.visible=false; if(CENG) cartEngine(false); return; } const V=cartVis(); V.root.visible=true;
   const x=P.cart?P.x:CART.x, y=P.cart?P.y:CART.y, h=hgt(x,y); V.root.position.set(x,h,y); V.root.rotation.y=CART.r;
   const sp=P.cart?(CART.v||0):0; for(const w of V.wheels) w.rotation.x+=sp*.016/.32*3;
   const vib=P.cart&&!CART.broken&&(CART.fuel>0||creativeFast())?(.35+Math.min(1,Math.abs(sp)/4)):0; V.body.rotation.z=CART.broken?.18:(Math.sin(time*31)*.006+Math.sin(time*13)*.01)*vib; V.body.rotation.x=CART.broken?-.08:Math.sin(time*23)*.006*vib; V.body.position.y=Math.abs(Math.sin(time*27))*.012*vib;
@@ -7017,11 +7059,11 @@ function cartMenu(){ const b=[], near=Math.hypot(CART.x-P.x,CART.y-P.y)<3.5;
   else { b.push(['Dirigir',()=>{ closeDialog(); cartEnter(); }]);
     if(CART.hp<CART.max) b.push(['Consertar (4 madeiras)',()=>{ if(!creativeFast()&&count('wood')<4){ toast('Precisa de 4 madeiras'); sfx.err(); return; } take('wood',4); CART.hp=CART.max; sfx.build(); toast('Carrinho novinho!'); cartMenu(); doSave(); }]); }
   b.push(['Abastecer ('+(creativeFast()?'∞':count('fuel'))+' galões)',()=>{ if(!creativeFast()&&count('fuel')<1){ toast('Você não tem combustível. Faça na bancada (2 carvão + 1 geleia de gosma) ou compre com o Tio Nando.'); sfx.err(); return; } if(CART.fuel>=CARTF*5-1){ toast('Tanque cheio'); return; } take('fuel',1); CART.fuel=Math.min(CARTF*5,CART.fuel+CARTF); sfx.splash(); toast('Abastecido!'); cartMenu(); doSave(); }]);
-  if(P.pack&&CART.packs.length<2&&!CART.broken) b.push(['Pôr o pack das costas no carrinho',()=>{ CART.packs.push(P.pack); P.pack=null; sfx.build(); packHud(); cartMenu(); doSave(); }]);
-  CART.packs.forEach((p,i)=>{ if(!P.pack) b.push(['Pegar '+PACKS[p.id].n+' nas costas',()=>{ P.pack=CART.packs.splice(i,1)[0]; sfx.pick(); packHud(); cartMenu(); doSave(); }]); });
+  if(!VISIT&&P.pack&&CART.packs.length<2&&!CART.broken) b.push(['Pôr o pack das costas no carrinho',()=>{ CART.packs.push(P.pack); P.pack=null; sfx.build(); packHud(); cartMenu(); doSave(); }]);
+  if(!VISIT) CART.packs.forEach((p,i)=>{ if(!P.pack) b.push(['Pegar '+PACKS[p.id].n+' nas costas',()=>{ P.pack=CART.packs.splice(i,1)[0]; sfx.pick(); packHud(); cartMenu(); doSave(); }]); });
   if(!CART.packs.length&&!CART.broken&&CART.hp>=CART.max) b.push(['Guardar na mochila',()=>{ if(addItem('cart',1)>0){ toast('Mochila cheia!'); return; } CART.own=false; if(CARTV) CARTV.root.visible=false; closeDialog(); toast('Carrinho guardado (o combustível fica nele).'); updCartBtn(); doSave(); }]);
   b.push(['Fechar',closeDialog,1]); openMenu('Carrinho de carga',t,b); }
-function pickCartTap(px,py){ if(!CART.own||DG||VISIT||P.cart) return false; const p=proj(CART.x,hgt(CART.x,CART.y)+.7,CART.y); return p.ok&&Math.hypot(px-p.x,py-p.y)<60; }
+function pickCartTap(px,py){ if(!CART.own||DG||P.cart) return false; const p=proj(CART.x,hgt(CART.x,CART.y)+.7,CART.y); return p.ok&&Math.hypot(px-p.x,py-p.y)<60; }
 var cartB=null;
 function updCartBtn(){ if(!cartB) return; const show=!DG&&!P.dead&&(P.cart||nearCart(3.5)); cartB.style.display=show?'':'none'; cartB.classList.toggle('on',!!P.cart); }
 /* entrega de packs nos postos */
@@ -7059,7 +7101,7 @@ const MQ=[
    acc:()=>{ if(Q.cat<1) Q.cat=1; },act:'',o:()=>Q.cat>=2?'Achou! Volte até a Mãe.':'Procure a gatinha nos Campos Floridos',chk:()=>Q.cat>=2,tgt:()=>({x:YHOME.x,y:YHOME.y}),
    done:'Ela te escolheu! O nome dela é Yuki. Cuida bem dela, viu? Ela vai lutar do seu lado e crescer junto com você.',fin:()=>{ Q.cat=3; },r:{xp:80,pot:2,it:[['berry',5]]}},
   {id:'vidas',ch:0,npc:'cida',n:'Sete vidas',
-   ask:'Que bom que a Yuki voltou! Escuta a vovó: gato tem sete vidas, mas não abusa. Quando ela se machucar numa luta, dá uma poção pra ela (na mochila, aba de atributos, "Dar poção pra Yuki"). E se ela desmaiar, traz ela aqui que a vovó cuida. Toma duas poções. Dá uma pra ela agora, pra treinar.',
+   ask:'Que bom que a Yuki voltou! Escuta a vovó: gato tem sete vidas, mas não abusa. Quando ela se machucar numa luta, dá uma poção pra ela (toque no seu retrato lá em cima, aba Status, "Dar poção pra Yuki"). E se ela desmaiar, traz ela aqui que a vovó cuida. Toma duas poções. Dá uma pra ela agora, pra treinar.',
    acc:()=>{ P.potions+=2; },act:'Mochila → "Dar poção pra Yuki".',o:()=>Q.mqf?'Feito!':'Dê uma poção pra Yuki',chk:()=>!!Q.mqf,
    done:'Muito bem! Agora vocês duas estão prontas pra estrada. O Tio Ão, lá no sítio dos girassóis, tá precisando de ajuda. Vai lá!',r:{xp:80,it:[['ybandana',1]]}},
   {id:'horta',ch:1,npc:'tonho',n:'Mão na terra',
@@ -7187,7 +7229,7 @@ $('qn').parentElement.addEventListener('click',()=>qlogOpen());
 /* ---------- teclas no PC: mostrar e trocar ---------- */
 const KACT=[['s1','Magia 1','1','sl0'],['s2','Magia 2','2','sl1'],['s3','Magia 3','3','sl2'],['s4','Magia 4','4','sl3'],['s5','Magia 5','5','sl4'],['atk','Botão grande (ataque)','e','atk'],
   ['pot','Poção','q','pot'],['jmp','Pular',' ','jmp'],['dsh','Dash','c','dsh'],['run','Correr (segurar)','shift','run'],['mnt','Montar no cavalo','h','mnt'],['boat','Barco','n','bt'],['fish','Pescar','p','fsh'],
-  ['cart','Carrinho','g','crt'],['build','Modo construção','v','bldb'],['bag','Mochila','i',''],['map','Mapa','m',''],['log','Diário de missões','j',''],['rot','Girar peça (construção)','r','']];
+  ['cart','Carrinho','g','crt'],['build','Modo construção','v','bldb'],['bag','Mochila','i',''],['char','Personagem (status e magias)','k',''],['map','Mapa','m',''],['log','Diário de missões','j',''],['rot','Girar peça (construção)','r','']];
 let KB={}; try{ KB=JSON.parse(localStorage.getItem('bp-keys')||'{}')||{}; }catch(e){ KB={}; }
 const kOf=a=>KB[a]||KACT.find(q=>q[0]===a)[2];
 const kName=k=>k===' '?'Esp':k==='shift'?'Shift':k.length===1?k.toUpperCase():k[0].toUpperCase()+k.slice(1);
@@ -7206,7 +7248,7 @@ function kDo(a){ switch(a){
   case 's1': case 's2': case 's3': case 's4': case 's5': useSlot(+a[1]-1); break; case 'atk': useSlot(5); break; case 'pot': usePotion(); break;
   case 'jmp': jump(); hideHint(); break; case 'dsh': dash(); break; case 'mnt': mount(!P.mounted); break; case 'boat': boatToggle(); break; case 'fish': fishPress(); break;
   case 'cart': cartPress(); break; case 'build': if(BM.on) bmExit(); else bmEnter(); break; case 'map': if($('wmap').classList.contains('on')) closeMap(); else openMap(); break;
-  case 'bag': if(inv.classList.contains('on')) closeInv(); else openInv(); break; case 'log': if($('qlog').classList.contains('on')) qlogClose(); else qlogOpen(); break;
+  case 'bag': if(inv.classList.contains('on')) closeInv(); else openInv(); break; case 'char': if(inv.classList.contains('on')) closeInv(); else openChar('status'); break; case 'log': if($('qlog').classList.contains('on')) qlogClose(); else qlogOpen(); break;
   case 'rot': if(BM.on){ BM.r=(BM.r+1)%4; bmGhost(true); } break; } }
 
 /* ---------- save: backups do que for substituído ---------- */
@@ -7240,7 +7282,7 @@ const BOOKI='<svg viewBox="0 0 24 24"><path d="M4 4h7c1 0 1 1 1 2v14c0-1-1-2-2-2
 const PCA={
   pot:['Poção',()=>usePotion(),'pot'], jmp:['Pular',()=>{ jump(); hideHint(); },'jmp'], dsh:['Dash',()=>dash(),'dsh'], run:['Correr (liga/desliga)',()=>{ P.run=!P.run; runBtn(); },'run'],
   mnt:['Cavalo',()=>mount(!P.mounted),'mnt'], boat:['Barco',()=>boatToggle(),'bt'], fish:['Pescar',()=>fishPress(),'fsh'], cart:['Carrinho',()=>cartPress(),'crt'],
-  build:['Modo construção',()=>{ if(BM.on) bmExit(); else bmEnter(); },'bldb'], bag:['Mochila',()=>{ if(inv.classList.contains('on')) closeInv(); else openInv(); },'bagb'],
+  build:['Modo construção',()=>{ if(BM.on) bmExit(); else bmEnter(); },'bldb'], bag:['Mochila',()=>{ if(inv.classList.contains('on')) closeInv(); else openInv(); },'bagb'], char:['Personagem',()=>{ if(inv.classList.contains('on')) closeInv(); else openChar('status'); },''],
   map:['Mapa',()=>{ if($('wmap').classList.contains('on')) closeMap(); else openMap(); },'mapb'], log:['Diário de missões',()=>qlogOpen(),'']};
 var PCB={on:true,s:null};
 try{ const d=JSON.parse(localStorage.getItem('bp-pcbar')||'null'); if(d){ PCB.on=d.on!==false; if(Array.isArray(d.s)) PCB.s=d.s.slice(0,10); } }catch(e){}
