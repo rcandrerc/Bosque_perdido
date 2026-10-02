@@ -210,6 +210,24 @@ body.inbuild #packc{display:none!important}
 .sk .kb{position:absolute;top:-7px;left:-7px;z-index:5;min-width:14px;padding:1px 4px;border-radius:6px;background:#1c140c;border:1px solid #e8b84a;color:#ffe7a8;font:800 10px/14px var(--ui);text-align:center;display:none;pointer-events:none}body.pc .sk .kb{display:block}body.pc #bldb .kb{display:block;position:absolute;top:-6px;left:-6px;min-width:14px;padding:1px 4px;border-radius:6px;background:#1c140c;border:1px solid #e8b84a;color:#ffe7a8;font:800 10px/14px var(--ui)}#bldb .kb{display:none}
 body:not(.pc) .pconly{display:none!important}
 #bhot .bht{flex:none;align-self:center;border:0;border-radius:9px;padding:6px 8px;font:700 11.5px var(--ui);background:rgba(255,255,255,.08);color:var(--ink);cursor:pointer}#bhot .bht.on{background:var(--xp);color:#2a1d04}
+#mset .mtabs{display:flex;gap:6px}#mset .mtabs button{flex:1;border:0;border-radius:10px;padding:9px 4px;font:700 12.5px var(--ui);background:rgba(255,255,255,.1);color:#f5ecd6;cursor:pointer}#mset .mtabs button.on{background:var(--xp);color:#2a1d04}
+#mset .mpane{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:14px;background:rgba(20,14,10,.55)}#mset .mpane[hidden]{display:none}#mset .mslh{margin:0}
+body.mv-tap #joy{display:none!important}
+#pcbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:5px;padding:6px;z-index:16;pointer-events:auto}
+body.pcbar #pcbar{display:flex}body.pcbar #sl0,body.pcbar #sl1,body.pcbar #sl2,body.pcbar #sl3,body.pcbar #sl4,body.pcbar #atk,body.pcbar #pot,body.pcbar #jmp,body.pcbar #dsh,body.pcbar #run,body.pcbar #mnt,body.pcbar #joy{display:none!important}
+body.inbuild #pcbar,body.inbuild #pcpal{display:none!important}
+#pcbar .pcs{position:relative;width:52px;height:52px;flex:none;border-radius:11px;border:2px solid rgba(255,230,170,.28);background:rgba(28,22,16,.9);padding:7px;cursor:pointer;color:#f5ecd6;overflow:hidden}
+#pcbar .pcs .ic{display:block;width:100%;height:100%}#pcbar .pcs svg{width:100%;height:100%;display:block}#pcbar .pcs.empty{border-style:dashed;opacity:.6}
+#pcbar .pcs .k{position:absolute;top:1px;left:4px;font:800 11px var(--ui);color:#ffe7a8;text-shadow:0 1px 2px #000;z-index:3}
+#pcbar .pcs .n{position:absolute;right:3px;bottom:1px;font:800 11px var(--ui);color:#fff;text-shadow:0 1px 2px #000;z-index:3}
+#pcbar .pcs .cd{position:absolute;inset:0;background:conic-gradient(rgba(0,0,0,.66) var(--p,0%),transparent 0);z-index:2;pointer-events:none}
+#pcbar .pcs.lock .ic{filter:grayscale(1) brightness(.5)}#pcbar .pcs.nomana .ic{opacity:.4}#pcbar .pcs.drop{border-color:#7fdc68;box-shadow:0 0 0 2px #7fdc68 inset}#pcbar .pcs.hit{transform:scale(.92)}
+#pcbar .pced{width:34px;font:700 18px var(--ui);padding:0}#pcbar .pced.on{background:var(--xp);color:#2a1d04}
+#pcpal{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:17;width:min(720px,calc(100vw - 32px));max-height:52vh;overflow:auto;padding:10px 12px;pointer-events:auto;color:#f5ecd6}
+#pcpal[hidden]{display:none}#pcpal .pph b{display:block;font:700 14px var(--display);color:#ffe7a8}#pcpal .pph small{display:block;color:var(--muted);font-size:12px}#pcpal h5{margin:10px 0 5px;font:700 11px var(--ui);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#pcpal .ppr{display:flex;flex-wrap:wrap;gap:6px}#pcpal .ppe{width:68px;border:1px solid rgba(255,230,170,.25);border-radius:10px;background:rgba(255,255,255,.05);padding:6px 4px;cursor:grab;color:#f5ecd6;touch-action:none}#pcpal .ppe svg{width:30px;height:30px;display:block;margin:0 auto 3px}#pcpal .ppe small{display:block;font:600 10px/1.15 var(--ui)}
+.pcghost{position:fixed;width:44px;height:44px;margin:-22px 0 0 -22px;pointer-events:none;z-index:99;opacity:.85}.pcghost svg{width:100%;height:100%}
+body.hudedit #stat,body.hudedit #side,body.hudedit #qt,body.hudedit #pcbar{pointer-events:auto!important;outline:2px dashed rgba(255,231,168,.7);outline-offset:2px}body.hudedit #mapb,body.hudedit #bagb,body.hudedit #menub,body.hudedit #chatb{outline:2px dashed rgba(255,231,168,.7);outline-offset:2px}body.hudedit #pcpal{display:none!important}
 #bldb{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(344px + env(safe-area-inset-right,0px));width:54px;height:54px;border-radius:16px;pointer-events:auto;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:30}#bldb svg{width:30px;height:30px}body.inbuild #bldb{box-shadow:0 0 0 3px #ffe08a}
 @media (max-width:600px){ #bldb{top:calc(326px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))} }
 #bhot{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));display:none;gap:5px;padding:6px;pointer-events:auto;z-index:16;max-width:calc(100vw - 24px);overflow-x:auto}#bhot.on{display:flex}
@@ -371,7 +389,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="hudp"><b>Ajustar botões</b><span id="hudsel"></span><div class="hrow"><button class="pb sm" id="hudm">− Menor</button><button class="pb sm" id="hudpl">+ Maior</button></div><div class="hrow"><button class="pb gray sm" id="hudr">Restaurar padrão</button><button class="pb sm" id="hudok">Pronto</button></div></div>
 <div id="joy" aria-label="Joystick"><div id="knob"></div></div>
 <div id="skills"></div>
-<div class="hud panel" id="hint">Joystick para andar, arraste a tela para girar a câmera. Toque num monstro para marcar e use o botão de ataque. Fale com a Vovó Fernanda!</div>
+<div class="hud panel" id="hint">Joystick (ou toque no chão) para andar, arraste a tela para girar a câmera. Toque num monstro para marcar e use o botão de ataque. Fale com a Vovó Fernanda!</div>
 <div class="hud" id="toast"></div>
 <div id="flash"></div>
 <div id="fade"></div>
@@ -401,20 +419,29 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.48</div>
+    <div id="ver">v0.49</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
       <div class="mrow" id="mslots"></div>
-      <div class="mrow"><button class="mb" id="mnew">Novo jogo</button><button class="mb" id="mnet">Jogar com amigos</button></div>
-      <div class="mrow"><button class="mb small" id="mlog">Diário de missões</button><button class="mb small pconly" id="mkeys">Teclas do teclado</button></div>
-      <div class="mrow"><button class="mb small" id="mlook">Aparência da personagem</button><button class="mb small" id="mhud">Ajustar botões</button></div>
-      <div class="mrow"><button class="mb small ck on" id="mtut">Tutorial</button><button class="mb small" id="mtutr">Recomeçar tutorial</button></div>
+      <div class="mrow"><button class="mb" id="mnet">Jogar com amigos</button><button class="mb" id="mcfg">Configurações</button></div>
+      <div class="mrow"><button class="mb small" id="mlog">Diário de missões</button><button class="mb small" id="mnew">Novo jogo</button></div>
       <button class="mb small" id="madm" hidden>Painel do criador (só você)</button>
-      <div class="mrow"><button class="mb small" id="fsb">Tela cheia</button><button class="mb small ck on" id="snd">Som</button><button class="mb small" id="qlb">Gráficos: Alta</button></div>
-      <button class="mb small ghost" id="mtitle">Voltar ao menu inicial</button>
       <button class="mb" id="minst" hidden>📲 Instalar app</button>
-      <button class="mb small ghost" id="mexit">Sair do jogo</button>
+      <div class="mrow"><button class="mb small ghost" id="mtitle">Voltar ao menu inicial</button><button class="mb small ghost" id="mexit">Sair do jogo</button></div>
+    </div>
+    <div class="mbtns" id="mset" hidden>
+      <div class="mtabs"><button data-mt="v" class="on">Vídeo e áudio</button><button data-mt="j">Jogabilidade</button><button data-mt="m">Multiplayer</button></div>
+      <div class="mpane" data-mp="v"><div class="mrow"><button class="mb small" id="fsb">Tela cheia</button><button class="mb small ck on" id="snd">Som</button></div><button class="mb small" id="qlb">Gráficos: Alta</button></div>
+      <div class="mpane" data-mp="j" hidden>
+        <p class="mslh">Como andar (tocar em monstro e pessoa sempre funciona)</p>
+        <div class="mrow" id="mmove"><button class="mb small ck" data-mv="joy">Joystick</button><button class="mb small ck" data-mv="tap">Tocar no chão</button><button class="mb small ck" data-mv="both">Os dois</button></div>
+        <div class="mrow"><button class="mb small" id="mhud">Ajustar botões e painéis</button><button class="mb small" id="mlook">Aparência</button></div>
+        <div class="mrow"><button class="mb small ck on" id="mtut">Tutorial</button><button class="mb small" id="mtutr">Recomeçar tutorial</button></div>
+        <div class="mrow pconly"><button class="mb small ck" id="mpcb">Barra de 10 slots (PC)</button><button class="mb small" id="mkeys">Teclas do teclado</button></div>
+      </div>
+      <div class="mpane" data-mp="m" hidden><p class="mq" style="font-size:13px;margin:0">Lista de amigos, abrir seu mundo, quem pode construir e destruir, troca de itens e save na nuvem (com versões anteriores).</p><button class="mb" id="mnet2">Abrir Jogar com amigos</button></div>
+      <button class="mb small ghost" id="mback">← Voltar</button>
     </div>
     <div class="mbtns" id="mconf" hidden>
       <p class="mq">Apagar todo o progresso e começar do zero?<br><small>Nível, itens, missões, a Yuki e as pedras de teleporte serão perdidos.</small></p>
@@ -4372,10 +4399,10 @@ function layoutSkills(){
 layoutSkills(); window.addEventListener('resize',layoutSkills); updMountBtn();
 /* ---------- editor de botões: arrastar e mudar tamanho ---------- */
 var HUDL=null, HE={on:false,sel:null,drag:null};
-const HUDN={sl0:'Magia 1',sl1:'Magia 2',sl2:'Magia 3',sl3:'Magia 4',sl4:'Magia 5',atk:'Botão grande',pot:'Poção',mnt:'Montar',jmp:'Pular',dsh:'Dash',run:'Correr',bt:'Barco',fsh:'Pescar',joy:'Joystick',bldb:'Construir'};
+const HUDN={stat:'Painel de vida e nível',side:'Minimapa',qt:'Quadro da missão',mapb:'Botão do mapa',bagb:'Botão da mochila',menub:'Botão do menu',chatb:'Botão do chat',pcbar:'Barra de slots',sl0:'Magia 1',sl1:'Magia 2',sl2:'Magia 3',sl3:'Magia 4',sl4:'Magia 5',atk:'Botão grande',pot:'Poção',mnt:'Montar',jmp:'Pular',dsh:'Dash',run:'Correr',bt:'Barco',fsh:'Pescar',joy:'Joystick',bldb:'Construir'};
 function hudLoad(){ if(HUDL) return HUDL; try{ HUDL=JSON.parse(localStorage.getItem('bp-hudl')||'{}')||{}; }catch(e){ HUDL={}; } return HUDL; }
 function hudSave(){ try{ localStorage.setItem('bp-hudl',JSON.stringify(HUDL)); }catch(e){} }
-function hudEls(){ return [...document.querySelectorAll('#skills .sk')].concat([$('joy'),$('bldb')]).filter(Boolean); }
+function hudEls(){ return [...document.querySelectorAll('#skills .sk')].concat(['joy','bldb','stat','side','qt','mapb','bagb','menub','chatb','pcbar'].map(i=>$(i))).filter(Boolean); }
 function hudApply(){ const L=hudLoad(); for(const el of hudEls()){ const o=L[el.id]; el.style.translate=o?(o.dx|0)+'px '+(o.dy|0)+'px':''; el.style.scale=o&&o.s&&o.s!==1?String(o.s):''; } }
 function hudUI(){ const p=$('hudp'); if(!p) return; const o=HE.sel?(HUDL[HE.sel]||{}):null;
   $('hudsel').textContent=HE.sel?(HUDN[HE.sel]||HE.sel)+' · '+Math.round((o.s||1)*100)+'%':'Toque e arraste um botão';
@@ -4385,7 +4412,7 @@ function hudEnter(){ hudLoad(); HE.on=true; HE.sel=null; paused=true; document.b
 function hudExit(){ HE.on=false; HE.drag=null; document.body.classList.remove('hudedit'); document.querySelectorAll('.hudon').forEach(e=>e.classList.remove('hudon'));
   hudSave(); paused=false; }
 window.addEventListener('pointerdown',e=>{ if(!HE.on) return; if(e.target.closest('#hudp')) return; e.preventDefault(); e.stopPropagation();
-  const el=e.target.closest('#skills .sk,#joy,#bldb'); if(!el) return; HE.sel=el.id; const o=HUDL[el.id]||(HUDL[el.id]={dx:0,dy:0,s:1});
+  const el=e.target.closest('#skills .sk,#joy,#bldb,#stat,#side,#qt,#mapb,#bagb,#menub,#chatb,#pcbar'); if(!el) return; HE.sel=el.id; const o=HUDL[el.id]||(HUDL[el.id]={dx:0,dy:0,s:1});
   HE.drag={id:e.pointerId,x:e.clientX,y:e.clientY,dx:o.dx|0,dy:o.dy|0}; hudUI(); },true);
 window.addEventListener('pointermove',e=>{ if(!HE.on||!HE.drag||e.pointerId!==HE.drag.id) return; e.preventDefault(); e.stopPropagation(); const o=HUDL[HE.sel];
   o.dx=Math.round(HE.drag.dx+e.clientX-HE.drag.x); o.dy=Math.round(HE.drag.dy+e.clientY-HE.drag.y); hudApply(); },true);
@@ -4405,7 +4432,7 @@ cv.addEventListener('pointerdown',e=>{
   e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
   if(ac&&ac.state==='suspended') ac.resume();
   if(joy.on&&!joy.moved&&e.pointerId!==joy.id&&!paused){ const jid=joy.id, jx=joy.cx, jy=joy.cy; joyEnd(); drag={id:jid,x:jx,y:jy,lx:jx,ly:jy,moved:true}; pinch={ids:new Set([jid,e.pointerId]),pts:new Map([[jid,{x:jx,y:jy}],[e.pointerId,{x:e.clientX,y:e.clientY}]]),d:0}; return; }
-  if(!joy.on&&!paused&&joyZone(e.clientX,e.clientY)&&e.pointerType!=='mouse'){ joyStart(e); return; }
+  if(!joy.on&&!paused&&MOVEM!=='tap'&&joyZone(e.clientX,e.clientY)&&e.pointerType!=='mouse'){ joyStart(e); return; }
   if(drag){ if(!pinch){ pinch={ids:new Set([drag.id,e.pointerId]),pts:new Map([[drag.id,{x:drag.lx,y:drag.ly??drag.y}],[e.pointerId,{x:e.clientX,y:e.clientY}]]),d:0}; drag.moved=true; } return; }
   drag={id:e.pointerId,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,moved:false};
 });
@@ -4434,7 +4461,7 @@ function tapAt(x,y){
   const np=DG?null:pickNPC(x,y); if(np){ if(Math.hypot(np.x-P.x,np.y-P.y)<2.6) openDialog(np); else { P.talkTo=np; P.move={x:np.x,y:np.y+1.2}; P.gather=null; } return; }
   const r=pickRes(x,y);
   if(r){ startGather(r); return; }
-  P.target=null; P.gather=null; setMoveFromPointer(x,y);
+  P.target=null; P.gather=null; if(MOVEM!=='joy') setMoveFromPointer(x,y);
 }
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('wheel',e=>{ e.preventDefault(); zoom=clamp(zoom*(e.deltaY>0?1.08:.92),.55,2); zoomSave(); },{passive:false});
@@ -4444,6 +4471,7 @@ window.addEventListener('keydown',e=>{
   if(k==='enter'&&!$('chatb').hidden){ e.preventDefault(); chatOpen(); return; }
   if(k==='escape'){ if(FUR) furClose(); else if($('qlog').classList.contains('on')) qlogClose(); else if(menuMode) hideMenu(); else if(inv.classList.contains('on')) closeInv(); else if(!loading) showMenu('pause'); return; }
   if(k==='f'){ toggleFS(); return; } if(k==='z'){ yawT+=.6; return; } if(k==='x'&&kAct('x')==null){ yawT-=.6; return; }
+  if(typeof pcOn==='function'&&pcOn()&&/^[0-9]$/.test(k)){ pcUse(k==='0'?9:+k-1); return; }
   const a=kAct(k);
   if(a==='run'){ if(!P.runKey&&!P.mounted){ P.runKey=true; P.run=true; runBtn(); } return; }
   if(a){ if(a==='jmp') e.preventDefault(); kDo(a); return; }
@@ -4462,7 +4490,7 @@ function slotsRender(){ const el=$('mslots'); if(!el) return; let h='';
   el.innerHTML=h; }
 $('mslots').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const n=+b.dataset.slot; if(n===SLOTN) return; if(VISIT){ toast('Volte pro seu mundo primeiro'); return; } try{ doSave(); }catch(_){} resetting=true; try{ localStorage.setItem('bp-slot',String(n)); }catch(_){} location.reload(); });
 function showMenu(mode){ menuMode=mode; slotsRender(); try{ tutLbl(); }catch(e){} const m=$('gmenu'); m.classList.add('on'); m.classList.toggle('title',mode==='title'); document.body.classList.toggle('intitle',mode==='title');
-  $('mconf').hidden=true; $('mmain').hidden=false; paused=true; P.sp=0; keys.clear(); if(typeof joyEnd==='function') joyEnd();
+  $('mconf').hidden=true; $('mset').hidden=true; $('mmain').hidden=false; paused=true; P.sp=0; keys.clear(); if(typeof joyEnd==='function') joyEnd();
   $('mplay').textContent=mode==='pause'?'Voltar ao jogo':(hadSave?'Continuar':'Começar');
   $('mtitle').hidden=mode!=='pause'; $('msub').textContent=mode==='pause'?'Jogo pausado':'Crie o impossível e viva do seu jeito.';
   $('mhint').textContent=mode==='title'?(hadSave?'Nível '+P.lvl+' · '+REGN[regIdx(DG?0:P.x)]:''):''; fsLabel(); }
@@ -4865,7 +4893,7 @@ function fishSpot(){ const tryAt=(an,d)=>{ const x=P.x+Math.sin(an)*d, y=P.y+Mat
   for(const d of [4,3.4,2.8,2.2]){ const r=tryAt(base,d); if(r) return r; }
   for(let i=1;i<=12;i++) for(const sg of [1,-1]) for(const d of [3.6,2.6,4.4]){ const r=tryAt(base+sg*i*.26,d); if(r) return r; }
   return null; }
-function fishPress(){ if(paused||P.dead) return; if(!FISH){ fishStart(); return; }
+function fishPress(){ if(paused||P.dead) return; if(!FISH){ fishStart(); return; } if(FISH.st==='land') return;
   if(FISH.st==='bite'){ fishHook(); return; }
   if(FISH.st==='reel'){ FISH.prog=Math.min(1,FISH.prog+FISH.tap); FISH.pull=.25; sfx.reel(); return; }
   if(FISH.st==='wait'){ fishEnd('Puxou cedo demais! Espere a boia afundar.'); return; } }
@@ -4881,7 +4909,7 @@ function fishHook(){ const id=FISH.fish, rar=FISHR[id]; if(rar<2){ fishCatch(); 
 function fishCatch(){ const id=FISH.fish, kg=FISHKG[id], w=kg[0]+(kg[1]-kg[0])*Math.pow(Math.random(),1.6), it=IT[id];
   const left=addItem(id,1); useTool('rod'); const ws=w<1?Math.round(w*1000)+' g':w.toFixed(1).replace('.',',')+' kg';
   if(left){ toast('Mochila cheia! O '+it.n.toLowerCase()+' escapou'); } else { addText(P.x,P.y,P.h+2.3,'+'+it.n+' ('+ws+')',FISHR[id]>=3?'#ffd23f':'#bfe8ff',FISHR[id]>=3?20:16); toast((FISHR[id]>=4?'LENDÁRIO! ':FISHR[id]>=3?'Que peixão! ':'')+'Pegou: '+it.n+' · '+ws); gainXp(4+FISHR[id]*9); mqEv('fish',id); }
-  spark(FISH.x,WATER_Y+.1,FISH.y,'#eaf7ff',14,2,2.6); sfx.splash(); if(FISHR[id]>=3) sfx.level(); else sfx.pick(); FISH=null; updFishBtn(); doSave(); }
+  spark(FISH.x,WATER_Y+.1,FISH.y,'#eaf7ff',14,2,2.6); sfx.splash(); if(FISHR[id]>=3) sfx.level(); else sfx.pick(); if(left){ FISH=null; } else { FISH.st='land'; FISH.t=0; } updFishBtn(); doSave(); }
 function fishEnd(msg){ if(msg) toast(msg); FISH=null; if(FV){ FV.rod.visible=FV.bob.visible=FV.line.visible=false; } updFishBtn(); }
 function fishTick(dt){ if(!FISH) return; const F=FISH; F.t+=dt;
   if(P.dead||DG||P.swim||P.sp>.7||(P.boat&&P.boat.row)||P.mounted){ fishEnd(P.sp>.7||(P.boat&&P.boat.row)?'Você recolheu a linha':''); return; }
@@ -4889,22 +4917,44 @@ function fishTick(dt){ if(!FISH) return; const F=FISH; F.t+=dt;
   else if(F.st==='wait'){ F.twT-=dt; if(F.twT<=0){ F.twT=rnd(.7,2); F.dip=.5; fxAdd('ring',F.x,F.y,WATER_Y+.03,.35,'#ffffff',.35); }
     if(F.t>=F.wait){ F.st='bite'; F.t=0; F.fish=fishPick(); F.win=FISHR[F.fish]>=3?.75:.95; sfx.bloop(); sfx.splash(); addText(F.x,F.y,WATER_Y+.9,'!','#ffd23f',30); fxAdd('ring',F.x,F.y,WATER_Y+.03,1.2,'#ffffff',.6); updFishBtn(); } }
   else if(F.st==='bite'){ if(F.t>F.win){ fishEnd('O peixe escapou...'); sfx.err(); } }
+  else if(F.st==='land'){ if(F.t>1.6){ FISH=null; updFishBtn(); return; } }
   else if(F.st==='reel'){ F.prog-=F.dec*dt; F.pull=Math.max(0,F.pull-dt); if(Math.random()<dt*5) spark(F.x+rnd(-.3,.3),WATER_Y+.05,F.y+rnd(-.3,.3),'#eaf7ff',2,1,1.5,.3);
     if(F.prog>=1){ fishCatch(); return; } if(F.prog<=0||F.t>8){ fishEnd('A linha arrebentou... o peixe fugiu!'); sfx.err(); return; } }
   F.dip=Math.max(0,F.dip-dt*2.5); }
-function fishPlace(){ const V=fishVis(), F=FISH; if(!F){ V.rod.visible=V.bob.visible=V.line.visible=false; return; } V.rod.visible=V.bob.visible=V.line.visible=true;
-  /* mão da boneca (fofa ou realista) */
-  if(AP.model==='real'&&MAGA.ready&&MAGA.bones&&MAGA.bones.hand_r) MAGA.bones.hand_r.getWorldPosition(_pv); else { LZ.root.updateMatrixWorld(true); handW(LZ.armR,_pv); }
-  const fa=Math.atan2(F.x-P.x,F.y-P.y), fx=Math.sin(fa), fy=Math.cos(fa);
-  let el=.95; if(F.st==='cast'){ const u=F.t/.6; el=u<.35?.95+1.0*(u/.35):1.95-1.5*((u-.35)/.65); } else if(F.st==='bite') el=.55+Math.sin(time*30)*.05; else if(F.st==='reel') el=.5+.15*Math.sin(time*9)-(F.pull>0?.2:0);
-  V.rod.position.copy(_pv); _pdir.set(fx*Math.cos(el),Math.sin(el),fy*Math.cos(el)); V.rod.quaternion.setFromUnitVectors(_pv2.set(0,1,0),_pdir);
-  V.tip.copy(_pv).addScaledVector(_pdir,1.7);
+function fishPlace(){ const V=fishVis(), F=FISH; if(!F){ V.rod.visible=V.bob.visible=V.line.visible=false; if(V.fish) V.fish.visible=false; return; } V.rod.visible=V.bob.visible=V.line.visible=true;
+  const K=fishK(), el=K.el, fa=P.boat||P.ride?(P.rot||0):Math.atan2(F.x-P.x,F.y-P.y), fx=Math.sin(fa), fy=Math.cos(fa);
+  /* pegada: a mão de trás segura o cabo; a da frente fica um pouco mais pra cima na vara */
+  if(AP.model==='real'&&MAGA.ready&&MAGA.bones&&MAGA.bones.hand_r) MAGA.bones.hand_r.getWorldPosition(_pv); else { LZ.root.updateMatrixWorld(true); handW(LZ.armR,_pv); handW(LZ.armL,_pv2); _pv.lerp(_pv2,.35); }
+  _pdir.set(fx*Math.cos(el),Math.sin(el),fy*Math.cos(el)); const grip=_pv.clone().addScaledVector(_pdir,-.28);
+  V.rod.position.copy(grip); V.rod.quaternion.setFromUnitVectors(_pv2.set(0,1,0),_pdir);
+  const bend=F.st==='reel'||F.st==='bite'?.12:0; V.rod.rotation.x+=0; V.tip.copy(grip).addScaledVector(_pdir,1.7); V.tip.y-=bend;
   const by=WATER_Y+.03+Math.sin(time*3)*.02-(F.st==='bite'?.12+Math.sin(time*40)*.04:F.st==='reel'?.1:0)-F.dip*.06;
-  if(F.st==='cast'){ const u=Math.min(1,F.t/.6); V.bob.position.set(V.tip.x+(F.x-V.tip.x)*u,V.tip.y+(by-V.tip.y)*u+Math.sin(u*Math.PI)*1.6,V.tip.z+(F.y-V.tip.z)*u); }
+  if(V.fish) V.fish.visible=false;
+  if(F.st==='cast'){ const u=clamp((F.t-.24)/.36,0,1); if(u<=0) V.bob.position.copy(V.tip).y-=.3; else V.bob.position.set(V.tip.x+(F.x-V.tip.x)*u,V.tip.y+(by-V.tip.y)*u+Math.sin(u*Math.PI)*1.4,V.tip.z+(F.y-V.tip.z)*u); }
+  else if(F.st==='land'){ /* o peixe sai da água num arco e fica pendurado na linha */
+    if(!V.fish||V.fishId!==F.fish){ if(V.fish) scene.remove(V.fish); V.fish=fishFishMesh(F.fish); V.fishId=F.fish; scene.add(V.fish); }
+    const u=clamp(F.t/.55,0,1), e=u*u*(3-2*u), hang=V.tip.clone(); hang.y-=.75; hang.x+=Math.sin(time*5)*.05*(u>=1?1:0);
+    const sx=F.x, sz=F.y; V.bob.position.set(sx+(hang.x-sx)*e,by+(hang.y-by)*e+Math.sin(u*Math.PI)*1.3,sz+(hang.z-sz)*e);
+    V.fish.visible=true; V.fish.position.copy(V.bob.position); V.fish.position.y-=.2; V.fish.rotation.set(Math.sin(time*18)*.5*(1-e*.6),fa,Math.sin(time*14)*.35); if(u<.15) spark(sx,WATER_Y+.05,sz,'#eaf7ff',3,1.4,2,.4); }
   else { const jx=F.st==='reel'?Math.sin(time*13)*.18:0, jy=F.st==='reel'?Math.cos(time*11)*.18:0; V.bob.position.set(F.x+jx,by,F.y+jy); }
   const p=V.line.geometry.attributes.position; p.setXYZ(0,V.tip.x,V.tip.y,V.tip.z); p.setXYZ(1,V.bob.position.x,V.bob.position.y+.05,V.bob.position.z); p.needsUpdate=true; }
-function fishPose(v){ const F=FISH; let x=-1.15,f=-.45; if(F.st==='cast'){ const u=F.t/.6; x=u<.35?-2.4*(u/.35)-.6:-3.0+2.2*((u-.35)/.65); f=-.3; } else if(F.st==='reel'){ x=-.9+.15*Math.sin(time*9); f=-.9-.3*Math.sin(time*12); }
-  applyPoseP(v,{xR:x,fR:f,zR:.12,xL:-.75,fL:-1.0,zL:-.25,ty:-.12},1); }
+const FCOL={lambari:['#b8c4cc','#7a8a96'],tilapia:['#8a9a7a','#5a6a4a'],traira:['#6a5a3a','#3a2a1a'],sardinha:['#a8c8e0','#5a7a9a'],robalo:['#c8d0d8','#4a5a6a'],garoupa:['#b06a4a','#6a3a2a'],atum:['#4a6a9a','#c8d8e8'],dourado:['#ffd040','#c08010']};
+/* pescaria com as duas mãos na vara (do jeito do vídeo): espera com a vara pra frente, lança por cima do ombro, puxa pra cima e o peixe sai voando */
+function fishK(){ const F=FISH; if(!F) return null; const t=F.t;
+  if(F.st==='cast'){ const u=clamp(t/.6,0,1); if(u<.4){ const e=u/.4; return {el:.35+1.6*e*(2-e),k:e}; } const e=(u-.4)/.6; return {el:1.95-1.75*(1-Math.pow(1-e,3)),k:1-e}; }
+  if(F.st==='wait') return {el:.2+Math.sin(time*1.3)*.03+F.dip*.08,k:0};
+  if(F.st==='bite') return {el:.12+Math.sin(time*32)*.05,k:0};
+  if(F.st==='reel') return {el:.75+.18*Math.sin(time*7)-(F.pull>0?.25:0),k:.5};
+  if(F.st==='land'){ const u=clamp(t/.28,0,1), e=1-Math.pow(1-u,3); return {el:.2+1.15*e,k:e}; }
+  return {el:.3,k:0}; }
+function fishPose(v){ const K=fishK(); if(!K) return; const el=K.el;
+  /* el: 0 = vara deitada pra frente, 1.4 = vara em pé. Braços acompanham: mãos sobem e chegam perto do peito */
+  const a=clamp(el/1.4,0,1.3);
+  applyPoseP(v,{xR:-.35-1.35*a,fR:-1.6+.65*a,zR:.22-.1*a,xL:-.62-1.5*a,fL:-1.3+.5*a,zL:-.62+.22*a,ty:-.2+.12*a,hx:-.1-.1*(1-a)},1);
+  if(FISH.st==='land'||FISH.st==='reel'){ v.body.rotation.x-=.12*K.k; } }
+function fishFishMesh(id){ const c=FCOL[id]||['#b8c4cc','#7a8a96'], g=new THREE.Group(), m1=new THREE.MeshLambertMaterial({color:C(c[0])}), m2=new THREE.MeshLambertMaterial({color:C(c[1])});
+  const b=new THREE.Mesh(G.sph,m1); b.scale.set(.07,.17,.045); g.add(b); const t=new THREE.Mesh(G.cone,m2); t.scale.set(.06,.08,.02); t.position.y=.2; t.rotation.x=Math.PI; g.add(t);
+  const s=FISHR[id]>=2?1.5:FISHR[id]>=1?1.2:.95; g.scale.setScalar(s); return g; }
 var fishB=null;
 function updFishBtn(){ if(!fishB) return; const show=!DG&&!P.dead&&(FISH||(hasTool('rod')&&!P.swim&&!P.mounted&&nearWater(4.4))); fishB.style.display=show?'':'none';
   fishB.classList.toggle('bite',!!(FISH&&FISH.st==='bite')); fishB.classList.toggle('on',!!FISH);
@@ -6032,7 +6082,7 @@ function frame(now){
   if(!paused){ const gg=P.gather; gearTool=null; if(gg&&Math.hypot(gg.tx+.5-P.x,gg.ty+.5-P.y)<1.8){ if((gg.o===O.OAK||gg.o===O.PINE)&&hasTool('axe')) gearTool='axe'; else if(gg.o===O.BOULDER&&hasTool('pick')) gearTool='pick'; } gearVis(); } if(FISH||P.boat||P.ride||P.cart) LZ.staff.visible=false;
   LZ.root.position.set(P.x,P.h+P.jz,P.y); if(P.mantT>0&&!P.boat) LZ.root.position.y-=(P.mantH||0)*Math.pow(clamp(P.mantT/.34,0,1),1.7);
   if(P.boat) boatPlace(); else if(P.ride) ridePlace(); else if(BOATV&&BOATV.root.visible) boatVis(false);
-  cartPlace(); packPlace();
+  cartPlace(); packPlace(); camOffTick();
   if(P.mounted&&HORSE.vis){ const hv=HORSE.vis; hv.root.position.set(P.x,P.h+P.jz,P.y); hv.root.rotation.y=P.rot||0; if(!paused) animHorse(hv,P.sp,dt,time); LZ.root.position.y+=.72+hv.body.position.y; const k=Math.sin(hv.trunk.rotation.x)*.2; LZ.root.position.x+=Math.sin(P.rot||0)*(-.12+k); LZ.root.position.z+=Math.cos(P.rot||0)*(-.12+k); } { const bb=LZ.root.userData.blob; bb.position.y=.025-P.jz; const k=1/(1+P.jz*.8); bb.scale.set(.85*k,1,.85*k); } if(!paused){ animate(P,LZ,dt); const stp=Math.floor(P.walkPh/Math.PI); if(stp!==P.lastStp){ P.lastStp=stp; if(P.moving&&P.jz<=0&&P.sp>1){ sfx.step(!(typeof DG!=='undefined'&&DG)&&roadD(P.x,P.y)>RW); if(P.sp>3.6) spark(P.x-P.dx*.25,P.h+.04,P.y-P.dy*.25,'#d8c9a8',P.mounted?4:2,.55,.35); } } }
   Y.h=hgt(Y.x,Y.y); YV.root.position.set(Y.x,Y.h+(Y.swing>0?Math.sin(Math.PI*(1-Y.swing))*.28:0),Y.y); if(!paused){ animate(Y,YV,dt); if(Y.idle>1.2&&!Y.moving){ YV.body.position.y=-.06; YV.legs[2].rotation.x=-1.1; YV.legs[3].rotation.x=-1.1; YV.tail.rotation.y=Math.sin(time*2)*.5; } }
   LZ.root.visible=true; if(P.dead) LZ.body.rotation.x=-1.3;
@@ -6934,6 +6984,77 @@ if(typeof hudApply==='function') hudApply();
 for(const [k,v] of structs) addStructMesh(k,v); roofRebuild();
 $('mlog').onclick=()=>{ hideMenu(); qlogOpen('m'); };
 $('mkeys').onclick=()=>{ hideMenu(); keysOpen(); };
+
+
+/* ===================== v0.49: barra do PC, menu em abas, painéis ajustáveis, jeito de andar ===================== */
+/* ---------- jeito de andar: joystick, tocar no chão ou os dois ---------- */
+var MOVEM='both'; try{ const m=localStorage.getItem('bp-move'); if(m==='joy'||m==='tap'||m==='both') MOVEM=m; }catch(e){}
+function moveUI(){ document.body.classList.toggle('mv-tap',MOVEM==='tap'); document.querySelectorAll('#mmove [data-mv]').forEach(b=>b.classList.toggle('on',b.dataset.mv===MOVEM)); }
+/* ---------- barra de 10 slots no PC ---------- */
+const BOOKI='<svg viewBox="0 0 24 24"><path d="M4 4h7c1 0 1 1 1 2v14c0-1-1-2-2-2H4z" fill="#e6c98a"/><path d="M20 4h-7c-1 0-1 1-1 2v14c0-1 1-2 2-2h6z" fill="#c9a86a"/></svg>';
+const PCA={
+  pot:['Poção',()=>usePotion(),'pot'], jmp:['Pular',()=>{ jump(); hideHint(); },'jmp'], dsh:['Dash',()=>dash(),'dsh'], run:['Correr (liga/desliga)',()=>{ P.run=!P.run; runBtn(); },'run'],
+  mnt:['Cavalo',()=>mount(!P.mounted),'mnt'], boat:['Barco',()=>boatToggle(),'bt'], fish:['Pescar',()=>fishPress(),'fsh'], cart:['Carrinho',()=>cartPress(),'crt'],
+  build:['Modo construção',()=>{ if(BM.on) bmExit(); else bmEnter(); },'bldb'], bag:['Mochila',()=>{ if(inv.classList.contains('on')) closeInv(); else openInv(); },'bagb'],
+  map:['Mapa',()=>{ if($('wmap').classList.contains('on')) closeMap(); else openMap(); },'mapb'], log:['Diário de missões',()=>qlogOpen(),'']};
+var PCB={on:true,s:null};
+try{ const d=JSON.parse(localStorage.getItem('bp-pcbar')||'null'); if(d){ PCB.on=d.on!==false; if(Array.isArray(d.s)) PCB.s=d.s.slice(0,10); } }catch(e){}
+if(!PCB.s){ PCB.s=[0,1,2,3,4].map(i=>SLOT[i]?{t:'sk',id:SLOT[i]}:null).concat([{t:'sk',id:'atk'},{t:'ac',id:'pot'},{t:'ac',id:'dsh'},{t:'ac',id:'mnt'},{t:'ac',id:'build'}]); }
+while(PCB.s.length<10) PCB.s.push(null);
+function pcSave(){ try{ localStorage.setItem('bp-pcbar',JSON.stringify(PCB)); }catch(e){} }
+function pcIcon(e){ if(!e) return ''; if(e.t==='sk'){ const s=skById(e.id); return s?s.icon:''; } if(e.t==='it') return ICO[e.id]||'';
+  if(e.t==='ac'){ if(e.id==='log') return BOOKI; if(e.id==='cart') return ICO.cart; const src=$(PCA[e.id]&&PCA[e.id][2]); const sv=src&&src.querySelector('svg'); return sv?sv.outerHTML:''; } return ''; }
+function pcName(e){ if(!e) return 'Vazio'; if(e.t==='sk'){ const s=skById(e.id); return s?s.name:'?'; } if(e.t==='it') return IT[e.id]?IT[e.id].n:'?'; return PCA[e.id]?PCA[e.id][0]:'?'; }
+function pcOn(){ return IS_PC&&PCB.on; }
+function pcUse(i){ const e=PCB.s[i]; if(!e||paused||P.dead) return; const el=$('pcbar').children[i]; if(el){ el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),120); }
+  if(e.t==='sk'){ if(e.id==='atk') basicAttack(); else castSkill(e.id); }
+  else if(e.t==='ac'){ const a=PCA[e.id]; if(a) a[1](); }
+  else if(e.t==='it'){ const it=IT[e.id], i2=BAG.findIndex(q=>q&&q.id===e.id); if(i2<0){ toast('Você não tem '+it.n.toLowerCase()); return; } if(it.eat){ if(P.hp<P.max||(it.food&&P.food<99)){ P.hp=Math.min(P.max,P.hp+it.eat); if(it.food) P.food=Math.min(100,P.food+it.food); take(e.id,1); sfx.potion(); } else toast('Você está de barriga cheia'); } } }
+function pcRender(){ const el=$('pcbar'); if(!el) return; let h='';
+  for(let i=0;i<10;i++){ const e=PCB.s[i]; h+='<button class="pcs'+(e?'':' empty')+'" data-pi="'+i+'" title="'+pcName(e)+'"><span class="ic">'+pcIcon(e)+'</span><i class="cd"></i><span class="k">'+(i===9?0:i+1)+'</span><b class="n"></b></button>'; }
+  h+='<button class="pcs pced'+(PCPAL?' on':'')+'" data-pe="1" title="Editar a barra">✎</button>'; el.innerHTML=h; }
+var PCPAL=false;
+function pcPal(on){ PCPAL=on; const p=$('pcpal'); p.hidden=!on; if(on){ let h='<div class="pph"><b>Arraste pra um slot da barra</b><small>Ou clique aqui e depois no slot. Arraste um slot pra fora pra esvaziar, ou pra outro slot pra trocar.</small></div>';
+    const ent=(e)=>'<button class="ppe" data-pk=\''+JSON.stringify(e)+'\' title="'+pcName(e)+'">'+pcIcon(e)+'<small>'+pcName(e)+'</small></button>';
+    h+='<h5>Magias</h5><div class="ppr">'+[{t:'sk',id:'atk'}].concat(SK.filter(s=>rk(s.id)>0).map(s=>({t:'sk',id:s.id}))).map(ent).join('')+'</div>';
+    h+='<h5>Ações</h5><div class="ppr">'+Object.keys(PCA).map(k=>ent({t:'ac',id:k})).join('')+'</div>';
+    const its=[...new Set(BAG.filter(q=>q&&IT[q.id].eat).map(q=>q.id))]; if(its.length) h+='<h5>Comidas da mochila</h5><div class="ppr">'+its.map(k=>ent({t:'it',id:k})).join('')+'</div>';
+    p.innerHTML=h; } pcRender(); }
+let PCD=null;
+function pcDragStart(e,src,ev){ PCD={e,src,x:ev.clientX,y:ev.clientY,moved:false,g:null}; }
+window.addEventListener('pointermove',ev=>{ if(!PCD) return; if(!PCD.moved&&Math.hypot(ev.clientX-PCD.x,ev.clientY-PCD.y)>6){ PCD.moved=true; const g=document.createElement('div'); g.className='pcghost'; g.innerHTML=pcIcon(PCD.e); document.body.appendChild(g); PCD.g=g; }
+  if(PCD.g){ PCD.g.style.left=ev.clientX+'px'; PCD.g.style.top=ev.clientY+'px'; document.querySelectorAll('#pcbar .pcs').forEach(b=>b.classList.remove('drop')); const t=document.elementFromPoint(ev.clientX,ev.clientY); const s=t&&t.closest('#pcbar [data-pi]'); if(s) s.classList.add('drop'); } });
+window.addEventListener('pointerup',ev=>{ if(!PCD) return; const D=PCD; PCD=null; if(D.g) D.g.remove(); document.querySelectorAll('#pcbar .pcs').forEach(b=>b.classList.remove('drop'));
+  if(!D.moved){ if(D.src==='pal'){ PCB.pick=D.e; toast('Agora clique no slot da barra'); } else if(PCB.pick){ PCB.s[D.src]=PCB.pick; PCB.pick=null; pcSave(); pcRender(); sfx.pick(); } else pcUse(D.src); return; }
+  const t=document.elementFromPoint(ev.clientX,ev.clientY), s=t&&t.closest('#pcbar [data-pi]');
+  if(s){ const i=+s.dataset.pi; if(D.src==='pal') PCB.s[i]=D.e; else { const o=PCB.s[i]; PCB.s[i]=PCB.s[D.src]; PCB.s[D.src]=o; } sfx.pick(); }
+  else if(D.src!=='pal'&&!(t&&t.closest('#pcpal'))){ PCB.s[D.src]=null; sfx.close(); }
+  pcSave(); pcRender(); });
+function pcInit(){ const bar=document.createElement('div'); bar.id='pcbar'; bar.className='hud panel'; document.body.appendChild(bar); const pal=document.createElement('div'); pal.id='pcpal'; pal.className='hud panel'; pal.hidden=true; document.body.appendChild(pal);
+  for(const el of [bar,pal]) el.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); });
+  bar.addEventListener('pointerdown',ev=>{ if(typeof HE!=='undefined'&&HE.on) return; const b=ev.target.closest('button'); if(!b) return; ev.preventDefault(); if(b.dataset.pe){ pcPal(!PCPAL); return; } if(b.dataset.pi!=null){ const i=+b.dataset.pi; if(PCB.s[i]||PCB.pick) pcDragStart(PCB.s[i],i,ev); } });
+  pal.addEventListener('pointerdown',ev=>{ const b=ev.target.closest('[data-pk]'); if(!b) return; ev.preventDefault(); pcDragStart(JSON.parse(b.dataset.pk),'pal',ev); });
+  pcRender(); pcApply(); }
+function pcApply(){ document.body.classList.toggle('pcbar',pcOn()); const b=$('mpcb'); if(b) b.classList.toggle('on',PCB.on); if(!pcOn()) pcPal(false); if(typeof hudApply==='function') hudApply(); }
+function pcTick(){ if(!pcOn()) return; const el=$('pcbar'); if(!el) return; const bs=el.children;
+  for(let i=0;i<10;i++){ const e=PCB.s[i], b=bs[i]; if(!b) continue; let p=0, n='', lock=false, nm=false;
+    if(e&&e.t==='sk'&&e.id!=='atk'){ const s=skById(e.id); if(s){ lock=!rk(s.id); nm=!lock&&P.mana<s.mana; const c=skCd[s.id]||0; p=c/s.cd*100; n=lock?'':(c>0?Math.ceil(c)+'s':''); } }
+    else if(e&&e.t==='ac'&&e.id==='pot') n=String(P.potions);
+    else if(e&&e.t==='it') n=String(count(e.id));
+    b.style.setProperty('--p',p.toFixed(1)+'%'); b.classList.toggle('lock',lock); b.classList.toggle('nomana',nm); const nn=b.querySelector('.n'); if(nn&&nn.textContent!==n) nn.textContent=n; } }
+setInterval(pcTick,120);
+/* ---------- menu em abas ---------- */
+function mtab(t){ document.querySelectorAll('#mset .mtabs button').forEach(b=>b.classList.toggle('on',b.dataset.mt===t)); document.querySelectorAll('#mset .mpane').forEach(p=>p.hidden=p.dataset.mp!==t); }
+$('mcfg').onclick=()=>{ $('mmain').hidden=true; $('mset').hidden=false; mtab('v'); moveUI(); pcApply(); sfx.pick(); };
+$('mback').onclick=()=>{ $('mset').hidden=true; $('mmain').hidden=false; sfx.pick(); };
+document.querySelectorAll('#mset .mtabs button').forEach(b=>b.onclick=()=>{ mtab(b.dataset.mt); sfx.pick(); });
+document.querySelectorAll('#mmove [data-mv]').forEach(b=>b.onclick=()=>{ MOVEM=b.dataset.mv; try{ localStorage.setItem('bp-move',MOVEM); }catch(e){} moveUI(); sfx.pick(); toast(MOVEM==='joy'?'Andar só com o joystick':MOVEM==='tap'?'Andar tocando no chão':'Joystick e toque no chão'); });
+$('mpcb').onclick=()=>{ PCB.on=!PCB.on; pcSave(); pcApply(); sfx.pick(); };
+$('mnet2').onclick=()=>$('mnet').click();
+/* ---------- câmera do modo construção: a mira fica acima da barra ---------- */
+let camOffK='';
+function camOffTick(){ const off=BM.on?Math.round(H*(H<560?.2:.12)):0, k=off+':'+W+':'+H; if(k===camOffK) return; camOffK=k; if(off) camera.setViewOffset(W,H,0,off,W,H); else camera.clearViewOffset(); }
+pcInit(); moveUI();
 
 })();
 </script>
