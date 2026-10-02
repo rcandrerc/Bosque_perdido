@@ -438,7 +438,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.78</div>
+    <div id="ver">v0.79</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -3824,19 +3824,20 @@ const ACTK={
 };
 { const mir=p=>{ const o={}; const sw={xR:'xL',xL:'xR',fR:'fL',fL:'fR',zR:'zL',zL:'zR',tL:'tR',tR:'tL',sL:'sR',sR:'sL'}; for(const k in p){ if(sw[k]) o[sw[k]]=p[k]; else if(k==='ty') o[k]=-p[k]; else o[k]=p[k]; } return o; };
   ACTK.boltL={dur:ACTK.bolt.dur,rel:ACTK.bolt.rel,k:ACTK.bolt.k.map(([t,p])=>[t,mir(p)])};
-  ACTK.fbR={dur:.5,rel:.15,cr:1,k:[[0,{ty:.25,xR:-.35,fR:-.8,zR:.12,xL:-.3,fL:-.5,zL:.1,a:.02,hx:0}],
-    [.1,{ty:.9,xR:.8,fR:-1.5,zR:.4,xL:-.8,fL:-.5,zL:-.12,a:-.05,hx:-.1}],
-    [.17,{ty:-.6,xR:-1.62,fR:-.04,zR:-.18,xL:.5,fL:-.75,zL:.08,a:.08,hx:.12}],
-    [.29,{ty:-.42,xR:-1.3,fR:-.3,zR:-.08,xL:.3,fL:-.6,zL:.06,a:.07,hx:.06}],
-    [.5,{ty:0,xR:-.4,fR:-.3,zR:0,xL:-.2,fL:-.3,zL:.1,a:0,hx:0}]]};
+  ACTK.fbR={dur:.5,rel:.15,cr:1,k:[[0,{ty:.2,xR:-.4,fR:-.7,zR:.1,xL:-.3,fL:-.5,zL:.1,a:.02,hx:0}],
+    [.09,{ty:.8,xR:.55,fR:-1.45,zR:.38,xL:-.7,fL:-.6,zL:-.08,a:-.04,hx:-.08}],
+    [.15,{ty:-.15,xR:-1.25,fR:-.55,zR:.05,xL:-.1,fL:-.7,zL:.02,a:.05,hx:.06}],
+    [.21,{ty:-.62,xR:-1.68,fR:-.02,zR:-.2,xL:.45,fL:-.8,zL:.1,a:.08,hx:.12}],
+    [.32,{ty:-.4,xR:-1.25,fR:-.32,zR:-.06,xL:.28,fL:-.6,zL:.08,a:.05,hx:.05}],
+    [.5,{ty:0,xR:-.4,fR:-.32,zR:.02,xL:-.2,fL:-.35,zL:.1,a:0,hx:0}]]};
   ACTK.fbL={dur:.5,rel:.15,cr:1,k:ACTK.fbR.k.map(([t,p])=>[t,mir(p)])}; }
 
-function doAct(id,fnRel){ if(P.act&&P.act.q.length){ const q=P.act.q; P.act.q=[]; for(const e of q){ try{ e[1](); }catch(er){ console.error(er); } } } const d=ACTK[id]; if(!d){ if(fnRel) fnRel(); return; } const fast=P.fastAct&&id!=='bolt'; P.fastAct=false; const chain=!!(d.cr&&P.act&&ACTK[P.act.id]&&ACTK[P.act.id].cr&&P.act.t<P.act.dur); P.act={id,t:fast?Math.max(0,d.rel-.02):0,dur:d.dur,q:[],chain}; if(fnRel){ if(d.rel<=0||fast) fnRel(); else P.act.q.push([d.rel,fnRel]); } }
+function doAct(id,fnRel){ if(P.act&&P.act.q.length){ const q=P.act.q; P.act.q=[]; for(const e of q){ try{ e[1](); }catch(er){ console.error(er); } } } const d=ACTK[id]; if(!d){ if(fnRel) fnRel(); return; } const fast=P.fastAct&&id!=='bolt'; P.fastAct=false; const chain=!!(d.cr&&P.act&&ACTK[P.act.id]&&ACTK[P.act.id].cr&&P.act.t<P.act.dur); P.act={id,t:fast?Math.max(0,d.rel-.02):0,dur:d.dur,q:[],chain,snap:chain&&P.actSnap?Object.assign({},P.actSnap):null}; if(fnRel){ if(d.rel<=0||fast) fnRel(); else P.act.q.push([d.rel,fnRel]); } }
 function actPose(t,d){ const k=d.k; for(let i=1;i<k.length;i++){ if(t<=k[i][0]){ const a=k[i-1][1], b=k[i][1], u=clamp((t-k[i-1][0])/(k[i][0]-k[i-1][0]),0,1), e=u*u*(3-2*u), o={};
   if(d.cr){ const p0=k[Math.max(0,i-2)][1], p3=k[Math.min(k.length-1,i+1)][1], u2=u*u, u3=u2*u; for(const q of new Set([...Object.keys(a),...Object.keys(b)])){ const v1=a[q]!==undefined?a[q]:b[q], v2=b[q]!==undefined?b[q]:v1, v0=p0[q]!==undefined?p0[q]:v1, v3=p3[q]!==undefined?p3[q]:v2;
       o[q]=.5*(2*v1+(-v0+v2)*u+(2*v0-5*v1+4*v2-v3)*u2+(-v0+3*v1-3*v2+v3)*u3); } return o; }
   const keys=new Set([...Object.keys(a),...Object.keys(b)]); for(const q of keys){ const va=a[q]!==undefined?a[q]:b[q], vb=b[q]!==undefined?b[q]:a[q]; o[q]=va+(vb-va)*e; } return o; } } return k[k.length-1][1]; }
-function applyAct(v){ const A=P.act, d=ACTK[A.id], t=A.t, w=(A.chain?1:Math.min(1,t/.06))*Math.min(1,(d.dur-t)/.14); if(w<=0) return; const p=actPose(t,d), L=(x,y)=>y===undefined?x:x+(y-x)*w;
+function applyAct(v){ const A=P.act, d=ACTK[A.id], t=A.t, w=(A.chain?1:Math.min(1,t/(d.cr?.09:.06)))*Math.min(1,(d.dur-t)/(d.cr?.2:.14)); if(w<=0) return; const p=actPose(t,d), L=(x,y)=>y===undefined?x:x+(y-x)*w;
   if(p.a!==undefined||p.dr!==undefined){ const a=L(v.body.rotation.x,p.a===undefined?v.body.rotation.x:p.a); v.body.rotation.x=a; v.body.position.y=L(v.body.position.y,0)+HIPH-HIPH*Math.cos(a)-(p.dr||0)*w; v.body.position.z=-HIPH*Math.sin(a); }
   v.legL.rotation.x=L(v.legL.rotation.x,p.tL); v.legR.rotation.x=L(v.legR.rotation.x,p.tR);
   if(v.legL.shin){ v.legL.shin.rotation.x=L(v.legL.shin.rotation.x,p.sL); v.legR.shin.rotation.x=L(v.legR.shin.rotation.x,p.sR); }
@@ -3846,6 +3847,9 @@ function applyAct(v){ const A=P.act, d=ACTK[A.id], t=A.t, w=(A.chain?1:Math.min(
   v.torso.rotation.y=L(v.torso.rotation.y,p.ty); v.head.rotation.x=L(v.head.rotation.x,p.hx);
   if(p.tw!==undefined&&v.axe){ v.axe.rotation.x=1.35+(p.tw-1.35)*w; }
   if(d.spin) v.root.rotation.y=P.rot+6.2832*(t/d.dur)*(t/d.dur)*(3-2*t/d.dur);
+  if(d.cr){ const B=[[v.armR,'x','xR'],[v.armL,'x','xL'],[v.armR,'z','zR'],[v.armL,'z','zL'],[v.armR.fore,'x','fR'],[v.armL.fore,'x','fL'],[v.torso,'y','ty'],[v.head,'x','hx']], S=P.actSnap||(P.actSnap={});
+    if(A.snap&&t<.13){ const k=t/.13, e=k*k*(3-2*k); for(const [o,ax,n] of B) if(o&&A.snap[n]!==undefined) o.rotation[ax]=A.snap[n]+(o.rotation[ax]-A.snap[n])*e; }
+    for(const [o,ax,n] of B) if(o) S[n]=o.rotation[ax]; }
 }
 
 /* ---------- conjuração: círculo mágico, energia no cajado, barra ---------- */
