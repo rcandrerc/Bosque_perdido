@@ -438,7 +438,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.75</div>
+    <div id="ver">v0.76</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -4060,6 +4060,7 @@ function animate(ent,v,dt){
     v.head.rotation.z=Math.sin(ent.anim*1.7)*.03;
     if(ent===P&&v.axe) v.axe.rotation.x=1.35;
     if(ent===P&&P.act&&!(P.down>0)) applyAct(v);
+    if(ent===P) combatStance(v,dt);
     if(ent===P){ const mt=!!P.mounted; v.legL.rotation.z=mt?-.52:0; v.legR.rotation.z=mt?.52:0; if(mt){ applyPoseP(v,RIDEP,1); v.body.position.z=0; v.body.rotation.x=.12+(HORSE.vis?HORSE.vis.trunk.rotation.x:0); v.torso.rotation.y=0; if(v.pony) v.pony.rotation.x+=.3*clamp(P.sp/6,0,1); } if(P.boat||P.ride||P.cart||P.sit) seatPose(v,P.boat&&!FISH?P.boat:null); if(FISH) fishPose(v); if((P.climbing||P.sliding)&&!P.mounted) climbPose(v); }
     if(ent===P&&P.swim&&!(P.down>0)){ const c=P.walkPh*.9+ent.anim*(P.sp>.4?0:1.6), st=(c%6.2832)/6.2832, mvn=clamp(P.sp/2,0,1);
       const reach=st<.35?st/.35:st<.7?1:1-(st-.7)/.3, out=st<.35?0:st<.7?(st-.35)/.35:1-(st-.7)/.3;
@@ -4236,7 +4237,7 @@ function tryMove(e,dx,dy,r){
   return false;
 }
 function updatePlayer(dt){
-  P.anim+=dt; P.cd-=dt; P.potCd-=dt; P.cast=Math.max(0,P.cast-dt/.4); P.swing=Math.max(0,P.swing-dt/.3); P.hitT=Math.max(0,P.hitT-dt); P.combatT-=dt;
+  P.anim+=dt; P.cd-=dt; P.potCd-=dt; P.stanceT=(P.stanceT||0)-dt; P.cast=Math.max(0,P.cast-dt/.4); P.swing=Math.max(0,P.swing-dt/.3); P.hitT=Math.max(0,P.hitT-dt); P.combatT-=dt;
   for(const k in skCd) skCd[k]=Math.max(0,skCd[k]-dt);
   P.safe=Math.hypot(P.x-.5,P.y-.5)<6||inVillage(P.x,P.y); P.moving=false;
   if(P.dead){ P.sp=0; return; }
@@ -4333,7 +4334,7 @@ function basicAttack(){
   if(P.mounted) mount(false);
   const t=chooseTarget(RANGE+.5);
   if(!t){ noFoe(); P.cd=.25; return; }
-  faceTo(t.x,t.y); const hd=P.fbH=(P.fbH|0)^1; doAct(hd?'fbL':'fbR',()=>{ if(!t.dead) launch('fb',t,0,0,hd); else launch('fb',null,P.x+Math.sin(P.face)*7,P.y+Math.cos(P.face)*7,hd); });
+  faceTo(t.x,t.y); P.stanceT=1.4; const hd=P.fbH=(P.fbH|0)^1; doAct(hd?'fbL':'fbR',()=>{ if(!t.dead) launch('fb',t,0,0,hd); else launch('fb',null,P.x+Math.sin(P.face)*7,P.y+Math.cos(P.face)*7,hd); });
   P.cd=.42; P.combatT=5; useWeapon();
 }
 function updateDrops(dt){
@@ -4748,6 +4749,15 @@ function climbFloor(){ const pz=P.pz||0, feet=pz+P.jz;
   else if(top<pz){ if(P.jz<=.02&&P.jv<=0&&pz-top<.35) P.pz=top; else { P.jz=feet-top; P.pz=top; } } }
 
 
+
+/* base de combate: pés afastados, joelhos flexionados, quadril baixo (enquanto ataca parado) */
+const STANCE={tF:-.6,sF:1.5,tB:.35,sB:.72,zF:-.1,zB:.18,drop:.07,lean:.05};
+function combatStance(v,dt){ const want=P.stanceT>0&&P.sp<.6&&!P.mounted&&!P.swim&&!P.boat&&!P.ride&&!P.cart&&!P.sit&&!P.dead&&!(P.jz>.05)&&!P.chan?1:0;
+  P.stK=(P.stK||0)+(want-(P.stK||0))*Math.min(1,dt*(want?14:6)); const k=P.stK; if(k<.01) return; const S=STANCE, br=Math.sin(time*2.2)*.012;
+  const L=(o,key,val)=>{ o.rotation[key]=o.rotation[key]*(1-k)+val*k; };
+  L(v.legL,'x',S.tF); L(v.legR,'x',S.tB); L(v.legL,'z',S.zF); L(v.legR,'z',S.zB);
+  if(v.legL.shin){ L(v.legL.shin,'x',S.sF); L(v.legR.shin,'x',S.sB); }
+  v.body.position.y-=(S.drop+br)*k; v.torso.rotation.x=(v.torso.rotation.x||0)+S.lean*k; v.root.rotation.y+=-.35*k; v.torso.rotation.y+=.35*k; }
 /* boneco de treino na vila: indestrutível, mostra o dano e o DPS */
 const DUM={m:null,hist:[],wob:0,wv:0};
 { const root=new THREE.Group(); const w=mat('#a8774a',{roughness:.9}), wd=mat('#7a5232',{roughness:.9}), st=mat('#d9c27a',{roughness:1}), rd=mat('#d8443a'), wh=mat('#f3ead8'), rope=mat('#c9b58a');
