@@ -433,7 +433,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.61</div>
+    <div id="ver">v0.62</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -3931,7 +3931,7 @@ const KNEEP={a:-.06,tL:-1.6,sL:2.0,tR:.2,sR:.18,xR:-.1,xL:-.1,zR:1.3,zL:1.3,fR:-
 const GLIDEP={a:.42,tL:.4,sL:.75,tR:.12,sR:.3,xR:.3,xL:.3,zR:1.45,zL:1.45,fR:-.12,fL:-.12,hx:-.28,ty:0};
 const GLIDEP2={a:.38,tL:.1,sL:.35,tR:.45,sR:.8,xR:.2,xL:.35,zR:1.5,zL:1.35,fR:-.2,fL:-.1,hx:-.25,ty:.12};
 function lzAir(v){
-  if(P.jz>.05&&!(P.flip>0)&&!(P.dashT>0)&&!P.act&&!P.chan&&P.airP){ const w=ease(clamp((P.airT||0)/.16,0,1))*clamp(P.jz/.25,0,1); const sw=Math.sin(time*7)*.08;
+  if(P.jz>.05&&!(P.flip>0)&&!(P.spin>0)&&!(P.dashT>0)&&!P.act&&!P.chan&&P.airP){ const w=ease(clamp((P.airT||0)/.16,0,1))*clamp(P.jz/.25,0,1); const sw=Math.sin(time*7)*.08;
     const pz=P.airP==='k'?KNEEP:P.airP==='g'?GLIDEP:GLIDEP2; applyPoseP(v,pz,w); v.armL.rotation.x+=sw*w; v.armR.rotation.x-=sw*w; }
   if(P.landT>0&&!P.act&&!P.chan&&!(P.flip>0)){ const t=1-P.landT/.62, w=(t<.12?ease(t/.12):t<.42?1:1-ease((t-.42)/.58))*(P.landK||1)*(1-.6*clamp(P.sp/4.6,0,1)); applyPoseP(v,LANDP,w); }
   if(P.dashT>0){ const t=1-P.dashT/DASH_T; if(t<.16) applyPoseP(v,CROUCHP,ease(t/.16)); else { applyPoseP(v,CROUCHP,1); const w=ease(clamp((t-.16)/.18,0,1))*(t>.82?1-ease((t-.82)/.18)*.5:1); applyPoseP(v,DIVEP,w); v.body.position.y+=.55*w; } }
@@ -3941,6 +3941,8 @@ function lzAir(v){
     applyPoseP(v,TUCKP,k);
     const ang=6.2832*ease(clamp((u-.04)/.8,0,1)), c=1.02;
     v.body.rotation.x+=ang; v.body.position.y+=c-c*Math.cos(ang); v.body.position.z+=-c*Math.sin(ang); }
+  if(P.spin>0){ const u=clamp(P.spin/SPIN_T,0,1), k=u<.15?ease(u/.15):u<.78?1:1-ease((u-.78)/.22); applyPoseP(v,SPINP,k); v.body.rotation.y=6.2832*ease(clamp(u/.92,0,1)); }
+  else v.body.rotation.y=0;
 }
 function angLerp(a,b,t){ let d=b-a; while(d>Math.PI) d-=6.2832; while(d<-Math.PI) d+=6.2832; return a+d*t; }
 /* capinha: cada faixa é uma mola que puxa pra um ângulo-alvo (vento da corrida, queda do pulo, giro do corpo) e herda o atraso da de cima */
@@ -4181,10 +4183,11 @@ function updatePlayer(dt){
     else if(ADM.g0!=null&&!VISIT){ P.gold=ADM.g0; ADM.g0=null; admSave(); } }
   if(P.sb&&P.sb.dru4&&Y.owned&&!Y.hurt&&P.combatT>0&&!P.dead){ P.yhT=(P.yhT||8)-dt; if(P.yhT<=0){ P.yhT=8; const a=Math.round(P.max*.06); P.hp=Math.min(P.max,P.hp+a); addText(P.x,P.y,P.h+2.2,'+'+a+' (Yuki)','#86d36e',15); spark(P.x,P.h+.8,P.y,'#9be48a',10,1.4,2); } }
   if(P.dashCd>0) P.dashCd-=dt; if(P.landT>0) P.landT-=dt; P.airT=(P.airT||0)+dt; if(P.jz<=.02&&!(P.jumps>=1)) P.airP=null;
+  if(P.spin>0){ P.spin+=dt; if(P.spin>SPIN_T) P.spin=0; else if(((P.spin*24)|0)!==(((P.spin-dt)*24)|0)) spark(P.x+Math.sin(P.spin*12)*.6,P.h+P.jz+1.1,P.y+Math.cos(P.spin*12)*.6,'#fff4d8',1,.3,.1,.45); }
   if(P.flip>0){ P.flip+=dt; if(P.flip>FLIP_T) P.flip=0; else if(((P.flip*20)|0)!==(((P.flip-dt)*20)|0)) spark(P.x,P.h+P.jz+1,P.y,'#ffe0f2',1,.35,.1,.4); }
   if(P.dashT>0){ P.jv=0; } else P.jv-=17*dt;
   P.dashW=P.dashT>0?Math.min(1,(P.dashW||0)+dt*16):Math.max(0,(P.dashW||0)-dt*6); if(P.dashT>0) P.wasDash=1; else if(P.wasDash){ P.wasDash=0; P.dashX=.4; } if(P.dashX>0) P.dashX-=dt; if(P.mantT>0) P.mantT-=dt; if(P.plantT>0) P.plantT-=dt;
-  P.jz+=P.jv*dt; if(P.jz<=0){ if(P.jv<-4){ spark(P.x,P.h+.05,P.y,'#d8c9a8',6,1.2,.6); sfx.land(); if(!P.mounted){ P.landT=.62; P.landK=clamp((-P.jv-3)/4,.55,1); } } P.jz=0; P.jv=0; P.jumps=0; P.flip=0; }
+  P.jz+=P.jv*dt; if(P.jz<=0){ if(P.jv<-4){ spark(P.x,P.h+.05,P.y,'#d8c9a8',6,1.2,.6); sfx.land(); if(!P.mounted){ P.landT=.62; P.landK=clamp((-P.jv-3)/4,.55,1); } } P.jz=0; P.jv=0; P.jumps=0; P.flip=0; P.spin=0; }
   let ix=0,iy=0;
   if(keys.has('w')||keys.has('arrowup')) iy-=1; if(keys.has('s')||keys.has('arrowdown')) iy+=1;
   if(keys.has('a')||keys.has('arrowleft')) ix-=1; if(keys.has('d')||keys.has('arrowright')) ix+=1;
@@ -4629,7 +4632,8 @@ const dashB=mkBtn('dsh','<svg viewBox="0 0 24 24"><path d="M3 12h10M5 8h7M5 16h7
 const runB=mkBtn('run','<svg viewBox="0 0 24 24"><circle cx="14.5" cy="4.5" r="2.3" fill="#f1efe2"/><path d="M13 8l-4 3 1.5 1.8 2.6-1.8.6 3.2-3.4 4.8 1.8 1.2 4-5.2 2.4 2.4V22h2.2v-5.6l-3-3 .6-3 2 1.6H23v-2h-2.6l-3-2.6z" fill="#f1efe2"/><path d="M2 9h5M1 13h4M3 17h4" stroke="#d6ff7a" stroke-width="1.6" stroke-linecap="round"/></svg>',50,()=>{ if(P.mounted){ toast('No cavalo não precisa correr'); return; } P.run=!P.run; runBtn(); });
 runB.setAttribute('aria-label','Correr (Shift)');
 function runBtn(){ runB.classList.toggle('on',!!P.run); }
-const FLIP_T=.56, DASH_T=.2, DASH_SP=15;
+const FLIP_T=.56, DASH_T=.2, DASH_SP=15, SPIN_T=.62;
+const SPINP={a:0,tL:-.08,tR:.08,sL:.12,sR:.12,xR:-.05,xL:-.05,zR:1.45,zL:1.45,fR:0,fL:0};
 /* pulo estilo Age of Wushu: cada toque é um pulinho; no ar dá pra emendar vários (quantos depende da estamina máxima).
    1º pulo: joelho pra cima e braços abertos; 2º: cambalhota; 3º em diante: planando. O dash é um botão separado */
 const JUMP_V=5.4, JUMP_FAST=.2;
@@ -4666,10 +4670,9 @@ function jump(){ if(P.dead||paused||P.swim||P.down>0||P.boat||P.ride||P.cart) re
   if(ground){ if(!P.mounted&&!staUse(jumpCost(0))) return; P.jv=JUMP_V*(P.mounted?1.2:1); P.jz=.01; P.jumps=1; P.dashed=false; P.airP='k'; P.airT=0; sfx.jump(); spark(P.x,P.h+.05,P.y,'#d8c9a8',5,1,.5); return; }
   if(P.mounted||!(P.jumps>=1)) return;
   if(P.chan) chanCancel('Cancelado');
-  if(P.jumps>=maxJumps()){ if(now-(P.jmT||0)>1){ P.jmT=now; addText(P.x,P.y,P.h+P.jz+2.2,'Sem impulso!','#e8ff9a',14); } return; }
   if(!staUse(jumpCost(P.jumps))) return;
   P.jumps++; P.jv=Math.max(P.jv,JUMP_V); P.jz=Math.max(P.jz,.02); P.airT=0;
-  if(P.jumps===2){ P.flip=.001; P.airP='k'; sfx.flip(); } else { P.flip=0; P.airP=P.airP==='g'?'g2':'g'; sfx.jump(); fxAdd('ring',P.x,P.y,P.h+P.jz+.1,1.1,'#fff4d8',.35); }
+  if(P.jumps===2){ P.flip=.001; P.spin=0; P.airP='k'; sfx.flip(); } else if(P.jumps%3===0){ P.flip=0; P.spin=.001; P.airP='k'; sfx.flip(); fxAdd('ring',P.x,P.y,P.h+P.jz+.9,1.6,'#ffe0f2',.5); } else { P.flip=0; P.spin=0; P.airP=P.airP==='g'?'g2':'g'; sfx.jump(); fxAdd('ring',P.x,P.y,P.h+P.jz+.1,1.1,'#fff4d8',.35); }
   spark(P.x,P.h+P.jz+.3,P.y,'#fff4d8',8,1.6,.2,.35);
 }
 /* dash: agora é um botão separado (no chão ou no ar) */
