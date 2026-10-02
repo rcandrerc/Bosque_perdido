@@ -220,7 +220,7 @@ body:not(.pc) .pconly{display:none!important}
 #mset .mpane{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:14px;background:rgba(20,14,10,.55)}#mset .mpane[hidden]{display:none}#mset .mslh{margin:0}
 body.mv-tap #joy{display:none!important}
 #pcbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:5px;padding:6px;z-index:16;pointer-events:auto}
-body.pcbar #pcbar{display:flex}body.pcbar #sl0,body.pcbar #sl1,body.pcbar #sl2,body.pcbar #sl3,body.pcbar #sl4,body.pcbar #atk,body.pcbar #pot,body.pcbar #jmp,body.pcbar #dsh,body.pcbar #run,body.pcbar #mnt,body.pcbar #joy{display:none!important}
+body.pcbar #pcbar{display:flex}body.pcbar #sl0,body.pcbar #sl1,body.pcbar #sl2,body.pcbar #sl3,body.pcbar #sl4,body.pcbar #sx0,body.pcbar #sx1,body.pcbar #sx2,body.pcbar #sx3,body.pcbar #atk,body.pcbar #pot,body.pcbar #jmp,body.pcbar #dsh,body.pcbar #run,body.pcbar #mnt,body.pcbar #joy{display:none!important}
 body.inbuild #pcbar,body.inbuild #pcpal{display:none!important}#gmenu.on~#pcbar,#gmenu.on~#pcpal,#inv.on~#pcbar,#trade.on~#pcbar,#fur.on~#pcbar,#qlog.on~#pcbar{display:none!important}
 #pcbar .pcs{position:relative;width:52px;height:52px;flex:none;border-radius:11px;border:2px solid rgba(255,230,170,.28);background:rgba(28,22,16,.9);padding:7px;cursor:pointer;color:#f5ecd6;overflow:hidden}
 #pcbar .pcs .ic{display:block;width:100%;height:100%}#pcbar .pcs svg{width:100%;height:100%;display:block}#pcbar .pcs.empty{border-style:dashed;opacity:.6}
@@ -402,7 +402,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="cbar"><b></b><span><i></i></span></div>
 <div class="panel" id="dlg" role="dialog"><div class="dn" id="dn"></div><div class="dt" id="dtx"></div><div class="da" id="da"></div></div>
 <div class="hud panel" id="bbar"><button class="pb gray" id="bdn">▼</button><b id="blv" style="align-self:center;font:700 12px var(--ui);color:#ffe7a8;min-width:52px;text-align:center">Andar 1</b><button class="pb gray" id="bup">▲</button><button class="pb gray" id="brot">Girar</button><button class="pb" id="bok">Colocar</button><button class="pb gray" id="bno">Sair</button><span id="bwhy" style="font:600 12px var(--ui);color:#ffb3a3;align-self:center;max-width:160px"></span></div>
-<div id="hudp"><b>Ajustar botões</b><span id="hudsel"></span><div class="hrow"><button class="pb sm" id="hudm">− Menor</button><button class="pb sm" id="hudpl">+ Maior</button></div><div class="hrow"><button class="pb gray sm" id="hudr">Restaurar padrão</button><button class="pb sm" id="hudok">Pronto</button></div><small id="hudskh">Arraste uma magia até um botão redondo pra trocar:</small><div id="hudsk"></div></div>
+<div id="hudp"><b>Ajustar botões</b><span id="hudsel"></span><div class="hrow"><button class="pb sm" id="hudm">− Menor</button><button class="pb sm" id="hudpl">+ Maior</button></div><div class="hrow"><button class="pb sm" id="hudxm">−</button><span id="hudxn" style="min-width:150px;text-align:center"></span><button class="pb sm" id="hudxp">+</button></div><div class="hrow"><button class="pb gray sm" id="hudr">Restaurar padrão</button><button class="pb sm" id="hudok">Pronto</button></div><small id="hudskh">Arraste uma magia até um botão redondo pra trocar:</small><div id="hudsk"></div></div>
 <div id="joy" aria-label="Joystick"><div id="knob"></div></div>
 <div id="skills"></div>
 <div class="hud panel" id="hint">Joystick (ou toque no chão) para andar, arraste a tela para girar a câmera. Toque num monstro para marcar e use o botão de ataque. Fale com a Vovó Fernanda!</div>
@@ -437,7 +437,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.69</div>
+    <div id="ver">v0.70</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -2640,8 +2640,8 @@ const P={x:2.5,y:2.5,h:0,lvl:1,xp:0,potions:2,kills:0,hp:60,max:60,dmg:7,face:0,
   mana:50,maxMana:50,gold:0,food:100,bed:null,sp:0,dx:0,dy:1,walkPh:0,cast:0,gather:null,res:{wood:0,stone:0,iron:0,crystal:0,berry:0}};
 const ST={str:3,dex:3,int:3,vit:3}; let statPts=0;
 var SR={fire:1,blink:1};
-var SPTS=0, SLOT=['fire','ring','blink','meteor','frost','atk'];
-if(save&&save.sr){ Object.assign(SR,save.sr); SPTS=save.spts|0; if(Array.isArray(save.slots)){ const o=save.slots; SLOT=o.slice(0,6).concat([null,null,null,null,null,null]).slice(0,6); if(o.length<6&&SLOT.indexOf('atk')<0) SLOT[5]='atk'; } }
+var SPTS=0, SLOT=['fire','ring','blink','meteor','frost','atk',null,null,null,null];
+if(save&&save.sr){ Object.assign(SR,save.sr); SPTS=save.spts|0; if(Array.isArray(save.slots)){ const o=save.slots; SLOT=o.slice(0,10).concat([null,null,null,null,null,null,null,null,null,null]).slice(0,10); if(o.length<6&&SLOT.indexOf('atk')<0) SLOT[5]='atk'; } }
 else if(save&&save.p&&(save.p.lvl||1)>1){ const L=save.p.lvl||1; SR.ring=1; if(L>=5) SR.meteor=1; if(L>=8) SR.frost=1; SPTS=L-1; }
 if(!SR.pull) SR.pull=1; /* Abraço do Vórtice: por enquanto já vem de presente (depois dá pra travar por nível) */
 
@@ -4690,7 +4690,11 @@ function mkBtn(id,html,size,onPress){ const b=document.createElement('button'); 
 const ATKSK={id:'atk',name:'Ataque básico',icon:'<svg viewBox="0 0 24 24"><path d="M4.5 20.5L15 8" stroke="#8a5a34" stroke-width="2.8" stroke-linecap="round"/><circle cx="17" cy="6" r="3.6" fill="#c9a6ff"/><circle cx="16" cy="5" r="1.2" fill="#fff"/><path d="M20 12l2.5 1M18 15l1.5 2.2M21.5 8.5l2 .2" stroke="#e6d6ff" stroke-width="1.5" stroke-linecap="round"/></svg>'}; const skById=id=>id==='atk'?ATKSK:SK.find(q=>q.id===id);
 function useSlot(i){ const id=SLOT[i]; if(id==='atk'){ if(i===5) atkHeld=true; basicAttack(); } else if(id) castSkill(id); }
 const slotB=[0,1,2,3,4].map(i=>mkBtn('sl'+i,'<span class="ic"></span>',54,()=>useSlot(i)));
-function refreshSlots(){ for(const k in skEl) delete skEl[k]; slotB.concat([atkB]).forEach((b,i)=>{ const id=SLOT[i], sk=skById(id); b.querySelector('.ic').innerHTML=sk?sk.icon:''; b.classList.toggle('empty',!sk); b.setAttribute('aria-label',sk?sk.name:'Vazio'); b.querySelector('.n').id='skn_'+(id||'x'+i); if(sk&&id!=='atk') skEl[id]=b; }); }
+const slotX=[6,7,8,9].map((si,j)=>mkBtn('sx'+j,'<span class="ic"></span>',54,()=>useSlot(si)));
+function xslN(){ return clamp((typeof hudLoad==='function'?hudLoad()._x:0)|0,0,4); }
+function xslApply(){ const n=xslN(); slotX.forEach((b,j)=>{ b.style.display=j<n?'':'none'; }); }
+function slotVisible(i){ return i<6||i-6<xslN(); }
+function refreshSlots(){ for(const k in skEl) delete skEl[k]; slotB.concat([atkB]).concat(typeof slotX!=='undefined'?slotX:[]).forEach((b,i)=>{ const id=SLOT[i], sk=skById(id); b.querySelector('.ic').innerHTML=sk?sk.icon:''; b.classList.toggle('empty',!sk); b.setAttribute('aria-label',sk?sk.name:'Vazio'); b.querySelector('.n').id='skn_'+(id||'x'+i); if(sk&&id!=='atk') skEl[id]=b; }); }
 const atkB=mkBtn('atk','<span class="ic"></span>',80,()=>useSlot(5));
 atkB.className='sk big'; refreshSlots();
 { const rel=()=>{ atkHeld=false; }; atkB.addEventListener('pointerup',rel); atkB.addEventListener('pointercancel',rel); atkB.addEventListener('pointerleave',rel); }
@@ -4754,6 +4758,7 @@ function layoutSkills(){
   const base=16, big=80, cx=base+big/2, R=Math.min(100,Math.max(88,window.innerHeight*.25)), R2=R+62;
   atkB.style.right=sa(base); atkB.style.bottom=sb(base);
   [0,1,2].forEach((i)=>{ const a=i*Math.PI/4, el=slotB[i]; el.style.right=sa(cx+R*Math.cos(a)-27); el.style.bottom=sb(cx+R*Math.sin(a)-27); });
+  if(typeof slotX!=='undefined') slotX.forEach((el,j)=>{ el.style.right=sa(cx+R+36+j*64); el.style.bottom=sb(86); });
   [[3,.2],[4,.78]].forEach(([i,f])=>{ const a=f*Math.PI/2, el=slotB[i]; el.style.right=sa(cx+R2*Math.cos(a)-27); el.style.bottom=sb(cx+R2*Math.sin(a)-27); });
   potB.style.right=sa(cx+R2*Math.cos(Math.PI/4)-24); potB.style.bottom=sb(cx+R2*Math.sin(Math.PI/4)-24);
   jumpB.style.left=''; jumpB.style.right=sa(cx+R+36); jumpB.style.bottom=sb(14); dashB.style.right=sa(cx+R+36+64); dashB.style.bottom=sb(18);
@@ -4766,19 +4771,20 @@ function layoutSkills(){
 layoutSkills(); window.addEventListener('resize',layoutSkills); updMountBtn();
 /* ---------- editor de botões: arrastar e mudar tamanho ---------- */
 var HUDL=null, HE={on:false,sel:null,drag:null};
-const HUDN={stat:'Painel de vida e nível',side:'Minimapa',qt:'Quadro da missão',mapb:'Botão do mapa',bagb:'Botão da mochila',menub:'Botão do menu',chatb:'Botão do chat',pcbar:'Barra de slots',sl0:'Magia 1',sl1:'Magia 2',sl2:'Magia 3',sl3:'Magia 4',sl4:'Magia 5',atk:'Botão grande',pot:'Poção',mnt:'Montar',jmp:'Pular',dsh:'Dash',run:'Correr',bt:'Barco',fsh:'Pescar',joy:'Joystick',bldb:'Construir',fsq:'Tela cheia'};
+const HUDN={stat:'Painel de vida e nível',side:'Minimapa',qt:'Quadro da missão',mapb:'Botão do mapa',bagb:'Botão da mochila',menub:'Botão do menu',chatb:'Botão do chat',pcbar:'Barra de slots',sl0:'Magia 1',sl1:'Magia 2',sl2:'Magia 3',sl3:'Magia 4',sl4:'Magia 5',sx0:'Runa de magia 1',sx1:'Runa de magia 2',sx2:'Runa de magia 3',sx3:'Runa de magia 4',atk:'Botão grande',pot:'Poção',mnt:'Montar',jmp:'Pular',dsh:'Dash',run:'Correr',bt:'Barco',fsh:'Pescar',joy:'Joystick',bldb:'Construir',fsq:'Tela cheia'};
 function hudLoad(){ if(HUDL) return HUDL; try{ HUDL=JSON.parse(localStorage.getItem('bp-hudl')||'{}')||{}; }catch(e){ HUDL={}; } return HUDL; }
 function hudSave(){ try{ localStorage.setItem('bp-hudl',JSON.stringify(HUDL)); }catch(e){} }
 function hudEls(){ return [...document.querySelectorAll('#skills .sk')].concat(['joy','bldb','fsq','stat','side','qt','mapb','bagb','menub','chatb','pcbar'].map(i=>$(i))).filter(Boolean); }
 function hudApply(){ const L=hudLoad(); for(const el of hudEls()){ const o=L[el.id]; el.style.translate=o?(o.dx|0)+'px '+(o.dy|0)+'px':''; el.style.scale=o&&o.s&&o.s!==1?String(o.s):''; } }
 function hudUI(){ const p=$('hudp'); if(!p) return; const o=HE.sel?(HUDL[HE.sel]||{}):null;
   $('hudsel').textContent=HE.sel?(HUDN[HE.sel]||HE.sel)+' · '+Math.round((o.s||1)*100)+'%':'Toque e arraste um botão';
+  { const n=xslN(); $('hudxn').textContent='Runas de magia extras: '+n+'/4'; $('hudxm').disabled=n<=0; $('hudxp').disabled=n>=4; }
   $('hudm').disabled=$('hudpl').disabled=!HE.sel; document.querySelectorAll('.hudon').forEach(e=>e.classList.remove('hudon')); if(HE.sel&&$(HE.sel)) $(HE.sel).classList.add('hudon'); }
 function hudEnter(){ hudLoad(); HE.on=true; HE.sel=null; HE.pick=null; paused=true; document.body.classList.add('hudedit'); hudSkills();
   hudUI(); }
 function hudSkills(){ const el=$('hudsk'); if(!el) return; const L=[ATKSK].concat(SK.filter(q=>rk(q.id)>0)); el.innerHTML=L.map(q=>'<button data-hk="'+q.id+'" title="'+q.name+'"'+(HE.pick===q.id?' class="on"':'')+'>'+q.icon+'</button>').join(''); }
-const SLOTEL={sl0:0,sl1:1,sl2:2,sl3:3,sl4:4,atk:5};
-function hudSlotSet(elId,id){ const i=SLOTEL[elId]; if(i==null) return false; const old=SLOT.indexOf(id); if(old>=0&&old!==i) SLOT[old]=SLOT[i]; SLOT[i]=id; refreshSlots(); doSave(); sfx.pick(); toast((skById(id)||{}).name+' no botão '+(i===5?'grande':i+1)); return true; }
+const SLOTEL={sl0:0,sl1:1,sl2:2,sl3:3,sl4:4,atk:5,sx0:6,sx1:7,sx2:8,sx3:9};
+function hudSlotSet(elId,id){ const i=SLOTEL[elId]; if(i==null) return false; const old=SLOT.indexOf(id); if(old>=0&&old!==i) SLOT[old]=SLOT[i]; SLOT[i]=id; refreshSlots(); doSave(); sfx.pick(); toast((skById(id)||{}).name+(i>=6?' na runa '+(i-5):' no botão '+(i===5?'grande':i+1))); return true; }
 $('hudsk').addEventListener('pointerdown',e=>{ const b=e.target.closest('[data-hk]'); if(!b) return; e.preventDefault(); HE.sk={id:b.dataset.hk,x:e.clientX,y:e.clientY,moved:false,g:null}; });
 window.addEventListener('pointermove',e=>{ const D=HE.sk; if(!D) return; if(!D.moved&&Math.hypot(e.clientX-D.x,e.clientY-D.y)>6){ D.moved=true; const g=document.createElement('div'); g.className='pcghost'; g.innerHTML=(skById(D.id)||{}).icon||''; document.body.appendChild(g); D.g=g; }
   if(D.g){ D.g.style.left=e.clientX+'px'; D.g.style.top=e.clientY+'px'; } },true);
@@ -4796,10 +4802,12 @@ window.addEventListener('pointerup',e=>{ if(HE.on&&HE.drag&&e.pointerId===HE.dra
 window.addEventListener('click',e=>{ if(HE.on&&!e.target.closest('#hudp')){ e.preventDefault(); e.stopPropagation(); } },true);
 function hudSize(d){ if(!HE.sel) return; const o=HUDL[HE.sel]||(HUDL[HE.sel]={dx:0,dy:0,s:1}); o.s=Math.round(Math.max(.6,Math.min(1.8,(o.s||1)+d))*10)/10; hudApply(); hudUI(); }
 $('hudm').onclick=()=>hudSize(-.1); $('hudpl').onclick=()=>hudSize(.1);
-$('hudr').onclick=()=>{ HUDL={}; HE.sel=null; hudApply(); hudUI(); toast('Botões voltaram pro lugar de sempre'); };
+$('hudxp').onclick=()=>{ const L=hudLoad(), n=xslN(); if(n>=4) return; L._x=n+1; hudSave(); xslApply(); hudApply(); HE.sel='sx'+n; hudUI(); sfx.pick(); toast('Runa de magia criada! Arraste pra onde quiser e solte uma magia nela'); };
+$('hudxm').onclick=()=>{ const L=hudLoad(), n=xslN(); if(n<=0) return; L._x=n-1; SLOT[5+n]=null; delete L['sx'+(n-1)]; if(HE.sel==='sx'+(n-1)) HE.sel=null; hudSave(); xslApply(); refreshSlots(); doSave(); hudApply(); hudUI(); sfx.pick(); };
+$('hudr').onclick=()=>{ const kx=xslN(); HUDL={_x:kx}; HE.sel=null; hudApply(); hudUI(); toast('Botões voltaram pro lugar de sempre'); };
 $('hudok').onclick=()=>hudExit();
 $('mhud').onclick=()=>{ hideMenu(); hudEnter(); };
-hudApply();
+hudApply(); xslApply();
 
 /* recursos */
 
@@ -4999,13 +5007,13 @@ function renderInv(){
 let swapSel=-1, pickSlot=-1;
 function skillsHtml(){
   const dots=r=>'<span class="rk">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=r?'on':'')+'"></i>').join('')+'</span>';
-  let t='<div class="hudslots"><b>Seus botões na tela</b><small>'+(pickSlot<0?'Toque num botão pra escolher qual magia fica nele.':'Escolha a magia pro botão '+(pickSlot+1)+':')+'</small><div>'+[0,1,2,3,4,5].map(i=>{ const sk=skById(SLOT[i]); return '<button class="hs'+(pickSlot===i?' on':'')+(i===5?' big6':'')+'" data-hs="'+i+'"><span>'+(i===5?'6 ★':(i+1))+'</span>'+(sk?sk.icon:'')+'</button>'; }).join('')+'</div><small style="display:block;margin-top:4px">O botão 6 é o grande. Dá pra trocar o ataque básico por outra magia.</small>';
+  let t='<div class="hudslots"><b>Seus botões na tela</b><small>'+(pickSlot<0?'Toque num botão pra escolher qual magia fica nele.':'Escolha a magia pro '+(pickSlot>5?'runa '+(pickSlot-5):'botão '+(pickSlot+1))+':')+'</small><div>'+[0,1,2,3,4,5,6,7,8,9].filter(slotVisible).map(i=>{ const sk=skById(SLOT[i]); return '<button class="hs'+(pickSlot===i?' on':'')+(i===5?' big6':'')+'" data-hs="'+i+'"><span>'+(i===5?'6 ★':i>5?'R'+(i-5):(i+1))+'</span>'+(sk?sk.icon:'')+'</button>'; }).join('')+'</div><small style="display:block;margin-top:4px">O botão 6 é o grande. Dá pra trocar o ataque básico por outra magia.</small>';
   if(pickSlot>=0){ t+='<div class="pick">'+[ATKSK].concat(SK.filter(q=>rk(q.id)>0)).map(q=>'<button class="pb sm'+(SLOT[pickSlot]===q.id?'':' gray')+'" data-pick="'+q.id+'"><span class="pi">'+q.icon+'</span>'+q.name+'</button>').join('')+'<button class="pb sm gray" data-pick="">Deixar vazio</button><button class="pb sm gray" data-pick="__x">Cancelar</button></div>'; }
   t+='</div>';
   t+='<div class="sub" style="font-size:12.5px;color:var(--muted)">Pontos de magia: <b style="color:#c9b4ff">'+SPTS+'</b> · ganha 1 por nível. Cada ponto aprende ou fortalece uma magia (até 5).</div><h4 class="skh">Magias</h4>';
   for(const sk of SK){ const r=rk(sk.id), lock=!CRF&&P.lvl<sk.lvl;
     t+='<div class="rrow'+(lock?' dim':'')+'"><div class="ic">'+sk.icon+'</div><div class="nm"><b>'+sk.name+' '+dots(r)+'</b><small>'+(lock?'Libera no nível '+sk.lvl+'. ':'')+SKDESC[sk.id](Math.max(1,r))+(r&&r<5?' <em>Próximo: '+SKDESC[sk.id](r+1)+'</em>':'')+'</small>'+
-      (r?'<span class="slots">Colocar no botão: '+[0,1,2,3,4,5].map(i=>'<button class="sb'+(SLOT[i]===sk.id?' on':'')+'" data-slot="'+sk.id+':'+i+'">'+(i+1)+'</button>').join('')+'</span>':'')+'</div>'+
+      (r?'<span class="slots">Colocar no botão: '+[0,1,2,3,4,5,6,7,8,9].filter(slotVisible).map(i=>'<button class="sb'+(SLOT[i]===sk.id?' on':'')+'" data-slot="'+sk.id+':'+i+'">'+(i>5?'R'+(i-5):i+1)+'</button>').join('')+'</span>':'')+'</div>'+
       '<button class="pb sm" data-sku="'+sk.id+'"'+(lock||SPTS<=0||r>=5?' disabled':'')+'>'+(r?'+1':'Aprender')+'</button></div>'; }
   t+='<h4 class="skh">Passivas</h4>';
   for(const ps of PASS){ const r=rk(ps.id), lock=!CRF&&P.lvl<ps.lvl;
@@ -5028,7 +5036,7 @@ inv.addEventListener('click',e=>{
     if(!crm) for(const k in r.cost) take(k,r.cost[k]); addItem(r.id,1); sfx.build(); renderInv(); return; }
   if(b.dataset.bd){ closeInv(); startBuild(b.dataset.bd); return; }
   if(b.dataset.sku){ const id=b.dataset.sku, sk=SK.find(q=>q.id===id)||PASS.find(q=>q.id===id); if(!sk||SPTS<=0||P.lvl<sk.lvl||rk(id)>=5) return; SR[id]=rk(id)+1; SPTS--; sfx.level(); calcStats();
-    if(SK.find(q=>q.id===id)&&SR[id]===1&&SLOT.indexOf(id)<0){ const e=SLOT.indexOf(null); if(e>=0){ SLOT[e]=id; refreshSlots(); } } renderInv(); doSave(); return; }
+    if(SK.find(q=>q.id===id)&&SR[id]===1&&SLOT.indexOf(id)<0){ const e=SLOT.findIndex((q,i)=>q===null&&slotVisible(i)); if(e>=0){ SLOT[e]=id; refreshSlots(); } } renderInv(); doSave(); return; }
   if(b.dataset.hs!==undefined){ const i=+b.dataset.hs; pickSlot=pickSlot===i?-1:i; renderInv(); return; }
   if(b.dataset.pick!==undefined){ const id=b.dataset.pick; if(id!=='__x'&&pickSlot>=0){ if(id){ const old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[pickSlot]; SLOT[pickSlot]=id; } else SLOT[pickSlot]=null; refreshSlots(); sfx.pick(); doSave(); } pickSlot=-1; renderInv(); return; }
   if(b.dataset.slot){ const [id,i]=b.dataset.slot.split(':'), j=+i, old=SLOT.indexOf(id); if(old>=0) SLOT[old]=SLOT[j]; SLOT[j]=id; refreshSlots(); sfx.pick(); renderInv(); doSave(); return; }
