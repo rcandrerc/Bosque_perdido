@@ -433,7 +433,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.64</div>
+    <div id="ver">v0.65</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -6682,14 +6682,17 @@ function netEnter(fid){ const R='rooms/'+fid; toast('Entrando no mundo do amigo.
     try{ sessionStorage.setItem('bp-visit',JSON.stringify(v)); }catch(e){} location.reload(); }).catch(e=>toast('Erro: '+(e.code||e.message))); }
 /* ---------- trocas entre jogadores: tocar no amigo abre as duas mochilas ---------- */
 const TRD={with:null,sel:-1};
-function giftSend(to,id,n,d,e){ NET.gS=Math.max((NET.gS||0)+1,Date.now()); (NET.gQ=NET.gQ||[]).push([NET.gS,to,id,n,d==null?null:d,Date.now(),e|0]); if(NET.gQ.length>30) NET.gQ.shift(); if(NET.host) NET.gDirty=1; else NET.evDirty=1; }
-function giftIn(from,arr){ if(!Array.isArray(arr)||!NET.uid) return; NET.lastG=NET.lastG||{}; let lg=NET.lastG[from]||0; const t0=(NET.joinT||0)-5000;
+function rqSend(to,k,v){ const now=Date.now(); NET.dS=Math.max((NET.dS||0)+1,now); (NET.dq=NET.dq||[]).push([NET.dS,to,k,v==null?0:v,now]); NET.dq=NET.dq.filter(e=>now-e[4]<15000).slice(-10); NET.sendT=0; NET.lastSent=''; }
+function dqIn(id,arr){ if(!Array.isArray(arr)||!NET.uid) return; NET.lastDq=NET.lastDq||{}; let lg=NET.lastDq[id]||0; const t0=(NET.joinT||0)-5000;
+  for(const e of arr){ if(!e||e[0]<=lg) continue; lg=e[0]; if(e[1]!==NET.uid||e[0]<t0) continue; rqIn(id,e[2]|0,e[3]); } NET.lastDq[id]=lg; }
+function giftSend(to,id,n,d,e){ if(id==='$rq'&&NET.peers&&NET.peers.has(to)){ rqSend(to,n,d); return; } NET.gS=Math.max((NET.gS||0)+1,Date.now()); (NET.gQ=NET.gQ||[]).push([NET.gS,to,id,n,d==null?null:d,Date.now(),e|0]); if(NET.gQ.length>30) NET.gQ.shift(); if(NET.host) NET.gDirty=1; else NET.evDirty=1; }
+function giftIn(from,arr){ if(!Array.isArray(arr)||!NET.uid) return; NET.lastG=NET.lastG||{}; let lg=NET.lastG[from]||0, got=0; const t0=(NET.joinT||0)-5000;
   for(const e of arr){ if(!e||e[0]<=lg) continue; lg=e[0]; if(e[1]!==NET.uid||(e[5]||0)<t0) continue; const pe=NET.peers.get(from), who=(pe&&pe.d&&pe.d.n)||'Amigo';
-    if(e[2]==='$rq'){ rqIn(from,e[3]|0,e[4]); continue; }
+    if(e[2]==='$rq'){ rqIn(from,e[3]|0,e[4]); continue; } got=1;
     if(e[2]==='$gold'){ P.gold+=e[3]|0; toast(who+' te deu '+(e[3]|0)+' moedas'); }
     else if(IT[e[2]]){ const left=addItem(e[2],e[3]|0,e[4]==null?undefined:e[4],e[6]|0); if(left>0) (NET.gPend=NET.gPend||[]).push([e[2],left,e[4],e[6]|0]); toast(who+' te deu '+(e[3]|0)+' '+IT[e[2]].n+(left>0?' (mochila cheia, guardei pra depois)':'')); }
     sfx.coin&&sfx.coin(); }
-  NET.lastG[from]=lg; doSave(); if(TRD.with) ptRender(); }
+  NET.lastG[from]=lg; if(got){ doSave(); if(TRD.with) ptRender(); } }
 function giftRetry(){ if(!NET.gPend||!NET.gPend.length) return; const keep=[]; for(const [id,n,d,e] of NET.gPend){ const left=addItem(id,n,d==null?undefined:d,e); if(left>0) keep.push([id,left,d,e]); } NET.gPend=keep; }
 setInterval(giftRetry,3000);
 function pickPeer(px,py){ if(!NET.peers||!NET.peers.size) return null; let best=null,bd=46; for(const pe of NET.peers.values()){ if(!pe.live) continue; const p=proj(pe.e.x,pe.e.h+1.1,pe.e.y); if(!p.ok) continue; const d=Math.hypot(px-p.x,py-p.y); if(d<bd){ bd=d; best=pe; } } return best; }
@@ -6822,7 +6825,8 @@ function netKillIn(k){ const [,key,lvl,xp0,x,y,killer,fl]=k; if(!MOBS[key]) retu
 /* ---- jogadores (os dois lados) ---- */
 function netPeers(v){ v=v||{}; const now=performance.now();
   for(const id in v){ if(id===NET.uid) continue; const d=v[id]; if(!d||!isFinite(d.x)) continue; let pe=NET.peers.get(id); if(!pe){ pe=netMakePeer(id,d); NET.peers.set(id,pe); if(NET.host||VISIT) toast((d.n||'Alguém')+' entrou no mundo!'); }
-    if(pe.d.s!==d.s) pe.rt=now; pe.d=d; }
+    if(pe.d.s!==d.s){ const gap=(now-pe.rt)/1000; if(gap>.02&&gap<.5&&isFinite(pe.d.x)){ pe.vx=clamp((d.x-pe.d.x)/gap,-9,9); pe.vy=clamp((d.y-pe.d.y)/gap,-9,9); } else { pe.vx=0; pe.vy=0; } if(!(d.sp>.3)){ pe.vx=0; pe.vy=0; } pe.rt=now; }
+    pe.d=d; if(d.dq) dqIn(id,d.dq); }
   if(TRD.with) ptRender();
   for(const [id] of [...NET.peers]) if(!v[id]) netDropPeer(id); netRender(); }
 function netMakePeer(id,d){ const v=buildLuiza(); v.axe.visible=false; v.pick.visible=false; v.hat.visible=false; v.robe.visible=false; v.cape.visible=false; v.sunB.visible=false; v.staff.visible=false;
@@ -6832,7 +6836,8 @@ function netDropPeer(id){ const pe=NET.peers.get(id); if(!pe) return; scene.remo
 function netFrame(dt){ if(!NET.db||!NET.uid) return; const inRoom=NET.host||(VISIT&&NET.hostUid);
   const now=performance.now();
   for(const pe of NET.peers.values()){ const d=pe.d, e=pe.e; pe.live=now-pe.rt<10000; pe.v.root.visible=pe.live; if(pe.cat) pe.cat.root.visible=pe.live&&d.yx!=null; if(!pe.live) continue;
-    if(Math.hypot(d.x-e.x,d.y-e.y)>8){ e.x=d.x; e.y=d.y; } else { const k=Math.min(1,dt*9); e.x+=(d.x-e.x)*k; e.y+=(d.y-e.y)*k; }
+    const du=DUEL&&DUEL.with===pe.id, pa=du?Math.min(.12,(now-pe.rt)/1000):0, tx=d.x+(pe.vx||0)*pa, ty=d.y+(pe.vy||0)*pa;
+    if(Math.hypot(tx-e.x,ty-e.y)>8){ e.x=tx; e.y=ty; } else { const k=Math.min(1,dt*(du?16:9)); e.x+=(tx-e.x)*k; e.y+=(ty-e.y)*k; }
     e.moving=(d.sp||0)>.5; e.face=d.f||0; e.anim+=dt*(e.moving?clamp((d.sp||0)/3.2,.7,1.5):1); e.cast=d.c?.6:0; e.h=hgt(e.x,e.y);
     if(pe.g!==d.g){ pe.g=d.g||''; pe.v.hat.visible=pe.g.includes('h'); pe.v.robe.visible=pe.g.includes('r')||pe.g.includes('s'); pe.v.cape.visible=pe.g.includes('r'); pe.v.sunB.visible=pe.g.includes('s'); pe.v.staff.visible=pe.g.includes('w');
       { const gp=pe.g.split('|')[1]||''; if(gp){ const rr={}; WZK.forEach((k,i)=>{ const ch=gp[i]; rr[k]=ch>='0'&&ch<='4'?+ch:-1; }); gearLook(pe.v,rr,{}); pe.v.wcape.visible=rr.c>=0&&!d.pk; if(pe.v.pack) pe.v.pack.visible=rr.c<0&&!d.pk; if(pe.v.straps) pe.v.straps.visible=rr.c<0; if(pe.v.sleeves) for(const q of pe.v.sleeves) q.visible=rr.b>=0; } } }
@@ -6842,10 +6847,11 @@ function netFrame(dt){ if(!NET.db||!NET.uid) return; const inRoom=NET.host||(VIS
       const c=pe.ce; if(Math.hypot(d.yx-c.x,d.yy-c.y)>6){ c.x=d.yx; c.y=d.yy; } else { const k=Math.min(1,dt*9); c.x+=(d.yx-c.x)*k; c.y+=(d.yy-c.y)*k; } c.moving=!!d.ym; c.face=d.yf||0; c.anim+=dt; animate(c,pe.cat,dt); pe.cat.root.position.set(c.x,hgt(c.x,c.y),c.y); } }
   if(!inRoom) return;
   const R='rooms/'+(NET.host?NET.uid:NET.hostUid);
-  NET.sendT-=dt; if(NET.sendT<=0){ NET.sendT=.15;
+  NET.sendT-=dt; if(NET.sendT<=0){ NET.sendT=DUEL?.05:.15;
     const d={n:NET.name,l:P.lvl,x:+P.x.toFixed(2),y:+P.y.toFixed(2),f:+(P.face||0).toFixed(2),sp:+(P.sp||0).toFixed(1),j:+((P.pz||0)+(P.jz||0)).toFixed(2),c:(P.chan||P.act)?1:0,hp:Math.round(P.hp),mx:Math.round(P.max),g:(LZ.staff.visible?'w':'')+(LZ.hat.visible?'h':'')+(LZ.cape.visible?'r':'')+(LZ.sunB.visible?'s':'')+'|'+WZSL.map(sl=>{ const r=wzR(sl); return r<0?'-':r; }).join(''),fl:P.flip>0?1:0,dead:P.dead?1:0};
     if(TRD.with){ d.bg=BAG.filter(Boolean).slice(0,40).map(q=>q.id+':'+q.n).join(','); d.tw=TRD.with; }
     if(P.boat) d.bt=[+P.boat.rot.toFixed(2),+P.boat.ph.toFixed(2),P.boat.sd,P.boat.row?1:0]; if(P.ride) d.rd=P.ride;
+    if(NET.dq&&NET.dq.length){ const tn=Date.now(); NET.dq=NET.dq.filter(e=>tn-e[4]<15000); if(NET.dq.length) d.dq=NET.dq.map(e=>[e[0],e[1],e[2],e[3]]); }
     if(P.pack) d.pk=P.pack.id; if(CART.own&&!DG) d.ct=[+(P.cart?P.x:CART.x).toFixed(2),+(P.cart?P.y:CART.y).toFixed(2),+CART.r.toFixed(2),P.cart?1:0,CART.broken?1:0];
     if(Y.owned&&!Y.hurt){ d.yx=+Y.x.toFixed(2); d.yy=+Y.y.toFixed(2); d.yf=+(Y.face||0).toFixed(2); d.ym=Y.moving?1:0; }
     const sig=JSON.stringify(d); if(sig!==NET.lastSent||now-NET.lastSentT>1500){ NET.lastSent=sig; NET.lastSentT=now; d.s=++NET.ps; NET.db.ref(R+'/p/'+NET.uid).set(d).catch(()=>{}); } }
@@ -7575,10 +7581,10 @@ function duelProxy(){ const pe=NET.peers.get(DUEL.with); const m={duel:1,peer:DU
 function duelTick(dt){ if(!DUEL) return; const pe=NET.peers&&NET.peers.get(DUEL.with);
   if(!pe||!pe.live){ DUEL.gone=(DUEL.gone||0)+dt; if(!pe||DUEL.gone>12){ toast('O duelo acabou: '+peerName(DUEL.with)+' saiu'); duelClean(); } return; } DUEL.gone=0;
   if(DUEL.st==='count'){ const a=Math.ceil(DUEL.t); DUEL.t-=dt; const b=Math.ceil(DUEL.t); if(b!==a&&b>0) addText(P.x,P.y,P.h+2.6,String(b),'#ffd23f',26); if(DUEL.t<=0){ DUEL.st='on'; DUEL.m=duelProxy(); addText(P.x,P.y,P.h+2.6,'LUTEM!','#ff6a5a',28); sfx.level&&sfx.level(); } return; }
-  DUEL.T+=dt; const m=DUEL.m; if(m){ m.x=pe.e.x; m.y=pe.e.y; m.h=pe.e.h; m.hp=(pe.d&&pe.d.hp)||m.hp; m.max=(pe.d&&pe.d.mx)||m.max; m.vis.root.position.set(m.x,m.h,m.y); }
+  DUEL.T+=dt; const m=DUEL.m; if(m){ m.x=pe.e.x; m.y=pe.e.y; m.h=pe.e.h; { const sh=(pe.d&&pe.d.hp)||m.hp; m.hp=performance.now()-(DUEL.hitAt||0)<900?Math.min(m.hp,sh):sh; } m.max=(pe.d&&pe.d.mx)||m.max; m.vis.root.position.set(m.x,m.h,m.y); }
   if(Math.hypot(pe.e.x-P.x,pe.e.y-P.y)>45){ toast('Vocês se afastaram demais: duelo cancelado'); giftSend(DUEL.with,'$rq',31); duelClean(); return; }
   if(DUEL.T>150){ giftSend(DUEL.with,'$rq',31); duelEnd(null); } }
-function duelHit(m,mult){ if(!DUEL||DUEL.st!=='on') return; let [dmg,crit]=rollDmg(mult); dmg=Math.max(1,Math.round(dmg*.5)); giftSend(DUEL.with,'$rq',40,dmg);
+function duelHit(m,mult){ if(!DUEL||DUEL.st!=='on') return; let [dmg,crit]=rollDmg(mult); dmg=Math.max(1,Math.round(dmg*.5)); rqSend(DUEL.with,40,dmg); DUEL.hitAt=performance.now(); m.hp=Math.max(1,m.hp-Math.round(dmg*.8));
   m.hitT=.18; addText(m.x,m.y,m.h+2.1,String(dmg),crit?'#ffd23f':'#ffffff',crit?24:16); if(crit) sfx.crit(); else sfx.hit(); }
 function duelTake(from,raw){ if(P.dead) return; const red=P.def/(P.def+40); let dmg=Math.max(1,Math.round(raw*(1-red)));
   if(P.shield>0){ const ab=Math.min(P.shield,dmg); P.shield-=ab; dmg-=ab; if(dmg<=0) return; }
