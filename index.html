@@ -348,6 +348,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 @media (max-width:480px){ .kills{display:none} }
 @media (min-width:601px){ #hint{max-width:min(420px,calc(100vw - 420px))} }
 @media (prefers-reduced-motion: reduce){ .bar i,#toast,#hint,#load{transition:none} }
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}#cname.shk{animation:shk .3s 2;border-color:#ff7a5a!important}
 </style>
 
 <canvas id="cv"></canvas>
@@ -437,7 +438,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.70</div>
+    <div id="ver">v0.71</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -4886,7 +4887,7 @@ function isFS(){ return !!(document.fullscreenElement||document.webkitFullscreen
 function autoFSok(){ if(isFS()||window.__BP_DEBUG) return false; try{ if(matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true) return false; }catch(e){} try{ if(sessionStorage.getItem('bp-fs')) return false; }catch(e){} return true; }
 function fsLabel(){ $('fsb').textContent=isFS()?'Sair da tela cheia':'Tela cheia'; }
 document.addEventListener('fullscreenchange',fsLabel); document.addEventListener('webkitfullscreenchange',fsLabel);
-$('mplay').onclick=()=>{ const t=menuMode==='title'; hideMenu(); if(t&&!hadSave&&!(save&&save.ap)&&!VISIT) setTimeout(()=>openCria(true),50); if(t){ if(autoFSok()){ try{ sessionStorage.setItem('bp-fs','1'); }catch(e){} try{ const el=document.documentElement, r=el.requestFullscreen||el.webkitRequestFullscreen; if(r){ const p=r.call(el); if(p&&p.then) p.then(()=>{ try{ screen.orientation.lock('landscape').catch(()=>{}); }catch(e){} }).catch(()=>{}); } }catch(e){} } audio(); } };
+$('mplay').onclick=()=>{ const t=menuMode==='title'; hideMenu(); if(t&&!(save&&save.ap)&&!VISIT) setTimeout(()=>openCria(true),50); if(t){ if(autoFSok()){ try{ sessionStorage.setItem('bp-fs','1'); }catch(e){} try{ const el=document.documentElement, r=el.requestFullscreen||el.webkitRequestFullscreen; if(r){ const p=r.call(el); if(p&&p.then) p.then(()=>{ try{ screen.orientation.lock('landscape').catch(()=>{}); }catch(e){} }).catch(()=>{}); } }catch(e){} } audio(); } };
 $('mnew').onclick=()=>{ $('mmain').hidden=true; $('mconf').hidden=false; };
 const CRIA={on:false};
 function criaRender(){ const sw=(id,list,key,col)=>{ $(id).innerHTML=list.map((c,i)=>'<button data-i="'+i+'" class="'+(AP[key]===i?'on':'')+'" style="background:'+(col?col(c):c)+'" aria-label="opção '+(i+1)+'"></button>').join(''); };
@@ -4895,13 +4896,13 @@ function criaRender(){ const sw=(id,list,key,col)=>{ $(id).innerHTML=list.map((c
   $('c-g').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(AP.g|0))); $('ctit').textContent=CRIA.first?(AP.g===1?'Crie seu mago':'Crie sua maga'):'Aparência'; $('c-hn').parentElement.style.display=AP.hs===5?'none':'';
   $('c-fr').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===AP.fr)); $('c-hn').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===(AP.hn|0)));
   $('c-md').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===AP.model)); $('c-mdn').textContent=AP.model==='real'?'A realista usa o visual próprio: pele, cabelo e roupa abaixo valem só pra fofinha.':''; }
-function openCria(first){ CRIA.on=true; CRIA.first=!!first; CRIA.z=zoom; CRIA.p=pitchT; $('cname').value=AP.n; $('ctit').textContent=first?'Crie sua maga':'Aparência'; $('cok').textContent=first?'Começar a aventura!':'Salvar';
+function openCria(first){ CRIA.on=true; CRIA.first=!!first; CRIA.z=zoom; CRIA.p=pitchT; $('cname').value=first?'':AP.n; $('cname').placeholder=first?'Digite o nome do personagem':''; $('ctit').textContent=first?'Crie seu personagem':'Aparência'; $('cok').textContent=first?'Começar a aventura!':'Salvar';
   paused=true; P.sp=0; zoom=.55; pitchT=.3; P.face=P.rot=yawT; criaRender(); $('cria').classList.add('on'); document.body.classList.add('incria'); }
-function closeCria(){ const n=($('cname').value||'').trim().slice(0,14); AP.n=n||(AP.g===1?'Lucas':'Luíza'); applyAP(); CRIA.on=false; $('cria').classList.remove('on'); document.body.classList.remove('incria'); zoom=CRIA.z; pitchT=CRIA.p; paused=false; doSave(); if(CRIA.first) toast('Boa aventura, '+AP.n+'!'); }
+function closeCria(){ const n=($('cname').value||'').trim().slice(0,14); if(CRIA.first&&!n){ toast('Escolha um nome pro seu personagem'); const c=$('cname'); c.focus(); c.classList.remove('shk'); void c.offsetWidth; c.classList.add('shk'); sfx.hurt&&sfx.hurt(); return; } AP.n=n||(AP.g===1?'Lucas':'Luíza'); applyAP(); CRIA.on=false; $('cria').classList.remove('on'); document.body.classList.remove('incria'); zoom=CRIA.z; pitchT=CRIA.p; paused=false; doSave(); if(CRIA.first) toast('Boa aventura, '+AP.n+'!'); }
 $('cria').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const p=b.parentElement.id; const i=+b.dataset.i;
-  if(p==='c-sk') AP.sk=i; else if(p==='c-ey') AP.ey=i; else if(p==='c-hc') AP.hc=i; else if(p==='c-cl') AP.cl=i; else if(p==='c-hs') AP.hs=i; else if(p==='c-fr') AP.fr=+b.dataset.v; else if(p==='c-hn') AP.hn=+b.dataset.v; else if(p==='c-md') AP.model=b.dataset.v; else if(p==='c-g'){ const g=+b.dataset.v; if(g!==(AP.g|0)){ AP.g=g; if(APO.hsG[g].indexOf(AP.hs)<0) AP.hs=APO.hsG[g][0]; const nm=($('cname').value||'').trim(); if(!nm||nm==='Luíza'||nm==='Lucas'){ $('cname').value=g?'Lucas':'Luíza'; } } }
+  if(p==='c-sk') AP.sk=i; else if(p==='c-ey') AP.ey=i; else if(p==='c-hc') AP.hc=i; else if(p==='c-cl') AP.cl=i; else if(p==='c-hs') AP.hs=i; else if(p==='c-fr') AP.fr=+b.dataset.v; else if(p==='c-hn') AP.hn=+b.dataset.v; else if(p==='c-md') AP.model=b.dataset.v; else if(p==='c-g'){ const g=+b.dataset.v; if(g!==(AP.g|0)){ AP.g=g; if(APO.hsG[g].indexOf(AP.hs)<0) AP.hs=APO.hsG[g][0]; const nm=($('cname').value||'').trim(); if(!CRIA.first&&(!nm||nm==='Luíza'||nm==='Lucas')){ $('cname').value=g?'Lucas':'Luíza'; } } }
   else if(b.id==='crnd'){ const r=n=>Math.floor(Math.random()*n); AP.sk=r(APO.skin.length); AP.ey=r(APO.eye.length); AP.hc=r(APO.hair.length); AP.cl=r(APO.cloth.length); { const L=APO.hsG[AP.g===1?1:0]; AP.hs=L[r(L.length)]; } AP.fr=r(2); }
-  else if(b.id==='cok'){ closeCria(); sfx.ok&&sfx.ok(); return; } else return;
+  else if(b.id==='cok'){ const was=CRIA.on; closeCria(); if(was&&!CRIA.on) sfx.ok&&sfx.ok(); return; } else return;
   applyAP(); criaRender(); sfx.pick(); });
 ['cria'].forEach(id=>{ $(id).addEventListener('pointerdown',e=>e.stopPropagation()); $(id).addEventListener('keydown',e=>e.stopPropagation()); });
 if($('mlook')) $('mlook').onclick=()=>{ hideMenu(); openCria(false); };
