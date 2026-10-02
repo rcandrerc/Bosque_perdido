@@ -433,7 +433,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.62</div>
+    <div id="ver">v0.63</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -5486,6 +5486,10 @@ function svSet(k,v){ if(v.t==='furnace'||(structs.get(k)||{}).t==='furnace') roo
 let roofT=0;
 /* telhado em rampa: cada peça sobe um degrau na direção escolhida (girar). Rampas em fila vão subindo; dois lados opostos se encontram na cumeeira.
    As laterais e o fundo que ficam abertos são fechados com madeira sozinhos. */
+const PLANKM=(()=>{ const c=document.createElement('canvas'); c.width=64; c.height=128; const g=c.getContext('2d');
+  const band=(y0,col)=>{ g.fillStyle=col; g.fillRect(0,y0,64,64); for(let i=0;i<14;i++){ g.strokeStyle='rgba(60,35,15,'+(.12+Math.random()*.18)+')'; g.lineWidth=1; g.beginPath(); const yy=y0+4+Math.random()*56; g.moveTo(0,yy); g.bezierCurveTo(20,yy+(Math.random()-.5)*6,44,yy+(Math.random()-.5)*6,64,yy+(Math.random()-.5)*3); g.stroke(); } g.fillStyle='rgba(40,22,10,.45)'; g.fillRect(0,y0,64,2); };
+  band(0,'#c99a66'); band(64,'#94673e'); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.encoding=THREE.sRGBEncoding;
+  const m=new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide}); return m; })();
 function rampAt(x,y){ const v=structs.get(mkey(x,y)); return v&&v.roof&&(v.ra|0)>=3?v:null; }
 function rampN(x,y,L,d){ const D=RDIR[d]; let n=0; for(let i=1;i<40;i++){ const w=rampAt(x-D[0]*i,y-D[1]*i); if(w&&(w.rl|0)===L&&((w.ra|0)-3)===d) n++; else break; } return n; }
 function rampInfo(x,y){ const v=rampAt(x,y); if(!v) return null; const L=v.rl|0, d=(v.ra|0)-3, n=rampN(x,y,L,d), D=RDIR[d]; let h0=n*RS, h1=h0+RS, flat=false;
@@ -5494,18 +5498,24 @@ function rampInfo(x,y){ const v=rampAt(x,y); if(!v) return null; const L=v.rl|0,
 function rampRebuild(){ for(const [k,v] of structs){ if(!v.roof||(v.ra|0)<3) continue; const [x,y]=kxy(k), I=rampInfo(x,y); if(!I) continue; const D=RDIR[I.d];
     const g=new THREE.Group(), inner=new THREE.Group(); inner.position.set(.5,0,.5); inner.rotation.y=I.d*Math.PI/2; g.add(inner);
     const dn=rampAt(x-D[0],y-D[1]), dnSame=dn&&(dn.rl|0)===I.L, up=rampAt(x+D[0],y+D[1]), upI=up&&(up.rl|0)===I.L?rampInfo(x+D[0],y+D[1]):null;
-    const z0=dnSame?-.5:-.72, hz0=dnSame?I.h0:I.h0-(I.flat?0:.22*RS), z1=.5;
-    /* telha */
-    { const pos=[-.5,hz0,z0, .5,hz0,z0, -.5,I.h1,z1, .5,I.h1,z1], gm=new THREE.BufferGeometry(); gm.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); gm.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,0,1.3,1,1.3],2)); gm.setIndex([0,2,1,1,2,3]); gm.computeVertexNormals();
+    /* lados abertos (onde a madeira fecha) e fundo aberto: o telhado passa um pouquinho pra fora (beiral) */
+    const sideOpen=s=>{ const sd=RDIR[(I.d+(s>0?1:3))%4], nb=rampAt(x+sd[0],y+sd[1]); if(nb&&(nb.rl|0)===I.L){ const nI=rampInfo(x+sd[0],y+sd[1]); if(nI&&nI.d===I.d&&Math.abs(nI.h0-I.h0)<.01&&nI.flat===I.flat) return false; } return true; };
+    const oL=sideOpen(-1), oR=sideOpen(1), upOpen=!up||(up.rl|0)!==I.L, OV=.2;
+    const xa=oL?-.5-OV:-.5, xb=oR?.5+OV:.5, slope=I.flat?0:RS;
+    const z0=dnSame?-.5:-.5-.24, z1=upOpen?.5+OV*.6:.5, hz=z=>I.h0+(z+.5)*slope;
+    /* telha (com espessura) */
+    { const T=.07, P=[[xa,hz(z0),z0],[xb,hz(z0),z0],[xa,hz(z1),z1],[xb,hz(z1),z1]], pos=[], uv=[]; const q=(a,b,c,d,ua)=>{ pos.push(...a,...c,...b,...b,...c,...d); uv.push(...ua); };
+      q(P[0],P[1],P[2],P[3],[0,0,0,1.3,1,0,1,0,0,1.3,1,1.3]);
+      const D=p=>[p[0],p[1]-T,p[2]]; q(D(P[1]),D(P[0]),D(P[3]),D(P[2]),[0,0,0,1.3,1,0,1,0,0,1.3,1,1.3]);
+      for(const [a,b] of [[0,1],[1,3],[3,2],[2,0]]){ const A=P[a], B=P[b]; q(A,B,D(A),D(B),[0,0,0,.1,1,0,1,0,0,.1,1,.1]); }
+      const gm=new THREE.BufferGeometry(); gm.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); gm.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); gm.computeVertexNormals();
       const m=new THREE.Mesh(gm,ROOFM); m.castShadow=true; m.receiveShadow=true; inner.add(m); }
     /* cumeeira quando encontra o outro lado */
-    if(upI&&((up.ra|0)-3)===(I.d+2)%4&&Math.abs(upI.h1-I.h1)<.01&&!I.flat){ const c=new THREE.Mesh(G.box,ROOFE); c.scale.set(1,.12,.2); c.position.set(0,I.h1+.03,.5); c.castShadow=true; inner.add(c); }
-    /* madeira fechando: laterais (onde não continua telhado igual) e o fundo alto (quando não encontra outro telhado) */
-    const panel=(pts)=>{ const gp=[]; for(let i=1;i<pts.length-1;i++) gp.push(...pts[0],...pts[i],...pts[i+1]); const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.Float32BufferAttribute(gp,3)); const uv=[]; for(let i=0;i<gp.length/3;i++) uv.push(gp[i*3]+gp[i*3+2],gp[i*3+1]); gg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); gg.computeVertexNormals(); const m=new THREE.Mesh(gg,GABM); m.castShadow=true; m.receiveShadow=true; inner.add(m); };
-    for(const s of [-1,1]){ const sd=RDIR[(I.d+(s>0?1:3))%4], nb=rampAt(x+sd[0],y+sd[1]); let open=true;
-      if(nb&&(nb.rl|0)===I.L){ const nI=rampInfo(x+sd[0],y+sd[1]); if(nI&&nI.d===I.d&&Math.abs(nI.h0-I.h0)<.01&&nI.flat===I.flat) open=false; }
-      if(open&&I.h1>.01){ const sx=s*.5; panel([[sx,0,-.5],[sx,Math.max(0,I.h0),-.5],[sx,I.h1,.5],[sx,0,.5]]); } }
-    if(!up||(up.rl|0)!==I.L){ if(I.h1>.01) panel([[-.5,0,.5],[.5,0,.5],[.5,I.h1,.5],[-.5,I.h1,.5]]); }
+    if(upI&&((up.ra|0)-3)===(I.d+2)%4&&Math.abs(upI.h1-I.h1)<.01&&!I.flat){ const c=new THREE.Mesh(G.box,ROOFE); c.scale.set(xb-xa,.12,.2); c.position.set((xa+xb)/2,I.h1+.03,.5); c.castShadow=true; inner.add(c); }
+    /* tábuas fechando os lados e o fundo, iguais às da parede */
+    const panel=(pts)=>{ const gp=[]; for(let i=1;i<pts.length-1;i++) gp.push(...pts[0],...pts[i],...pts[i+1]); const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.Float32BufferAttribute(gp,3)); const uv=[]; for(let i=0;i<gp.length/3;i++) uv.push(gp[i*3]+gp[i*3+2],gp[i*3+1]/.6); gg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); gg.computeVertexNormals(); const m=new THREE.Mesh(gg,PLANKM); m.castShadow=true; m.receiveShadow=true; inner.add(m); };
+    for(const s of [-1,1]){ if(!(s<0?oL:oR)||I.h1<=.01) continue; const sx=s*.5; panel([[sx,0,-.5],[sx,Math.max(0,I.h0),-.5],[sx,I.h1,.5],[sx,0,.5]]); }
+    if(upOpen&&I.h1>.01) panel([[-.5,0,.5],[.5,0,.5],[.5,I.h1,.5],[-.5,I.h1,.5]]);
     g.position.set(x,tileBase(x,y)+FH+(I.L+1)*LH,y); g.userData.rl=I.L; scene.add(g); roofMesh.set(k,g); } }
 function rampGhost(){ const g=new THREE.Group(); const pos=[-.5,0,-.5, .5,0,-.5, -.5,RS,.5, .5,RS,.5], gm=new THREE.BufferGeometry(); gm.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); gm.setIndex([0,2,1,1,2,3]); gm.computeVertexNormals(); g.add(new THREE.Mesh(gm,ROOFM));
   const ar=new THREE.Mesh(new THREE.ConeGeometry(.12,.3,6),ROOFM); ar.rotation.x=Math.PI/2; ar.position.set(0,RS*.6+.15,.25); g.add(ar); return g; }
