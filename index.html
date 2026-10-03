@@ -91,6 +91,7 @@ button.chip{pointer-events:auto;cursor:pointer;font-family:var(--ui)}
 body.incria .hud,body.incria #skills,body.incria #joy,body.incria #mmw,body.incria .panel{visibility:hidden}
 #cria h3{font-size:20px}
 #cria .cbox{gap:7px}
+#autog{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;padding:6px 10px 6px 12px;border-radius:999px;background:rgba(24,30,18,.82);border:1px solid rgba(200,245,160,.45);color:#e8f7d8;font:700 13px var(--ui);box-shadow:0 2px 10px rgba(0,0,0,.35);cursor:pointer}#autog b{color:#ffe08a;font-variant-numeric:tabular-nums}#autog i{font-style:normal;opacity:.7;margin-left:2px}
 #lang{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));display:flex;gap:8px;z-index:5}#lang button{width:46px;height:32px;padding:0;border-radius:6px;border:2px solid rgba(255,255,255,.25);overflow:hidden;background:none;opacity:.5;cursor:pointer;transition:opacity .15s,transform .15s}#lang button.on{border-color:#f0cf86;opacity:1;box-shadow:0 0 9px rgba(240,207,134,.65)}#lang button:active{transform:scale(.92)}#lang svg{width:100%;height:100%;display:block}
 #gmenu{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;pointer-events:auto;
   background:radial-gradient(ellipse at 50% 40%,rgba(10,16,12,.55),rgba(6,9,6,.88) 75%)}
@@ -447,7 +448,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
   <div id="lang"><button data-lang="pt" aria-label="Português"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#229e45"/><path d="M15 2.2 27.6 10.5 15 18.8 2.4 10.5z" fill="#f8e509"/><circle cx="15" cy="10.5" r="4.6" fill="#2b49a3"/><path d="M10.6 9.4q4.6-1.2 8.8 1.6" stroke="#fff" stroke-width=".8" fill="none"/></svg></button><button data-lang="en" aria-label="English"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#fff"/><rect y="0.000" width="30" height="1.615" fill="#b22234"/><rect y="3.230" width="30" height="1.615" fill="#b22234"/><rect y="6.460" width="30" height="1.615" fill="#b22234"/><rect y="9.690" width="30" height="1.615" fill="#b22234"/><rect y="12.920" width="30" height="1.615" fill="#b22234"/><rect y="16.150" width="30" height="1.615" fill="#b22234"/><rect y="19.380" width="30" height="1.615" fill="#b22234"/><rect width="13" height="11.3" fill="#3c3b6e"/><circle cx="1.6" cy="1.4" r=".55" fill="#fff"/><circle cx="3.8" cy="1.4" r=".55" fill="#fff"/><circle cx="6.0" cy="1.4" r=".55" fill="#fff"/><circle cx="8.2" cy="1.4" r=".55" fill="#fff"/><circle cx="10.4" cy="1.4" r=".55" fill="#fff"/><circle cx="2.7" cy="3.5" r=".55" fill="#fff"/><circle cx="4.9" cy="3.5" r=".55" fill="#fff"/><circle cx="7.1" cy="3.5" r=".55" fill="#fff"/><circle cx="9.3" cy="3.5" r=".55" fill="#fff"/><circle cx="1.6" cy="5.6" r=".55" fill="#fff"/><circle cx="3.8" cy="5.6" r=".55" fill="#fff"/><circle cx="6.0" cy="5.6" r=".55" fill="#fff"/><circle cx="8.2" cy="5.6" r=".55" fill="#fff"/><circle cx="10.4" cy="5.6" r=".55" fill="#fff"/><circle cx="2.7" cy="7.7" r=".55" fill="#fff"/><circle cx="4.9" cy="7.7" r=".55" fill="#fff"/><circle cx="7.1" cy="7.7" r=".55" fill="#fff"/><circle cx="9.3" cy="7.7" r=".55" fill="#fff"/><circle cx="1.6" cy="9.8" r=".55" fill="#fff"/><circle cx="3.8" cy="9.8" r=".55" fill="#fff"/><circle cx="6.0" cy="9.8" r=".55" fill="#fff"/><circle cx="8.2" cy="9.8" r=".55" fill="#fff"/><circle cx="10.4" cy="9.8" r=".55" fill="#fff"/></svg></button></div>
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.95</div>
+    <div id="ver">v0.96</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -1567,6 +1568,17 @@ function rivD(x,y){ let best=99; for(const R of RIVERS){ if(Math.abs(x-R.x)>R.a+
 function brDeck(b,t){ return Math.max(b.hA+(b.hB-b.hA)*t,.45)+.42*Math.sin(Math.PI*t); }
 function bridgeH(x,y){ for(const b of BRIDGES){ const dx=x-b.cx, dy=y-b.cy; if(Math.abs(dx)>b.L+2||Math.abs(dy)>b.L+2) continue; const a=dx*b.nx+dy*b.ny, s=dx*b.tx+dy*b.ty; if(Math.abs(a)<=b.L&&Math.abs(s)<b.hw) return brDeck(b,(a+b.L)/(2*b.L)); } return null; }
 function lmBlock(x,y){ const lb=LMKB.get(Math.floor(x/16)); if(!lb) return false; for(const L of lb){ if(!L.sol||Math.abs(x-L.x)>L.r+3||Math.abs(y-L.y)>L.r+3) continue; for(const c of L.sol){ const dx=x-c[0], dy=y-c[1]; if(dx*dx+dy*dy<c[2]*c[2]) return true; } } return false; }
+/* dá pra ficar em cima de qualquer coisa: altura do topo medida com raio de cima pra baixo (preguiçoso, por célula) */
+const _hfRC=new THREE.Raycaster(), _hfO=new THREE.Vector3(), _hfD=new THREE.Vector3(0,-1,0);
+function hfAt(H,x,y){ const cs=.34, i=Math.floor((x-H.x0)/cs), j=Math.floor((y-H.y0)/cs); if(i<0||j<0||i>=H.n||j>=H.n) return 0; const k=j*H.n+i; let v=H.a[k]; if(v>=0) return v;
+  const cx=H.x0+(i+.5)*cs, cy=H.y0+(j+.5)*cs, gh=hgt(cx,cy); if(!H.mw){ H.g.updateMatrixWorld(true); H.mw=1; }
+  _hfO.set(cx,gh+30,cy); _hfRC.set(_hfO,_hfD); _hfRC.far=40; v=0;
+  const hits=_hfRC.intersectObject(H.g,true); for(const h of hits){ const m=h.object.material; if(!m||m===OUTM||m.transparent||m.side===THREE.BackSide||h.object.userData.noHF) continue; v=Math.max(0,h.point.y-gh); if(v<.2) v=0; break; }
+  H.a[k]=v; return v; }
+function mkHF(g,x,y,r){ const cs=.34, n=Math.ceil(2*(r+1)/cs); return {g,x0:x-r-1,y0:y-r-1,n,a:new Float32Array(n*n).fill(-1)}; }
+function lmTop(x,y){ const lb=LMKB.get(Math.floor(x/16)); if(!lb) return 0; for(const L of lb){ if(!L.sol||!L.g||Math.abs(x-L.x)>L.r+3||Math.abs(y-L.y)>L.r+3) continue;
+    for(const c of L.sol){ const dx=x-c[0], dy=y-c[1]; if(dx*dx+dy*dy<c[2]*c[2]){ if(!L.hf) L.hf=mkHF(L.g,L.x,L.y,L.r+2); return hfAt(L.hf,x,y); } } } return 0; }
+function dgTop(x,y){ if(typeof SITES==='undefined') return 0; for(const st of SITES){ if(st.type!=='dg') continue; const d=st.d; if(Math.abs(x-d.mx)>7||Math.abs(y-d.my)>7) continue; if(!st.hf) st.hf=mkHF(st.g,d.mx,d.my,6); return hfAt(st.hf,x,y); } return 0; }
 function brD(x,y){ const L=BB.get(Math.floor(x/16)); if(!L) return 99; let m=99;
   for(const g of L){ if(y<g.y0||y>g.y1) continue; const vx=g.bx-g.ax, vy=g.by-g.ay, l2=vx*vx+vy*vy; let t=((x-g.ax)*vx+(y-g.ay)*vy)/l2; t=t<0?0:t>1?1:t; const d=Math.hypot(x-g.ax-vx*t,y-g.ay-vy*t); if(d<m) m=d; }
   return m+.35; }
@@ -1604,6 +1616,7 @@ function climbTop(x,y,feet){ if(x>=4900) return 0; if(P.inH){ const h=P.inH; if(
     for(const s2 of STALLS) if(Math.abs(cx-s2.x)<1.3&&Math.abs(cy-s2.y)<.6) return feet>=CLIMB.canopy-CLIMB.mantle-.05?CLIMB.canopy:CLIMB.counter;
     if(Math.hypot(cx-1.5,cy-9.5)<1) return CLIMB.well;
     return 0; }
+  { const lt=lmTop(x,y); if(lt>0) return lt; } if(dgNear(x,y)){ const dt2=dgTop(x,y); if(dt2>0) return dt2; }
   tile(tx,ty); return gO===O.BOULDER?CLIMB.rock:0; }
 function villBlock(tx,ty){
   if(SWIMOK&&P.inH){ const h=P.inH, x=tx+.5, y=ty+.5; return !(Math.abs(x-h.x)<1.75&&Math.abs(y-h.y)<1.75); }
@@ -1691,12 +1704,13 @@ const LMNAME={ruin:'Ruínas Esquecidas',temple:'Templo em Ruínas',statue:'Está
     side=-side; }
   for(const L of LMK){ const a=Math.floor((L.x-L.r-8)/16), b=Math.floor((L.x+L.r+8)/16); for(let i=a;i<=b;i++){ if(!LMKB.has(i)) LMKB.set(i,[]); LMKB.get(i).push(L); } }
 }
+function dgNear(x,y){ for(const d of DGDEF){ if(Math.abs(x-d.mx)<4.2&&Math.abs(y-d.my)<4.2) return true; } return false; }
 function siteBlock(tx,ty){
   const x=tx+.5, y=ty+.5;
   for(const d of DGDEF){ if(Math.abs(x-d.mx)>7) continue; const dx=x-d.mx, dy=y-d.my, cs=Math.cos(d.rot), sn=Math.sin(d.rot), lx=dx*cs-dy*sn, lz=dx*sn+dy*cs;
-    if(Math.abs(lx)<3.6&&lz<1.75&&lz>-3&&!(Math.abs(lx)<1&&lz>.9)) return true; { const gx=-2.65, gz=3.45; if(Math.hypot(lx-gx,lz-gz)<.45) return true; } }
+    if(Math.abs(lx)<3.6&&lz<1.75&&lz>-3&&!(Math.abs(lx)<1&&lz>.9)){ if(!(CLIMBZ>0&&CLIMBZ>=dgTop(x,y)-CLIMB.mantle)) return true; } { const gx=-2.65, gz=3.45; if(Math.hypot(lx-gx,lz-gz)<.45) return true; } }
   for(const w of WAYS){ if(Math.abs(x-w.x)<.8&&Math.abs(y-w.y)<.8) return true; }
-  if(lmBlock(x,y)) return true;
+  if(lmBlock(x,y)&&!(CLIMBZ>0&&CLIMBZ>=lmTop(x,y)-CLIMB.mantle)) return true;
   if(Math.abs(x-DUMX)<.6&&Math.abs(y-DUMY)<.6) return true;
   return villBlock(tx,ty);
 }
@@ -1761,7 +1775,7 @@ function tile(tx,ty){
   gT=c.type[k]; gO=c.kind[k]; gV=c.vr[k]; gD=c.dec[k]; gM=0;
   if(gO&&mods.size&&mods.has(mkey(tx,ty))){ gM=gO; gO=0; }
 }
-function walkable(tx,ty){ if(tx>=4900) return dgWalk(tx,ty); if(!inBounds(tx+.5,ty+.5)) return false; tile(tx,ty); if(structs.size){ const sv=structs.get(mkey(tx,ty)); if(sv&&STBLK[sv.t]&&lvOf(CLIMBZ)===(sv.tl|0)) return false; } if(siteBlock(tx,ty)) return false; return (gT!==T.WATER||SWIMOK||(BRIDGES&&bridgeH(tx+.5,ty+.5)!==null)) && gO!==O.OAK && gO!==O.PINE && (gO!==O.BOULDER||CLIMBZ>=CLIMB.rock-CLIMB.mantle); }
+function walkable(tx,ty){ if(tx>=4900) return dgWalk(tx,ty); if(!inBounds(tx+.5,ty+.5)) return false; tile(tx,ty); if(structs.size){ const sv=structs.get(mkey(tx,ty)); if(sv&&STBLK[sv.t]&&lvOf(CLIMBZ)===(sv.tl|0)) return false; } if(siteBlock(tx,ty)) return false; return (gT!==T.WATER||SWIMOK||(BRIDGES&&bridgeH(tx+.5,ty+.5)!==null)) && (gO!==O.OAK && gO!==O.PINE || CLIMBZ>=3.6) && (gO!==O.BOULDER||CLIMBZ>=CLIMB.rock-CLIMB.mantle); }
 let SWIMOK=false; const WATER_Y=-.06;
 function isDeep(x,y){ return !DG&&hgt(x,y)<WATER_Y-.62; }
 function canStand(x,y,r){
@@ -3677,6 +3691,29 @@ function updateMagic(dt){
 const RES={wood:['Madeira','#b07a45'],stone:['Pedra','#a9a59a'],iron:['Ferro','#d0773a'],crystal:['Cristal','#8fe9ff'],copper:['Cobre','#3fb898'],berry:['Frutinha','#e2433f']};
 function resInfo(o,ore){ if(o===O.STICK||o===O.PEBBLE) return {hp:1,snd:'leaf'}; if(o===O.OAK||o===O.PINE) return {hp:Math.ceil(8/(hasTool('axe')+1)),snd:'chop',tool:'axe'}; if(o===O.BUSH) return {hp:2,snd:'leaf'}; return {hp:Math.ceil((ore?14:10)/(hasTool('pick')+1)),snd:'stone',tool:'pick'}; }
 function startGather(r){ const tree=r.o===O.OAK||r.o===O.PINE, rock=r.o===O.BOULDER; if(admActive('cr')){ const inf=resInfo(r.o,r.ore); P.gather={tx:r.tx,ty:r.ty,o:r.o,ore:r.ore,hp:1,max:1,snd:inf.snd,tool:null}; P.target=null; P.move=null; return; } if((tree&&!hasTool('axe'))||(rock&&!hasTool('pick'))){ addText(P.x,P.y,P.h+2.3,tree?'Precisa de machado':'Precisa de picareta','#ffd166',15); if(!P.toolTip){ P.toolTip=1; toast('Sem ferramenta: pegue galhos e pedrinhas soltos na beira da estrada e faça '+(tree?'o machado':'a picareta')+' na mochila.'); } return; } const inf=resInfo(r.o,r.ore); P.gather={tx:r.tx,ty:r.ty,o:r.o,ore:r.ore,hp:inf.hp,max:inf.hp,snd:inf.snd,tool:inf.tool}; P.target=null; P.move=null; }
+/* coleta automática: tocou numa árvore ou pedra, ela continua sozinha (mais próxima do mesmo tipo) até a estamina acabar (~2 min).
+   Esgotou: só liga de novo com a estamina cheia. Mexer no joystick cancela. */
+const AUTOG_T=120;
+function autoGKey(o,ore){ return o===O.OAK||o===O.PINE?'wood':o===O.BOULDER?['stone','iron','crystal','copper'][ore|0]:null; }
+function autoGStart(r){ if(DG||VISIT||P.autoG) return; const k=autoGKey(r.o,r.ore); if(!k) return;
+  if(P.autoLock){ if(!P.autoLockTip||time-P.autoLockTip>8){ P.autoLockTip=time; toast('Coleta automática descansando: espere a estamina encher toda.'); } return; }
+  P.autoG={k,idle:0}; addText(P.x,P.y,P.h+2.4,'⚙️ Coleta automática','#c8f5a0',14);
+  if(!P.autoTip){ P.autoTip=1; toast('Coleta automática ligada! Continua sozinha enquanto tiver estamina. Mexa o joystick pra parar.'); } autoGHud(); }
+function autoGStop(msg,lock){ if(!P.autoG) return; P.autoG=null; if(lock) P.autoLock=true; if(msg) toast(msg); autoGHud(); }
+function autoGNext(){ const A=P.autoG; if(!A||P.gather||P.dead) return; if(!BAG.includes(null)&&!BAG.some(q=>q&&q.id===A.k&&q.n<(IT[A.k].st||1))){ autoGStop('Mochila cheia: coleta automática parou.'); return; }
+  if(P.sta<=0){ autoGStop('Cansou! Espere a estamina encher toda pra coletar no automático de novo.',true); return; }
+  const r=findRes(A.k,18); if(!r){ autoGStop('Não tem mais '+IT[A.k].n.toLowerCase()+' aqui perto.'); return; }
+  P.autoGo={x:r.tx+.5,y:r.ty+.5,res:r}; P.target=null; }
+function autoGTick(dt){ if(P.autoLock&&P.sta>=P.maxSta-.01){ P.autoLock=false; autoGHud(); }
+  const A=P.autoG; if(!A) return; const busy=P.gather||(P.autoGo&&P.autoGo.res);
+  if(!busy){ A.idle+=dt; if(A.idle>1.2) autoGStop(''); return; } A.idle=0;
+  if(admActive('cr')) return; P.sta=Math.max(0,P.sta-P.maxSta/AUTOG_T*dt); P.staT=.6;
+  if(P.sta<=0&&!P.gather) autoGStop('Cansou! Espere a estamina encher toda pra coletar no automático de novo.',true);
+  else if(P.sta<=0&&P.gather){ P.autoLock=true; P.autoG.last=1; }
+  A.hud=(A.hud||0)-dt; if(A.hud<=0){ A.hud=.5; autoGHud(); } }
+function autoGHud(){ let el=$('autog'); if(!el){ el=document.createElement('div'); el.id='autog'; document.body.appendChild(el); el.addEventListener('pointerdown',e=>{ e.stopPropagation(); autoGStop('Coleta automática parada.'); }); }
+  const A=P.autoG; if(!A){ el.style.display='none'; return; } const s=Math.ceil(P.sta/P.maxSta*AUTOG_T); el.style.display='';
+  el.innerHTML='<span>'+(A.k==='wood'?'🪓':'⛏️')+' Auto</span><b>'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+'</b><i>✕</i>'; }
 function giveRes(k,n,x,y,h,i){ const left=addItem(k,n); setTimeout(()=>addText(x,y,h+.4*i,left>=n?'Mochila cheia!':'+'+(n-left)+' '+IT[k].n,left>=n?'#ff8a7a':RES[k][1],15),i*160); }
 function gatherHit(){
   const g=P.gather; tile(g.tx,g.ty); if(gO!==g.o){ P.gather=null; return; }
@@ -3702,7 +3739,7 @@ function gatherImpact(g){
     else { giveRes('stone',g.ore?2:rint(3,5),cx,cy,h+.9,i++); if(g.ore===1) giveRes('iron',rint(2,3),cx,cy,h+.9,i++); if(g.ore===2) giveRes('crystal',rint(1,2),cx,cy,h+.9,i++); if(g.ore===3) giveRes('copper',rint(2,3),cx,cy,h+.9,i++); }
     mods.set(mkey(g.tx,g.ty),{o:g.o,at:Date.now()}); rebuildChunkAt(g.tx,g.ty);
     spark(cx,h+.6,cy,col,16,3,3); shake=Math.min(.3,shake+.08);
-    gainXp(g.o===O.BUSH||g.o===O.STICK||g.o===O.PEBBLE?1:g.ore?4:2); P.gather=null; doSave(); sfx.pick();
+    gainXp(g.o===O.BUSH||g.o===O.STICK||g.o===O.PEBBLE?1:g.ore?4:2); P.gather=null; doSave(); sfx.pick(); if(P.autoG){ if(P.autoG.last) autoGStop('Cansou! Espere a estamina encher toda pra coletar no automático de novo.',true); else setTimeout(autoGNext,350); }
   }
 }
 function rebuildChunkAt(tx,ty){
@@ -4307,7 +4344,8 @@ function updatePlayer(dt){
   if(manual&&P.chan&&il>.55) chanCancel('Cancelado');
   if(P.chan){ ix=0; iy=0; il=0; }
   const manual2=il>.15;
-  huntTick(dt);
+  huntTick(dt); autoGTick(dt);
+  if(manual2&&P.autoG) autoGStop('Coleta automática parada.');
   if(manual2){ P.move=null; P.gather=null; P.autoGo=null; P.talkTo=null; P.hunt=null; if(P.target&&Math.hypot(P.target.x-P.x,P.target.y-P.y)>RANGE+2) P.target=null; }
   if(P.target&&P.target.dead) P.target=null;
   if(P.talkTo&&Math.hypot(P.talkTo.x-P.x,P.talkTo.y-P.y)<2.4){ const n=P.talkTo; P.talkTo=null; P.move=null; P.sp=0; openDialog(n); return; }
@@ -4551,7 +4589,7 @@ function drawWorldMap(){
 const RGUIDE=[['wood','Madeira','Árvores com machado · sem machado: galhos soltos na beira da estrada'],['berry','Frutinha','Arbustos'],['stone','Pedra','Pedras grandes com picareta · sem picareta: pedrinhas soltas na estrada'],['iron','Ferro','Pedra com pontos laranja · da Floresta Antiga em diante'],['copper','Cobre','Pedra com pontos verdes · do fim dos Campos em diante'],['crystal','Cristal','Pedra com cristais · das Pedreiras em diante']];
 function resMatch(k,o,ore){ return k==='wood'?(hasTool('axe')?(o===O.OAK||o===O.PINE):o===O.STICK):k==='berry'?o===O.BUSH:k==='stone'?(hasTool('pick')?o===O.BOULDER&&!ore:o===O.PEBBLE):o===O.BOULDER&&(k==='iron'?ore===1:k==='crystal'?ore===2:ore===3); }
 function resEdgeOk(tx,ty){ return tx>MAPX0+10&&tx<MAPX1-10&&Math.abs(ty-roadY(tx))<MAPW-10; }
-function findRes(k){ const sx=Math.floor(P.x), sy=Math.floor(P.y), R=90, seen=new Set([mkey(sx,sy)]), q=[sx,sy]; let qi=0;
+function findRes(k,RR){ const sx=Math.floor(P.x), sy=Math.floor(P.y), R=RR||90, seen=new Set([mkey(sx,sy)]), q=[sx,sy]; let qi=0;
   /* procura andando de verdade: só acha o que a Luíza consegue alcançar a pé */
   while(qi<q.length&&qi<120000){ const x=q[qi++], y=q[qi++];
     for(let d=0;d<4;d++){ const nx=x+(d===0?1:d===1?-1:0), ny=y+(d===2?1:d===3?-1:0), kk=mkey(nx,ny); if(seen.has(kk)) continue; seen.add(kk);
@@ -4841,7 +4879,7 @@ function staUse(n){ if((P.sta||0)<n){ addText(P.x,P.y,P.h+P.jz+2.2,'Sem fôlego!
 function pathFind(sx,sy,gx,gy){ if(DG) return null; const x0=Math.floor(Math.min(sx,gx))-14, y0=Math.floor(Math.min(sy,gy))-14, W=Math.min(110,Math.floor(Math.abs(gx-sx))+29), H=Math.min(110,Math.floor(Math.abs(gy-sy))+29);
   const N=W*H, g=new Float32Array(N).fill(1e9), from=new Int32Array(N).fill(-1), st=new Uint8Array(N), cost=new Float32Array(N).fill(-1);
   const SW=SWIMOK, CZ=CLIMBZ; SWIMOK=true; CLIMBZ=0;
-  const cst=i=>{ if(cost[i]>=0) return cost[i]; const tx=x0+i%W, ty=y0+(i/W|0); let c=0; if(!walkable(tx,ty)) c=1e9; else { tile(tx,ty); c=gT===T.WATER?6:1; if(pathD(tx+.5,ty+.5)<RW) c*=.8; } cost[i]=c; return c; };
+  const cst=i=>{ if(cost[i]>=0) return cost[i]; const tx=x0+i%W, ty=y0+(i/W|0); let c=0; if(!walkable(tx,ty)) c=1e9; else { tile(tx,ty); const onBr=gT===T.WATER&&bridgeH(tx+.5,ty+.5)!==null; c=onBr?.7:gT===T.WATER?(isDeep(tx+.5,ty+.5)?14:6):1; if(!onBr&&pathD(tx+.5,ty+.5)<RW) c*=.8; if(!onBr&&brNear(tx+.5,ty+.5)) c+=4; } cost[i]=c; return c; };
   const sxi=Math.floor(sx)-x0, syi=Math.floor(sy)-y0, gxi=Math.max(0,Math.min(W-1,Math.floor(gx)-x0)), gyi=Math.max(0,Math.min(H-1,Math.floor(gy)-y0));
   if(sxi<0||syi<0||sxi>=W||syi>=H){ SWIMOK=SW; CLIMBZ=CZ; return null; }
   const h=i=>{ const dx=Math.abs(i%W-gxi), dy=Math.abs((i/W|0)-gyi); return Math.max(dx,dy)+.41*Math.min(dx,dy); };
@@ -4857,7 +4895,9 @@ function pathFind(sx,sy,gx,gy){ if(DG) return null; const x0=Math.floor(Math.min
   const out=[]; let k=best; while(k>=0&&k!==s0){ out.push([x0+k%W+.5,y0+(k/W|0)+.5]); k=from[k]; } out.reverse();
   if(out.length>2){ const sm=[out[0]]; for(let i=1;i<out.length-1;i++){ const a=sm[sm.length-1], c=out[i+1]; if(!lineFree(a[0],a[1],c[0],c[1])) sm.push(out[i]); } sm.push(out[out.length-1]); return sm; }
   return out; }
-function lineFree(ax,ay,bx,by){ const d=Math.hypot(bx-ax,by-ay), n=Math.ceil(d/.35); for(let i=1;i<n;i++){ const t=i/n, x=ax+(bx-ax)*t, y=ay+(by-ay)*t; for(const [ox,oy] of [[.28,0],[-.28,0],[0,.28],[0,-.28]]){ const tx=Math.floor(x+ox), ty=Math.floor(y+oy); if(!walkable(tx,ty)) return false; tile(tx,ty); if(gT===T.WATER) return false; } } return true; }
+function lineFree(ax,ay,bx,by){ const d=Math.hypot(bx-ax,by-ay), n=Math.ceil(d/.35); for(let i=1;i<n;i++){ const t=i/n, x=ax+(bx-ax)*t, y=ay+(by-ay)*t; for(const [ox,oy] of [[.28,0],[-.28,0],[0,.28],[0,-.28]]){ const tx=Math.floor(x+ox), ty=Math.floor(y+oy); if(!walkable(tx,ty)) return false; tile(tx,ty); if(gT===T.WATER&&bridgeH(x+ox,y+oy)===null) return false; if(brNear(x+ox,y+oy)) return false; } } return true; }
+/* beirada da ponte (fora do tabuleiro mas colado nele): o caminho evita pra não cair no rio */
+function brNear(x,y){ for(const b of BRIDGES){ const dx=x-b.cx, dy=y-b.cy; if(Math.abs(dx)>b.L+3||Math.abs(dy)>b.L+3) continue; const a=dx*b.nx+dy*b.ny, sd=Math.abs(dx*b.tx+dy*b.ty); if(Math.abs(a)<=b.L+.6&&sd>=b.hw-.35&&sd<b.hw+1.1) return true; } return false; }
 /* caçar um bicho: vai até a região, faz ele aparecer por perto e anda até ele */
 function huntTick(dt){ const H=P.hunt; if(!H) return; H.t-=dt; H.chk=(H.chk||0)-dt; if(H.t<=0||DG||P.dead){ P.hunt=null; return; } if(H.chk>0) return; H.chk=.4;
   let best=null, bd=38; for(const m of mobs){ if(m.dead||m.key!==H.key||m.dummy||m.duel) continue; const d=Math.hypot(m.x-P.x,m.y-P.y); if(d<bd){ bd=d; best=m; } }
@@ -4972,7 +5012,7 @@ function tapAt(x,y){
   const st=pickSite(x,y); if(st){ useSite(st); return; }
   const np=DG?null:pickNPC(x,y); if(np){ if(Math.hypot(np.x-P.x,np.y-P.y)<2.6) openDialog(np); else { P.talkTo=np; P.move={x:np.x,y:np.y+1.2}; P.gather=null; } return; }
   const r=pickRes(x,y);
-  if(r){ startGather(r); return; }
+  if(r){ startGather(r); if(P.gather) autoGStart(r); return; }
   P.target=null; P.gather=null; if(MOVEM!=='joy') setMoveFromPointer(x,y);
 }
 cv.addEventListener('contextmenu',e=>e.preventDefault());
@@ -6707,7 +6747,7 @@ const LMV=[], LMRG=lumpy(new THREE.IcosahedronGeometry(.8,0),.16,3.3);
       for(let i=0;i<9;i++){ const x=(R()-.5)*len*.85, sd=R()<.5?-1:1, z=sd*(.85+R()*.25), y=.35+R()*1.1, s=.12+R()*.14; part(G.cyl,dot,s*.35,s*1.2,s*.35,x,y,z,lg); const cp=part(G.sph,shroom,s,s*.55,s,x,y+s*.6,z,lg); }
       for(let i=0;i<5;i++){ const o=new THREE.Mesh(G.sphLo,M.m); o.scale.set(.9,.25,.6); o.position.set((R()-.5)*len*.8,1.75,(R()-.5)*.6); lg.add(o); }
       for(let i=-3;i<=3;i++){ const x=i*1.15; S(x*Math.cos(a),-x*Math.sin(a),.95); } }
-    mergeFlat(g); addOutline(g); LMV.push({g,x:L.x,y:L.y,r:L.r,L});
+    mergeFlat(g); addOutline(g); L.g=g; LMV.push({g,x:L.x,y:L.y,r:L.r,L});
   }
 }
 function lmTick(){ if(DG){ for(const v of LMV) v.g.visible=false; return; } for(const v of LMV){ const d=Math.hypot(v.x-P.x,v.y-P.y); v.g.visible=d<78+v.r;
@@ -6947,8 +6987,12 @@ function frame(now){
   if(P.gold%1) P.gold=Math.round(P.gold);
   if(!loading) netFrame(dt);
   // posicionar bonecos
+  { /* no ar a altura é absoluta: passar por cima de rio/vala não puxa ela pra baixo (e morro na frente faz pousar) */
+    const gh=hgt(P.x,P.y), mv=P.gHx!=null?Math.hypot(P.x-P.gHx,P.y-P.gHy):0;
+    if(P.gH!=null&&mv<3&&P.jz>.02&&!P.swim&&!P.mounted&&!P.boat&&!P.ride&&!P.cart&&!DG&&!P.climbing){ P.jz+=P.gH-gh; if(P.jz<0){ P.jz=0; if(P.jv<0) P.jv=0; } }
+    P.gH=gh; P.gHx=P.x; P.gHy=P.y; }
   P.h=hgt(P.x,P.y)+(P.pz||0);
-  { const sw=!P.boat&&!P.ride&&isDeep(P.x,P.y); if(sw!==!!P.swim){ P.swim=sw; if(sw){ if(P.mounted) mount(false); P.jz=0; P.jv=0; if(P.chan) chanCancel('Na água não dá'); addParts(P.x,P.y,WATER_Y,'#dff3ff',16,2.2,3); sfx.land(); } else spark(P.x,P.h+.1,P.y,'#dff3ff',8,1.2,1); } }
+  { const sw=!P.boat&&!P.ride&&isDeep(P.x,P.y)&&(P.swim||P.h+P.jz<=WATER_Y+.12); if(sw!==!!P.swim){ P.swim=sw; if(sw){ if(P.mounted) mount(false); P.jz=0; P.jv=0; if(P.chan) chanCancel('Na água não dá'); addParts(P.x,P.y,WATER_Y,'#dff3ff',16,2.2,3); sfx.land(); } else spark(P.x,P.h+.1,P.y,'#dff3ff',8,1.2,1); } }
   if(!P.swim||DG){ P.safeX=P.x; P.safeY=P.y; }
   else if(!P.boat&&!P.ride){ const on=ocN(P.x,P.y), di=Math.hypot(P.x-ISL.x,P.y-ISL.y); if(on<.8&&di>ISL.r+10&&!paused){ const sx=P.safeX??P.x, sy=P.safeY??P.y, dd=Math.hypot(sx-P.x,sy-P.y)||1; SWIMOK=true; tryMove(P,(sx-P.x)/dd*2.8*dt,(sy-P.y)/dd*2.8*dt,P.r); SWIMOK=false; P.oceT=(P.oceT||0)-dt; if(P.oceT<=0){ P.oceT=5; toast('As ondas estão fortes demais pra nadar! Faça um barquinho na bancada.'); } } else { P.safeX=P.x; P.safeY=P.y; } }
   if(P.swim){ P.h=WATER_Y-1.12+Math.sin(time*2.2)*.03; if(!paused&&P.sp>.4&&Math.random()<dt*6){ spark(P.x+Math.sin(P.rot)*.6,WATER_Y+.05,P.y+Math.cos(P.rot)*.6,'#eaf7ff',2,.6,.8,.5); } if(!paused&&Math.random()<dt*(P.sp>.4?2.2:.6)) fxAdd('ring',P.x,P.y,WATER_Y+.03,.9,'#ffffff',.5); }
