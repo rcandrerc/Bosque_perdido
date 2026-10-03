@@ -449,7 +449,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
   <div id="lang"><button data-lang="pt" aria-label="Português"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#229e45"/><path d="M15 2.2 27.6 10.5 15 18.8 2.4 10.5z" fill="#f8e509"/><circle cx="15" cy="10.5" r="4.6" fill="#2b49a3"/><path d="M10.6 9.4q4.6-1.2 8.8 1.6" stroke="#fff" stroke-width=".8" fill="none"/></svg></button><button data-lang="en" aria-label="English"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#fff"/><rect y="0.000" width="30" height="1.615" fill="#b22234"/><rect y="3.230" width="30" height="1.615" fill="#b22234"/><rect y="6.460" width="30" height="1.615" fill="#b22234"/><rect y="9.690" width="30" height="1.615" fill="#b22234"/><rect y="12.920" width="30" height="1.615" fill="#b22234"/><rect y="16.150" width="30" height="1.615" fill="#b22234"/><rect y="19.380" width="30" height="1.615" fill="#b22234"/><rect width="13" height="11.3" fill="#3c3b6e"/><circle cx="1.6" cy="1.4" r=".55" fill="#fff"/><circle cx="3.8" cy="1.4" r=".55" fill="#fff"/><circle cx="6.0" cy="1.4" r=".55" fill="#fff"/><circle cx="8.2" cy="1.4" r=".55" fill="#fff"/><circle cx="10.4" cy="1.4" r=".55" fill="#fff"/><circle cx="2.7" cy="3.5" r=".55" fill="#fff"/><circle cx="4.9" cy="3.5" r=".55" fill="#fff"/><circle cx="7.1" cy="3.5" r=".55" fill="#fff"/><circle cx="9.3" cy="3.5" r=".55" fill="#fff"/><circle cx="1.6" cy="5.6" r=".55" fill="#fff"/><circle cx="3.8" cy="5.6" r=".55" fill="#fff"/><circle cx="6.0" cy="5.6" r=".55" fill="#fff"/><circle cx="8.2" cy="5.6" r=".55" fill="#fff"/><circle cx="10.4" cy="5.6" r=".55" fill="#fff"/><circle cx="2.7" cy="7.7" r=".55" fill="#fff"/><circle cx="4.9" cy="7.7" r=".55" fill="#fff"/><circle cx="7.1" cy="7.7" r=".55" fill="#fff"/><circle cx="9.3" cy="7.7" r=".55" fill="#fff"/><circle cx="1.6" cy="9.8" r=".55" fill="#fff"/><circle cx="3.8" cy="9.8" r=".55" fill="#fff"/><circle cx="6.0" cy="9.8" r=".55" fill="#fff"/><circle cx="8.2" cy="9.8" r=".55" fill="#fff"/><circle cx="10.4" cy="9.8" r=".55" fill="#fff"/></svg></button></div>
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Create the impossible and live your way.</p><p class="mcred">created by André Coutinho</p></div>
-    <div id="ver">v0.99</div>
+    <div id="ver">v1.00</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Play</button>
       <p class="mslh">👤 Characters (tap to switch or create)</p>
@@ -1717,7 +1717,7 @@ function siteBlock(tx,ty){
 }
 function dgWalk(tx,ty){ if(!DG) return false; const I=DG.I, lx=tx-I.ox, ly=ty; if(lx<0||ly<0||lx>=DGW||ly>=DGH) return false; return I.grid[ly*DGW+lx]===1; }
 
-const CH=16, chunks=new Map();
+const CH=16, chunks=new Map(), GOCC=new Set();
 function genChunk(cx,cy){
   const n=CH*CH, type=new Uint8Array(n), kind=new Uint8Array(n), vr=new Uint8Array(n), dec=new Uint8Array(n);
   for(let j=0;j<CH;j++)for(let i=0;i<CH;i++){
@@ -2055,7 +2055,7 @@ function buildChunk(cx,cy){
     }
     if(gM===O.OAK||gM===O.PINE){ L.trunk.push([px,h-.05,pz,.95,.12,.95,ry,0,0,C('#b08a60')]); }
     else if(gM===O.BOULDER){ L.rock.push([px,h-.05,pz,.32,.16,.3,ry,0,0,ROCKCOL[0]]); L.rock.push([px+.28,h-.05,pz-.18,.22,.12,.22,ry+1,0,0,ROCKCOL[1]]); }
-    if(!gO && gT!==T.WATER && Math.hypot(x+.5,y+.5)>3.6){
+    if(!gO && gT!==T.WATER && Math.hypot(x+.5,y+.5)>3.6 && !GOCC.has(mkey(x,y))){
       const dk=gD&15, v=gD>>4;
       const grassy=gT===T.GRASS||gT===T.FOREST;
       const nT=grassy?(r4<.55?(GRASS_LO?1:2):r4<.8&&!GRASS_LO?1:0):(gT===T.SAND?(r4<.12?1:0):0);
@@ -5833,9 +5833,13 @@ function torchFlameMat(){ return new THREE.ShaderMaterial({ transparent:true, de
       c=mix(c,vec3(.35,.45,1.),.35*(1.-smoothstep(0.,.14,y))*(1.-smoothstep(0.,.5,d)));
       gl_FragColor=vec4(min(c,vec3(1.)),a*.92); }`}); }
 const structMesh=new Map(), roofMesh=new Map(), furnaces=new Set(), torches=new Set(); let roofDirty=0;
-function removeStructMesh(k){ const g=structMesh.get(k); if(!g) return; scene.remove(g); if(g.userData.fire) furnaces.delete(g.userData.fire); if(g.userData.torch) torches.delete(g.userData.torch); structMesh.delete(k); }
+/* chão ocupado por fundação ou móvel: a grama e as florzinhas somem dali (o pedaço do mapa é refeito no quadro seguinte) */
+const GRDIRTY=new Set();
+function grassOcc(k,v){ const occ=!!(v&&(v.f||(v.t&&v.t!=='soil'))); if(occ===GOCC.has(k)) return; if(occ) GOCC.add(k); else GOCC.delete(k); const [tx,ty]=kxy(k); GRDIRTY.add((tx>>4)+','+(ty>>4)); }
+function grassFlush(){ if(!GRDIRTY.size) return; for(const key of GRDIRTY){ const [cx,cy]=key.split(',').map(Number); rebuildChunkAt(cx*16,cy*16); } GRDIRTY.clear(); }
+function removeStructMesh(k){ if(GOCC.has(k)&&!structs.get(k)) grassOcc(k,null); const g=structMesh.get(k); if(!g) return; scene.remove(g); if(g.userData.fire) furnaces.delete(g.userData.fire); if(g.userData.torch) torches.delete(g.userData.torch); structMesh.delete(k); }
 function tileBase(tx,ty){ return hgt(tx+.5,ty+.5)-.02; }
-function addStructMesh(k,v){ removeStructMesh(k); const [tx,ty]=kxy(k), g=new THREE.Group(); g.position.set(tx,tileBase(tx,ty),ty); g.userData.lv=[];
+function addStructMesh(k,v){ removeStructMesh(k); grassOcc(k,v); const [tx,ty]=kxy(k), g=new THREE.Group(); g.position.set(tx,tileBase(tx,ty),ty); g.userData.lv=[];
   const lvG=L=>{ if(!g.userData.lv[L]){ const q=new THREE.Group(); q.userData.L=L; g.add(q); g.userData.lv[L]=q; } return g.userData.lv[L]; };
   if(v.f){ const o=makeStruct('found'); o.position.set(.5,0,.5); lvG(0).add(o); }
   for(const key in v.e){ const L=+key[0], side=key[1], o=makeWall(v.e[key]); o.userData.wk=key; o.position.set(side==='N'?.5:0,FH+L*LH,side==='N'?0:.5); if(side==='W') o.rotation.y=Math.PI/2; lvG(L).add(o); }
@@ -5914,8 +5918,9 @@ function rampGhost(){ const g=new THREE.Group(); const pos=[-.5,0,-.5, .5,0,-.5,
   const ar=new THREE.Mesh(new THREE.ConeGeometry(.12,.3,6),ROOFM); ar.rotation.x=Math.PI/2; ar.position.set(0,RS*.6+.15,.25); g.add(ar); return g; }
 
 { const SA=VISIT?VISIT.structs:(save&&save.structs); if(Array.isArray(SA)) for(const a of SA){ if(!a) continue; const v=svUnpack(a); if(svEmpty(v)) continue; structs.set(a[0],v); } }
+for(const [k,v] of structs) if(v.f||(v.t&&v.t!=='soil')) GOCC.add(k);
 function updateRoofs(dt){
-  torchTick(); winAnimTick(dt);
+  torchTick(); winAnimTick(dt); grassFlush();
   roofT-=dt; if(roofT>0) return; roofT=.15; if(roofDirty) roofRebuild();
   const PL=lvOf((P.pz||0)+(P.jz||0)); let cut=99, cx=P.x, cy=P.y;
   if(BM.on){ cut=BM.lv; cx=BM.cx; cy=BM.cy; }
