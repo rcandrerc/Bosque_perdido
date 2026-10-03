@@ -443,7 +443,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.84</div>
+    <div id="ver">v0.85</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -7892,9 +7892,10 @@ function rankSusp(e){ const out=[], L=e.l|0, h=Array.isArray(e.h)?e.h:[];
   if(h.length>=2){ const a=h[0], b=h[h.length-1], hrs=Math.max(1/60,(b[0]-a[0])/3.6e6), g=b[1]-a[1]; if(g>=20&&g/hrs>10) out.push('média de '+Math.round(g/hrs)+' níveis por hora'); }
   const hrs0=Math.max(0,((e.t||0)-(e.t0||0))/3.6e6); if(L>=60&&hrs0<1&&h.length>1&&h[0][1]<L-20) out.push('conta nova já no nível '+L);
   return [...new Set(out)]; }
-function rankOpen(){ if(!NET.db){ toast('Entre na sua conta (menu Amigos) pra ver o ranking'); return; } if(RANK.busy) return; RANK.busy=true; rankPush(true);
+function rankOpen(){ if(!NET.db||!NET.uid){ toast('Entre na sua conta (menu Amigos) pra ver o ranking'); return; } if(RANK.busy&&Date.now()-RANK.busyT<8000) return; RANK.busy=true; RANK.busyT=Date.now(); const tk=RANK.tk=(RANK.tk|0)+1; toast('Abrindo o ranking...'); try{ rankPush(true); }catch(e){}
+  setTimeout(()=>{ if(RANK.busy&&RANK.tk===tk){ RANK.busy=false; toast('O ranking demorou pra responder. Toque no troféu de novo.'); } },8000);
   const adm=typeof ADM_OK==='function'&&ADM_OK();
-  Promise.all([NET.db.ref('rank').orderByChild('l').limitToLast(adm?300:100).once('value'),NET.db.ref('rankban').once('value').catch(()=>null)]).then(([s,b])=>{ RANK.busy=false;
+  Promise.all([NET.db.ref('rank').orderByChild('l').limitToLast(adm?300:100).once('value'),NET.db.ref('rankban').once('value').catch(()=>null)]).then(([s,b])=>{ if(RANK.tk!==tk) return; RANK.busy=false; if($('dlg').classList.contains('on')) closeDialog();
     const ban=(b&&b.val())||{}, all=[]; s.forEach(c=>{ const v=c.val(); if(v&&typeof v==='object') all.push(Object.assign({k:c.key},v)); });
     const list=all.filter(e=>!ban[String(e.k).split('_s')[0]]).sort((a,b)=>(b.l-a.l)||(b.xp-a.xp)); const me=rankKey(), myI=list.findIndex(e=>e.k===me);
     const esc2=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -7907,7 +7908,7 @@ function rankOpen(){ if(!NET.db){ toast('Entre na sua conta (menu Amigos) pra ve
     h+='</div>'; if(myI>=50) h+='<p class="rkmy">Sua posição: <b>'+(myI+1)+'º</b> · Nv '+(list[myI].l|0)+'</p>';
     if(adm) h+='<p class="rkadm">Modo criador: '+nS+' suspeito'+(nS===1?'':'s')+' (⚠️). '+Object.keys(ban).length+' banido'+(Object.keys(ban).length===1?'':'s')+'.</p>';
     openMenu('Ranking de nível','',(adm&&Object.keys(ban).length?[['Ver banidos',()=>rankBans(ban)]]:[]).concat([['Fechar',closeDialog,1]])); $('dtx').innerHTML=h;
-  }).catch(err=>{ RANK.busy=false; toast(String(err&&err.code||'').includes('PERMISSION')?'Ranking bloqueado pelas regras do Firebase (falta liberar o caminho rank)':'Não consegui carregar o ranking agora'); }); }
+  }).catch(err=>{ RANK.busy=false; console.error(err); toast(String(err&&err.code||'').includes('PERMISSION')?'Ranking bloqueado pelas regras do Firebase (falta liberar o caminho rank)':'Não consegui carregar o ranking agora'); }); }
 function rankBans(ban){ const h='<div class="rkl">'+Object.entries(ban).map(([u,v])=>'<div class="rkr"><span class="rkn">'+String((v&&v.n)||u).replace(/</g,'&lt;')+'</span><button class="pb sm" data-runban="'+u+'">Desbanir</button><small class="rkid">'+u+'</small></div>').join('')+'</div>';
   openMenu('Banidos do ranking','',[['Voltar',()=>{ closeDialog(); setTimeout(rankOpen,50); }],['Fechar',closeDialog,1]]); $('dtx').innerHTML=h; }
 $('dtx').addEventListener('click',e=>{ const b=e.target.closest('[data-rban],[data-runban]'); if(!b||!(typeof ADM_OK==='function'&&ADM_OK())) return; e.stopPropagation();
