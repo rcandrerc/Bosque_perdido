@@ -449,7 +449,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
   <div id="lang"><button data-lang="pt" aria-label="Português"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#229e45"/><path d="M15 2.2 27.6 10.5 15 18.8 2.4 10.5z" fill="#f8e509"/><circle cx="15" cy="10.5" r="4.6" fill="#2b49a3"/><path d="M10.6 9.4q4.6-1.2 8.8 1.6" stroke="#fff" stroke-width=".8" fill="none"/></svg></button><button data-lang="en" aria-label="English"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#fff"/><rect y="0.000" width="30" height="1.615" fill="#b22234"/><rect y="3.230" width="30" height="1.615" fill="#b22234"/><rect y="6.460" width="30" height="1.615" fill="#b22234"/><rect y="9.690" width="30" height="1.615" fill="#b22234"/><rect y="12.920" width="30" height="1.615" fill="#b22234"/><rect y="16.150" width="30" height="1.615" fill="#b22234"/><rect y="19.380" width="30" height="1.615" fill="#b22234"/><rect width="13" height="11.3" fill="#3c3b6e"/><circle cx="1.6" cy="1.4" r=".55" fill="#fff"/><circle cx="3.8" cy="1.4" r=".55" fill="#fff"/><circle cx="6.0" cy="1.4" r=".55" fill="#fff"/><circle cx="8.2" cy="1.4" r=".55" fill="#fff"/><circle cx="10.4" cy="1.4" r=".55" fill="#fff"/><circle cx="2.7" cy="3.5" r=".55" fill="#fff"/><circle cx="4.9" cy="3.5" r=".55" fill="#fff"/><circle cx="7.1" cy="3.5" r=".55" fill="#fff"/><circle cx="9.3" cy="3.5" r=".55" fill="#fff"/><circle cx="1.6" cy="5.6" r=".55" fill="#fff"/><circle cx="3.8" cy="5.6" r=".55" fill="#fff"/><circle cx="6.0" cy="5.6" r=".55" fill="#fff"/><circle cx="8.2" cy="5.6" r=".55" fill="#fff"/><circle cx="10.4" cy="5.6" r=".55" fill="#fff"/><circle cx="2.7" cy="7.7" r=".55" fill="#fff"/><circle cx="4.9" cy="7.7" r=".55" fill="#fff"/><circle cx="7.1" cy="7.7" r=".55" fill="#fff"/><circle cx="9.3" cy="7.7" r=".55" fill="#fff"/><circle cx="1.6" cy="9.8" r=".55" fill="#fff"/><circle cx="3.8" cy="9.8" r=".55" fill="#fff"/><circle cx="6.0" cy="9.8" r=".55" fill="#fff"/><circle cx="8.2" cy="9.8" r=".55" fill="#fff"/><circle cx="10.4" cy="9.8" r=".55" fill="#fff"/></svg></button></div>
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.98</div>
+    <div id="ver">v0.99</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -1745,7 +1745,7 @@ function genChunk(cx,cy){
     for(const w of WAYS){ if(Math.abs(x+.5-w.x)<9&&Math.hypot(x+.5-w.x,y+.5-w.y)<2.2) ob=0; }
     for(const dd of DGDEF){ if(Math.abs(x+.5-dd.mx)<9&&(Math.hypot(x+.5-dd.mx,y+.5-dd.my)<5.2||Math.hypot(x+.5-dd.fx,y+.5-dd.fy)<3)) ob=0; }
     /* galhos e pedrinhas soltos na beira da estrada (pegar com a mão) */
-    if(!ob&&t!==T.WATER&&rdd>RW+.9&&rdd<RW+3.4&&!inVillage(x+.5,y+.5)&&d>8){ const rl=hash2(x,y,seed+77), pr=x<160?.04:.01; if(rl<pr) ob=rl<pr*.5?O.STICK:O.PEBBLE; }
+    if(!ob&&t!==T.WATER&&rdd>RW+.9&&!inVillage(x+.5,y+.5)&&d>6){ const rl=hash2(x,y,seed+77), near=rdd<RW+3.4, pr=near?(x<160?.1:.02):(x<160?.022:t===T.FOREST?.006:.003); if(rl<pr) ob=rl<pr*.5?O.STICK:O.PEBBLE; }
     kind[k]=ob;
     vr[k]=Math.floor(hash2(x,y,seed+3)*4) | (Math.floor(hash2(x,y,seed+5)*4)<<2);
     let dc=0; const r2=hash2(x,y,seed+41), v2=Math.floor(hash2(x,y,seed+43)*4);
@@ -2043,10 +2043,10 @@ function buildChunk(cx,cy){
       else if(ore===2){ for(let b=0;b<5;b++){ const a=b*1.3+r1*6, rr=.38*s; L.crys.push([px+Math.cos(a)*rr,h+.42*s,pz+Math.sin(a)*rr,.13,.42+.22*(b%2),.13,0,Math.sin(a)*.55,-Math.cos(a)*.55,C(b%2?'#8fe9ff':'#c49bff')]); } }
       if(r3<.5) L.rock.push([px+.55*s,h-.1,pz+.3*s,s*.4,s*.3,s*.4,ry+1,0,0,c.clone().multiplyScalar(.95)]);
     } else if(gO===O.STICK){
-      const bc=C('#8a5f38'); L.trunk.push([px,h+.05,pz,.16,.38,.16,ry,1.5,0,bc]); L.trunk.push([px+.1,h+.07,pz-.08,.12,.26,.12,ry+1.3,1.45,.2,bc.clone().multiplyScalar(1.1)]);
+      const bc=C('#a8723f'); L.trunk.push([px,h+.06,pz,.2,.5,.2,ry,1.5,0,bc]); L.trunk.push([px+.12,h+.08,pz-.1,.15,.36,.15,ry+1.3,1.45,.2,bc.clone().multiplyScalar(1.12)]); L.trunk.push([px-.1,h+.07,pz+.12,.13,.3,.13,ry-1.1,1.5,-.2,bc.clone().multiplyScalar(.9)]);
       L.leaf.push([px-.15,h+.08,pz+.1,.12,.08,.12,ry,0,0,C('#6bbb4f')]);
     } else if(gO===O.PEBBLE){
-      for(let b=0;b<3;b++){ const a=ry+b*2.1, rr=.16; L.rock.push([px+Math.cos(a)*rr,h-.02,pz+Math.sin(a)*rr,.2-b*.03,.15-b*.02,.18-b*.03,a,0,0,ROCKCOL[(b+Math.floor(r2*3))%3]]); }
+      for(let b=0;b<4;b++){ const a=ry+b*1.6, rr=b?.2:0; L.rock.push([px+Math.cos(a)*rr,h-.01,pz+Math.sin(a)*rr,.27-b*.03,.2-b*.02,.24-b*.03,a,0,0,ROCKCOL[(b+Math.floor(r2*3))%3].clone().multiplyScalar(1.12)]); }
     } else if(gO===O.BUSH){
       const s=.8+r4*.35, c=BUSHCOL[Math.floor(r2*2)], berry=r1<.6;
       const bl=[[0,.42,0,.5],[.36,.32,.12,.36],[-.32,.3,-.1,.36],[.05,.3,.35,.32]];
@@ -3697,6 +3697,10 @@ function startGather(r){ const tree=r.o===O.OAK||r.o===O.PINE, rock=r.o===O.BOUL
 /* coleta automática: tocou numa árvore ou pedra, ela continua sozinha (mais próxima do mesmo tipo) até a estamina acabar (~1 min).
    Esgotou: só liga de novo com a estamina cheia. Mexer no joystick cancela. */
 const AUTOG_T=60;
+/* brilhinho em cima dos galhos e pedrinhas soltos perto da personagem, pra achar fácil */
+let LTW=0; function looseTwinkle(dt){ if(DG||paused) return; LTW-=dt; if(LTW>0) return; LTW=.55; const px=Math.floor(P.x), py=Math.floor(P.y);
+  for(let y=py-11;y<=py+11;y++) for(let x=px-11;x<=px+11;x++){ tile(x,y); if(gO!==O.STICK&&gO!==O.PEBBLE) continue; if(Math.random()<.55) continue; const cx=x+.5, cy=y+.5, h=hgt(cx,cy);
+    spark(cx+rnd(-.15,.15),h+.35,cy+rnd(-.15,.15),gO===O.STICK?'#ffe9a8':'#e8f4ff',1,.15,.9,.5); } }
 function autoGKey(o,ore){ return o===O.OAK||o===O.PINE?'wood':o===O.BOULDER?['stone','iron','crystal','copper'][ore|0]:null; }
 function autoGStart(r){ if(DG||VISIT||P.autoG) return; const k=autoGKey(r.o,r.ore); if(!k) return;
   if(P.autoLock){ if(!P.autoLockTip||time-P.autoLockTip>8){ P.autoLockTip=time; toast('Coleta automática descansando: espere a estamina encher toda.'); } return; }
@@ -3722,7 +3726,7 @@ function gatherHit(){
   const g=P.gather; tile(g.tx,g.ty); if(gO!==g.o){ P.gather=null; return; }
   const cx=g.tx+.5, cy=g.ty+.5, h=hgt(cx,cy);
   const kind=g.snd==='chop'?'chop':g.snd==='leaf'?'pluck':'mine';
-  P.cd=(kind==='pluck'?.5:kind==='mine'?1.02:.62)/P.gspd; faceTo(cx,cy); P.rot=P.face;
+  P.cd=(kind==='pluck'?.5:kind==='mine'?1.02:1.07)/P.gspd; faceTo(cx,cy); P.rot=P.face;
   doAct(kind,()=>gatherImpact(g)); if(P.act) P.act.spd=P.gspd;
 }
 function gatherImpact(g){
@@ -3752,7 +3756,7 @@ function rebuildChunkAt(tx,ty){
 }
 function regrow(){
   const now=Date.now();
-  for(const [k,v] of mods){ if(now-v.at<(v.o===O.BOULDER?360000:v.o===O.BUSH?150000:v.o>=O.STICK?300000:240000)) continue;
+  for(const [k,v] of mods){ if(now-v.at<(v.o===O.BOULDER?360000:v.o===O.BUSH?150000:v.o>=O.STICK?120000:240000)) continue;
     const tx=Math.floor(k/80000)-40000, ty=k%80000-40000;
     if(Math.hypot(P.x-(tx+.5),P.y-(ty+.5))<1.4) continue;
     let blocked=false; for(const m of mobs){ if(!m.dead&&Math.hypot(m.x-(tx+.5),m.y-(ty+.5))<1) blocked=true; }
@@ -3884,7 +3888,7 @@ const ACTK={
         [.8,{a:0,dr:0,xR:-.4,fR:-.3,zR:.1,xL:-.2,fL:-.3,zL:.1,tL:0,sL:.08,tR:0,sR:.08,hx:0}]]},
   shieldA:{dur:.5,rel:.12,k:[[0,{xR:-1,fR:-1.2,xL:-1,fL:-1.2,zL:-.3,zR:-.3,a:.1,dr:.05}],[.12,{xR:-1.7,fR:0,xL:-1.7,fL:0,zL:.9,zR:.9,a:-.12,dr:-.02,hx:-.2}],[.3,{xR:-1.6,fR:-.05,xL:-1.6,fL:-.05,zL:.85,zR:.85,a:-.1,hx:-.15}],[.5,{xR:-.4,fR:-.3,xL:-.2,fL:-.3,zL:.1,zR:.1,a:0,hx:0}]]},
   heal:{dur:.7,rel:.1,k:[[0,{xR:-2.6,fR:-.3,xL:-2.5,fL:-.3,zL:.2,zR:.2,a:-.1,hx:-.3}],[.1,{xR:-1.2,fR:-.2,xL:-1.2,fL:-.2,zL:1.3,zR:1.3,a:-.15,hx:-.35,dr:-.03}],[.45,{xR:-1.1,fR:-.25,xL:-1.1,fL:-.25,zL:1.2,zR:1.2,a:-.12,hx:-.3}],[.7,{xR:-.4,fR:-.3,xL:-.2,fL:-.3,zL:.1,zR:.1,a:0,hx:0,dr:0}]]},
-  chop:{dur:.6,rel:.3,k:[[0,{tw:1.35,ty:0,xR:-1.15,fR:-.5,zR:-.1,xL:-1.1,fL:-.6,zL:-.4,a:0,dr:0}],[.22,{tw:1.1,ty:.8,xR:-2.35,fR:-.95,zR:.45,xL:-2.05,fL:-1.0,zL:.1,a:-.12,dr:.02,hx:-.1,tL:-.2,sL:.3,tR:.15,sR:.25}],[.3,{tw:2.45,ty:-.6,xR:-1.3,fR:-.12,zR:-.4,xL:-1.25,fL:-.18,zL:-.6,a:.2,dr:.09,hx:.12,tL:-.4,sL:.55,tR:.28,sR:.5}],[.38,{tw:2.3,ty:-.48,xR:-1.38,fR:-.22,zR:-.32,xL:-1.32,fL:-.28,zL:-.52,a:.15,dr:.07,hx:.08,tL:-.35,sL:.5,tR:.25,sR:.45}],[.6,{tw:1.35,ty:0,xR:-1.15,fR:-.5,zR:-.1,xL:-1.1,fL:-.6,zL:-.4,a:0,dr:0,hx:0,tL:0,sL:.08,tR:0,sR:.08}]]},
+  chop:{dur:1.05,rel:.52,k:[[0,{xR:-1.3,fR:-.45,zR:.05,xL:-1.2,fL:-.55,zL:-.25,ty:.15,tw:.6,a:.05,dr:.03,tL:-.15,sL:.25,tR:.1,sR:.2,hx:0}],[.3,{xR:-1.75,fR:-.5,zR:.15,xL:-1.6,fL:-.6,zL:-.15,ty:1.15,tw:0,a:-.05,dr:0,tL:.1,sL:.12,tR:-.25,sR:.3,hx:-.1}],[.52,{xR:-1.22,fR:-.15,zR:-.05,xL:-1.15,fL:-.2,zL:-.35,ty:-.15,tw:0,a:.2,dr:.11,tL:-.42,sL:.62,tR:.26,sR:.46,hx:.12}],[.66,{xR:-1.2,fR:-.25,zR:-.05,xL:-1.12,fL:-.3,zL:-.3,ty:-.42,tw:.1,a:.15,dr:.08,tL:-.36,sL:.56,tR:.2,sR:.4,hx:.08}],[1.05,{xR:-1.3,fR:-.45,zR:.05,xL:-1.2,fL:-.55,zL:-.25,ty:.15,tw:.6,a:.05,dr:.03,tL:-.15,sL:.25,tR:.1,sR:.2,hx:0}]]},
   mine:{dur:1.0,rel:.56,k:[[0,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:.05,dr:.03,ty:0,hx:0,tL:-.18,sL:.3,tR:.12,sR:.22}],[.2,{xR:-2.0,fR:-.7,zR:0,xL:-1.9,fL:-.8,zL:-.3,a:-.06,dr:0,ty:.26,hx:-.1,tL:-.08,sL:.14,tR:.22,sR:.16}],[.44,{xR:-3.05,fR:-.7,zR:-.05,xL:-2.95,fL:-.8,zL:-.28,a:-.27,dr:-.035,ty:.16,hx:-.26,tL:-.2,sL:.18,tR:.14,sR:.12}],[.56,{xR:-.8,fR:-.08,zR:-.12,xL:-.75,fL:-.12,zL:-.42,a:.43,dr:.18,ty:-.14,hx:.26,tL:-.62,sL:.92,tR:.35,sR:.72}],[.7,{xR:-1.12,fR:-.3,zR:-.12,xL:-1.06,fL:-.32,zL:-.42,a:.3,dr:.11,ty:-.04,hx:.14,tL:-.48,sL:.78,tR:.28,sR:.58}],[1.0,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:.05,dr:.03,ty:0,hx:0,tL:-.18,sL:.3,tR:.12,sR:.22}]]},
   pluck:{dur:.5,rel:.24,k:[[0,{a:0,dr:0}],[.2,{a:.5,dr:.32,xR:-1.35,fR:-.2,xL:-1.25,fL:-.3,zL:-.12,zR:-.05,tL:-.95,sL:1.45,tR:-.6,sR:1.25,hx:.35}],[.3,{a:.46,dr:.3,xR:-1.0,fR:-.9,xL:-1.0,fL:-.95,zL:-.2,tL:-.9,sL:1.4,tR:-.6,sR:1.2,hx:.3}],[.5,{a:0,dr:0,xR:-.3,fR:-.3,xL:-.2,fL:-.2,zL:.1,tL:0,sL:.08,tR:0,sR:.08,hx:0}]]},
   blink:{dur:.4,rel:.0,spin:1,k:[[0,{zL:1.3,zR:1.3,xL:-.3,xR:-.3,a:.1,dr:.05}],[.2,{zL:1.4,zR:1.4,xL:-.2,xR:-.2,a:.05,dr:0}],[.4,{zL:.1,zR:.1,xL:0,xR:-.4,a:0}]]},
@@ -3915,6 +3919,7 @@ function applyAct(v){ const A=P.act, d=ACTK[A.id], t=A.t, w=(A.chain?1:Math.min(
   if(v.armR.fore) v.armR.fore.rotation.x=L(v.armR.fore.rotation.x,p.fR); if(v.armL.fore) v.armL.fore.rotation.x=L(v.armL.fore.rotation.x,p.fL);
   v.torso.rotation.y=L(v.torso.rotation.y,p.ty); v.head.rotation.x=L(v.head.rotation.x,p.hx);
   if(p.tw!==undefined&&v.axe){ v.axe.rotation.x=1.35+(p.tw-1.35)*w; }
+  if(p.ry!==undefined) v.root.rotation.y=P.rot+p.ry*w; if(p.tz!==undefined) v.torso.rotation.z=L(v.torso.rotation.z,p.tz);
   if(d.spin) v.root.rotation.y=P.rot+6.2832*(t/d.dur)*(t/d.dur)*(3-2*t/d.dur);
   if(d.cr){ const B=[[v.armR,'x','xR'],[v.armL,'x','xL'],[v.armR,'z','zR'],[v.armL,'z','zL'],[v.armR.fore,'x','fR'],[v.armL.fore,'x','fL'],[v.torso,'y','ty'],[v.head,'x','hx']], S=P.actSnap||(P.actSnap={});
     if(A.snap&&t<.13){ const k=t/.13, e=k*k*(3-2*k); for(const [o,ax,n] of B) if(o&&A.snap[n]!==undefined) o.rotation[ax]=A.snap[n]+(o.rotation[ax]-A.snap[n])*e; }
@@ -4347,7 +4352,7 @@ function updatePlayer(dt){
   if(manual&&P.chan&&il>.55) chanCancel('Cancelado');
   if(P.chan){ ix=0; iy=0; il=0; }
   const manual2=il>.15;
-  huntTick(dt); autoGTick(dt);
+  huntTick(dt); autoGTick(dt); looseTwinkle(dt);
   if(manual2&&P.autoG) autoGStop('Coleta automática parada.');
   if(manual2){ P.move=null; P.gather=null; P.autoGo=null; P.talkTo=null; P.hunt=null; if(P.target&&Math.hypot(P.target.x-P.x,P.target.y-P.y)>RANGE+2) P.target=null; }
   if(P.target&&P.target.dead) P.target=null;
@@ -4761,7 +4766,7 @@ function pickRes(px,py){
   const w=groundFromScreen(px,py); let best=null,bd=1e9;
   for(let ty=Math.floor(w.y)-3;ty<=Math.floor(w.y)+3;ty++)for(let tx=Math.floor(w.x)-3;tx<=Math.floor(w.x)+3;tx++){
     tile(tx,ty); if(!gO) continue; const o=gO, ore=gD>>6;
-    const hc=o===O.OAK?1.4:o===O.PINE?1.3:o===O.BOULDER?.4:.35, lim=o===O.OAK||o===O.PINE?62:46;
+    const loose=o===O.STICK||o===O.PEBBLE, hc=o===O.OAK?1.4:o===O.PINE?1.3:o===O.BOULDER?.4:loose?.15:.35, lim=o===O.OAK||o===O.PINE?62:loose?64:46;
     const cx=tx+.5, cy=ty+.5, p=proj(cx,hgt(cx,cy)+hc,cy); if(!p.ok) continue;
     const d=Math.hypot(px-p.x,(py-p.y)*(o===O.OAK||o===O.PINE?.7:1)); if(d<lim&&d<bd){ bd=d; best={tx,ty,o,ore}; } }
   return best;
