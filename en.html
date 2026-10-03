@@ -92,6 +92,7 @@ body.incria .hud,body.incria #skills,body.incria #joy,body.incria #mmw,body.incr
 #cria h3{font-size:20px}
 #cria .cbox{gap:7px}
 #autog{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;align-items:center;gap:8px;padding:6px 10px 6px 12px;border-radius:999px;background:rgba(24,30,18,.82);border:1px solid rgba(200,245,160,.45);color:#e8f7d8;font:700 13px var(--ui);box-shadow:0 2px 10px rgba(0,0,0,.35);cursor:pointer}#autog b{color:#ffe08a;font-variant-numeric:tabular-nums}#autog i{font-style:normal;opacity:.7;margin-left:2px}
+.ckin{display:block;width:100%;box-sizing:border-box;margin:10px 0 4px;padding:10px 12px;border-radius:10px;border:1px solid rgba(236,206,140,.45);background:rgba(0,0,0,.35);color:#fff;font:800 22px var(--ui);letter-spacing:.35em;text-align:center}.ckrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 2px}
 #lang{position:absolute;left:calc(12px + env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));display:flex;gap:8px;z-index:5}#lang button{width:46px;height:32px;padding:0;border-radius:6px;border:2px solid rgba(255,255,255,.25);overflow:hidden;background:none;opacity:.5;cursor:pointer;transition:opacity .15s,transform .15s}#lang button.on{border-color:#f0cf86;opacity:1;box-shadow:0 0 9px rgba(240,207,134,.65)}#lang button:active{transform:scale(.92)}#lang svg{width:100%;height:100%;display:block}
 #gmenu{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;pointer-events:auto;
   background:radial-gradient(ellipse at 50% 40%,rgba(10,16,12,.55),rgba(6,9,6,.88) 75%)}
@@ -448,7 +449,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
   <div id="lang"><button data-lang="pt" aria-label="Português"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#229e45"/><path d="M15 2.2 27.6 10.5 15 18.8 2.4 10.5z" fill="#f8e509"/><circle cx="15" cy="10.5" r="4.6" fill="#2b49a3"/><path d="M10.6 9.4q4.6-1.2 8.8 1.6" stroke="#fff" stroke-width=".8" fill="none"/></svg></button><button data-lang="en" aria-label="English"><svg viewBox="0 0 30 21"><rect width="30" height="21" fill="#fff"/><rect y="0.000" width="30" height="1.615" fill="#b22234"/><rect y="3.230" width="30" height="1.615" fill="#b22234"/><rect y="6.460" width="30" height="1.615" fill="#b22234"/><rect y="9.690" width="30" height="1.615" fill="#b22234"/><rect y="12.920" width="30" height="1.615" fill="#b22234"/><rect y="16.150" width="30" height="1.615" fill="#b22234"/><rect y="19.380" width="30" height="1.615" fill="#b22234"/><rect width="13" height="11.3" fill="#3c3b6e"/><circle cx="1.6" cy="1.4" r=".55" fill="#fff"/><circle cx="3.8" cy="1.4" r=".55" fill="#fff"/><circle cx="6.0" cy="1.4" r=".55" fill="#fff"/><circle cx="8.2" cy="1.4" r=".55" fill="#fff"/><circle cx="10.4" cy="1.4" r=".55" fill="#fff"/><circle cx="2.7" cy="3.5" r=".55" fill="#fff"/><circle cx="4.9" cy="3.5" r=".55" fill="#fff"/><circle cx="7.1" cy="3.5" r=".55" fill="#fff"/><circle cx="9.3" cy="3.5" r=".55" fill="#fff"/><circle cx="1.6" cy="5.6" r=".55" fill="#fff"/><circle cx="3.8" cy="5.6" r=".55" fill="#fff"/><circle cx="6.0" cy="5.6" r=".55" fill="#fff"/><circle cx="8.2" cy="5.6" r=".55" fill="#fff"/><circle cx="10.4" cy="5.6" r=".55" fill="#fff"/><circle cx="2.7" cy="7.7" r=".55" fill="#fff"/><circle cx="4.9" cy="7.7" r=".55" fill="#fff"/><circle cx="7.1" cy="7.7" r=".55" fill="#fff"/><circle cx="9.3" cy="7.7" r=".55" fill="#fff"/><circle cx="1.6" cy="9.8" r=".55" fill="#fff"/><circle cx="3.8" cy="9.8" r=".55" fill="#fff"/><circle cx="6.0" cy="9.8" r=".55" fill="#fff"/><circle cx="8.2" cy="9.8" r=".55" fill="#fff"/><circle cx="10.4" cy="9.8" r=".55" fill="#fff"/></svg></button></div>
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Create the impossible and live your way.</p><p class="mcred">created by André Coutinho</p></div>
-    <div id="ver">v0.97</div>
+    <div id="ver">v0.98</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Play</button>
       <p class="mslh">👤 Characters (tap to switch or create)</p>
@@ -3693,9 +3694,9 @@ function updateMagic(dt){
 const RES={wood:['Wood','#b07a45'],stone:['Stone','#a9a59a'],iron:['Iron','#d0773a'],crystal:['Crystal','#8fe9ff'],copper:['Copper','#3fb898'],berry:['Berry','#e2433f']};
 function resInfo(o,ore){ if(o===O.STICK||o===O.PEBBLE) return {hp:1,snd:'leaf'}; if(o===O.OAK||o===O.PINE) return {hp:Math.ceil(8/(hasTool('axe')+1)),snd:'chop',tool:'axe'}; if(o===O.BUSH) return {hp:2,snd:'leaf'}; return {hp:Math.ceil((ore?14:10)/(hasTool('pick')+1)),snd:'stone',tool:'pick'}; }
 function startGather(r){ const tree=r.o===O.OAK||r.o===O.PINE, rock=r.o===O.BOULDER; if(admActive('cr')){ const inf=resInfo(r.o,r.ore); P.gather={tx:r.tx,ty:r.ty,o:r.o,ore:r.ore,hp:1,max:1,snd:inf.snd,tool:null}; P.target=null; P.move=null; return; } if((tree&&!hasTool('axe'))||(rock&&!hasTool('pick'))){ addText(P.x,P.y,P.h+2.3,tree?'Need an axe':'Need a pickaxe','#ffd166',15); if(!P.toolTip){ P.toolTip=1; toast('No tools: grab loose sticks and pebbles by the roadside and craft '+(tree?'the axe':'the pickaxe')+' in your backpack.'); } return; } const inf=resInfo(r.o,r.ore); P.gather={tx:r.tx,ty:r.ty,o:r.o,ore:r.ore,hp:inf.hp,max:inf.hp,snd:inf.snd,tool:inf.tool}; P.target=null; P.move=null; }
-/* coleta automática: tocou numa árvore ou pedra, ela continua sozinha (mais próxima do mesmo tipo) até a estamina acabar (~2 min).
+/* coleta automática: tocou numa árvore ou pedra, ela continua sozinha (mais próxima do mesmo tipo) até a estamina acabar (~1 min).
    Esgotou: só liga de novo com a estamina cheia. Mexer no joystick cancela. */
-const AUTOG_T=120;
+const AUTOG_T=60;
 function autoGKey(o,ore){ return o===O.OAK||o===O.PINE?'wood':o===O.BOULDER?['stone','iron','crystal','copper'][ore|0]:null; }
 function autoGStart(r){ if(DG||VISIT||P.autoG) return; const k=autoGKey(r.o,r.ore); if(!k) return;
   if(P.autoLock){ if(!P.autoLockTip||time-P.autoLockTip>8){ P.autoLockTip=time; toast('Auto-gather is resting: wait for your stamina to fill up.'); } return; }
@@ -3721,7 +3722,7 @@ function gatherHit(){
   const g=P.gather; tile(g.tx,g.ty); if(gO!==g.o){ P.gather=null; return; }
   const cx=g.tx+.5, cy=g.ty+.5, h=hgt(cx,cy);
   const kind=g.snd==='chop'?'chop':g.snd==='leaf'?'pluck':'mine';
-  P.cd=(kind==='pluck'?.5:.62)/P.gspd; faceTo(cx,cy); P.rot=P.face;
+  P.cd=(kind==='pluck'?.5:kind==='mine'?1.02:.62)/P.gspd; faceTo(cx,cy); P.rot=P.face;
   doAct(kind,()=>gatherImpact(g)); if(P.act) P.act.spd=P.gspd;
 }
 function gatherImpact(g){
@@ -3884,7 +3885,7 @@ const ACTK={
   shieldA:{dur:.5,rel:.12,k:[[0,{xR:-1,fR:-1.2,xL:-1,fL:-1.2,zL:-.3,zR:-.3,a:.1,dr:.05}],[.12,{xR:-1.7,fR:0,xL:-1.7,fL:0,zL:.9,zR:.9,a:-.12,dr:-.02,hx:-.2}],[.3,{xR:-1.6,fR:-.05,xL:-1.6,fL:-.05,zL:.85,zR:.85,a:-.1,hx:-.15}],[.5,{xR:-.4,fR:-.3,xL:-.2,fL:-.3,zL:.1,zR:.1,a:0,hx:0}]]},
   heal:{dur:.7,rel:.1,k:[[0,{xR:-2.6,fR:-.3,xL:-2.5,fL:-.3,zL:.2,zR:.2,a:-.1,hx:-.3}],[.1,{xR:-1.2,fR:-.2,xL:-1.2,fL:-.2,zL:1.3,zR:1.3,a:-.15,hx:-.35,dr:-.03}],[.45,{xR:-1.1,fR:-.25,xL:-1.1,fL:-.25,zL:1.2,zR:1.2,a:-.12,hx:-.3}],[.7,{xR:-.4,fR:-.3,xL:-.2,fL:-.3,zL:.1,zR:.1,a:0,hx:0,dr:0}]]},
   chop:{dur:.6,rel:.3,k:[[0,{tw:1.35,ty:0,xR:-1.15,fR:-.5,zR:-.1,xL:-1.1,fL:-.6,zL:-.4,a:0,dr:0}],[.22,{tw:1.1,ty:.8,xR:-2.35,fR:-.95,zR:.45,xL:-2.05,fL:-1.0,zL:.1,a:-.12,dr:.02,hx:-.1,tL:-.2,sL:.3,tR:.15,sR:.25}],[.3,{tw:2.45,ty:-.6,xR:-1.3,fR:-.12,zR:-.4,xL:-1.25,fL:-.18,zL:-.6,a:.2,dr:.09,hx:.12,tL:-.4,sL:.55,tR:.28,sR:.5}],[.38,{tw:2.3,ty:-.48,xR:-1.38,fR:-.22,zR:-.32,xL:-1.32,fL:-.28,zL:-.52,a:.15,dr:.07,hx:.08,tL:-.35,sL:.5,tR:.25,sR:.45}],[.6,{tw:1.35,ty:0,xR:-1.15,fR:-.5,zR:-.1,xL:-1.1,fL:-.6,zL:-.4,a:0,dr:0,hx:0,tL:0,sL:.08,tR:0,sR:.08}]]},
-  mine:{dur:.62,rel:.32,k:[[0,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:0,dr:0,ty:0}],[.24,{xR:-3.0,fR:-.7,zR:-.05,xL:-2.9,fL:-.8,zL:-.28,a:-.22,dr:-.02,hx:-.22,tL:-.25,sL:.3,tR:.2,sR:.2,ty:.1}],[.32,{xR:-.85,fR:-.08,zR:-.12,xL:-.8,fL:-.12,zL:-.42,a:.38,dr:.15,hx:.22,tL:-.55,sL:.85,tR:.32,sR:.65,ty:0}],[.4,{xR:-1.05,fR:-.28,zR:-.12,xL:-1.0,fL:-.3,zL:-.42,a:.3,dr:.13,hx:.15,tL:-.5,sL:.8,tR:.3,sR:.6}],[.62,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:0,dr:0,hx:0,tL:0,sL:.08,tR:0,sR:.08}]]},
+  mine:{dur:1.0,rel:.56,k:[[0,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:.05,dr:.03,ty:0,hx:0,tL:-.18,sL:.3,tR:.12,sR:.22}],[.2,{xR:-2.0,fR:-.7,zR:0,xL:-1.9,fL:-.8,zL:-.3,a:-.06,dr:0,ty:.26,hx:-.1,tL:-.08,sL:.14,tR:.22,sR:.16}],[.44,{xR:-3.05,fR:-.7,zR:-.05,xL:-2.95,fL:-.8,zL:-.28,a:-.27,dr:-.035,ty:.16,hx:-.26,tL:-.2,sL:.18,tR:.14,sR:.12}],[.56,{xR:-.8,fR:-.08,zR:-.12,xL:-.75,fL:-.12,zL:-.42,a:.43,dr:.18,ty:-.14,hx:.26,tL:-.62,sL:.92,tR:.35,sR:.72}],[.7,{xR:-1.12,fR:-.3,zR:-.12,xL:-1.06,fL:-.32,zL:-.42,a:.3,dr:.11,ty:-.04,hx:.14,tL:-.48,sL:.78,tR:.28,sR:.58}],[1.0,{xR:-1.0,fR:-.6,zR:-.1,xL:-1.0,fL:-.7,zL:-.38,a:.05,dr:.03,ty:0,hx:0,tL:-.18,sL:.3,tR:.12,sR:.22}]]},
   pluck:{dur:.5,rel:.24,k:[[0,{a:0,dr:0}],[.2,{a:.5,dr:.32,xR:-1.35,fR:-.2,xL:-1.25,fL:-.3,zL:-.12,zR:-.05,tL:-.95,sL:1.45,tR:-.6,sR:1.25,hx:.35}],[.3,{a:.46,dr:.3,xR:-1.0,fR:-.9,xL:-1.0,fL:-.95,zL:-.2,tL:-.9,sL:1.4,tR:-.6,sR:1.2,hx:.3}],[.5,{a:0,dr:0,xR:-.3,fR:-.3,xL:-.2,fL:-.2,zL:.1,tL:0,sL:.08,tR:0,sR:.08,hx:0}]]},
   blink:{dur:.4,rel:.0,spin:1,k:[[0,{zL:1.3,zR:1.3,xL:-.3,xR:-.3,a:.1,dr:.05}],[.2,{zL:1.4,zR:1.4,xL:-.2,xR:-.2,a:.05,dr:0}],[.4,{zL:.1,zR:.1,xL:0,xR:-.4,a:0}]]},
   meteor:{dur:.95,rel:.45,k:[[0,{xR:-1,xL:-1,a:0}],[.18,{xR:-3.05,fR:0,xL:-3.0,fL:0,zL:.35,zR:.35,a:-.2,hx:-.45,dr:-.03}],[.45,{xR:-3.1,fR:0,xL:-3.05,fL:0,zL:.3,zR:.3,a:-.22,hx:-.5,dr:-.03}],[.58,{xR:-1.25,fR:-.05,xL:-.9,fL:-.3,zL:.2,zR:.1,a:.18,hx:.1,tL:-.4,sL:.3,tR:.25,sR:.4}],[.85,{xR:-.4,fR:-.3,xL:0,fL:-.2,zL:.1,zR:.1,a:0,hx:0}]]},
@@ -5978,7 +5979,18 @@ function sortBag(){ const o=sortStacks(BAG.map(q=>q&&{id:q.id,n:q.n,d:q.d,e:q.e}
 function sortChest(){ const v=structs.get(CHEST.k); if(!v) return; v.x.it=sortStacks(v.x.it.map(c=>({id:c[0],n:c[1],d:c[2]==null?undefined:c[2],e:c[3]|0}))).map(q=>[q.id,q.n,q.d==null?null:q.d,q.e|0]); }
 /* baú: guarda até 30 pilhas */
 const CHESTN=30;
-function chestOpen(k){ if(VISIT){ toast('Chests only work in your own world'); return; } const v=structs.get(k); if(!v||v.t!=='chest') return; if(!v.x||!Array.isArray(v.x.it)) v.x={it:[]}; CHEST.k=k; chestRender(); const g=structMesh.get(k); sfx.open&&sfx.open(); }
+/* chave do baú: o dono escolhe um código nas configurações do multiplayer; visitante que digitar certo pode mexer nos baús até sair do jogo */
+function ckHash(code,host){ let h=2166136261; const s=String(code)+'|'+host; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36); }
+function ckNew(){ NPREF.ck=String(10000+Math.floor(Math.random()*90000)); nprefSave(); NET.ckG={}; if(NET.open) NET.db.ref('rooms/'+NET.uid+'/w/i/ck').set(null); }
+function ckCheck(g,h){ if(!NET.host||!g) return; if(!NPREF.ck) ckNew(); NET.ckF=NET.ckF||{}; const f=NET.ckF[g]||(NET.ckF[g]={n:0,t:0}); if(f.n>=6&&Date.now()-f.t<60000) return;
+  if(h===ckHash(NPREF.ck,NET.uid)){ NET.ckG=NET.ckG||{}; NET.ckG[g]=1; f.n=0; NET.db.ref('rooms/'+NET.uid+'/w/i/ck/'+g).set(1); const pe=NET.peers.get(g); toast((pe&&pe.d&&pe.d.n?pe.d.n:'Your friend')+' got the chest key right'); }
+  else { f.n++; f.t=Date.now(); NET.db.ref('rooms/'+NET.uid+'/w/i/ckx/'+g).set(Date.now()); } }
+function ckAsk(k){ const tryKey=()=>{ const c=($('ckin')&&$('ckin').value||'').trim(); if(!/^\d{5}$/.test(c)){ toast('The key has 5 digits'); return; } NET.ckWait={k,t:Date.now()}; netBuildEv('k',0,ckHash(c,VISIT.host||NET.vHost)); $('dtx').innerHTML='<p style="text-align:center">Checking the key with the world owner...</p>';
+    setTimeout(()=>{ if(NET.ckWait&&NET.ckWait.k===k&&!NET.ckOK){ NET.ckWait=null; toast('Wrong key (or the owner is offline)'); ckAsk(k); } },7000); };
+  openMenu('Locked Chest','',[['Open',tryKey],['Cancel',()=>{ NET.ckWait=null; closeDialog(); },1]],'<p>This chest belongs to <b>'+esc(VISIT.hn||'another player')+'</b>. Enter the chest key the owner gave you:</p><input id="ckin" class="ckin" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="00000">');
+  setTimeout(()=>{ const i=$('ckin'); if(i){ i.focus(); i.addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Enter') tryKey(); }); i.addEventListener('pointerdown',e=>e.stopPropagation()); } },60); }
+function ckGranted(){ NET.ckOK=true; if(NET.ckWait){ const k=NET.ckWait.k; NET.ckWait=null; toast('Right key! You can use the chests until you leave the game.'); sfx.ok&&sfx.ok(); CHEST.open=null; chestOpen(k); } }
+function chestOpen(k){ if(VISIT&&!NET.ckOK){ ckAsk(k); return; } const v=structs.get(k); if(!v||v.t!=='chest') return; if(!v.x||!Array.isArray(v.x.it)) v.x={it:[]}; CHEST.k=k; chestRender(); const g=structMesh.get(k); sfx.open&&sfx.open(); }
 const CHEST={k:null,open:null};
 function chestRender(){ const v=structs.get(CHEST.k); if(!v) return; const it=v.x.it, cell=(q,attr)=>q?'<button class="slot" '+attr+'>'+ICO[q[0]]+(q[1]>1?'<b>'+q[1]+'</b>':'')+(q[3]?'<u>+'+q[3]+'</u>':'')+'</button>':'<button class="slot" disabled></button>';
   let h='<div style="text-align:left;font-size:12.5px;color:#cbbfa8;margin-bottom:4px">Tap an item in the <b>backpack</b> to store it. Tap the <b>chest</b> to take it back.</div><b>Chest ('+it.length+'/'+CHESTN+')</b><div class="chg">';
@@ -5993,7 +6005,7 @@ function chestPut(i,quiet){ const v=structs.get(CHEST.k), q=BAG[i]; if(!v||!q) r
   while(q.n>0&&it.length<CHESTN){ const k=Math.min(q.n,st); it.push([q.id,k,q.d,q.e|0]); q.n-=k; }
   if(q.n<=0) BAG[i]=null; else if(!quiet) toast('The chest is full'); }
 function chestTake(j){ const v=structs.get(CHEST.k); if(!v) return; const c=v.x.it[j]; if(!c) return; const left=addItem(c[0],c[1],c[2]==null?undefined:c[2],c[3]|0); if(left>=c[1]){ toast('Backpack full'); return; } if(left>0) c[1]=left; else v.x.it.splice(j,1); }
-function chestSave(){ if(NET.host) netPushStructs(); doSave(); if(typeof renderInv==='function'&&$('inv').classList.contains('on')) renderInv(); }
+function chestSave(){ if(NET.host) netPushStructs(); if(VISIT&&CHEST.k){ const v=structs.get(CHEST.k); NET.xHold=NET.xHold||{}; NET.xHold[CHEST.k]=Date.now()+3500; netBuildEv('x',CHEST.k,'',0,v?v.x:0); } doSave(); if(typeof renderInv==='function'&&$('inv').classList.contains('on')) renderInv(); }
 const CHT={t:0,x:0,y:0,b:null};
 function chestAct(b){ if(!CHEST.k||!b) return; if(b.dataset.cin!==undefined) chestPut(+b.dataset.cin); else chestTake(+b.dataset.cout); sfx.pick&&sfx.pick(); chestRender(); try{ chestSave(); }catch(err){ console.warn(err); } }
 $('dtx').addEventListener('pointerdown',e=>{ CHT.b=CHEST.k?e.target.closest('[data-cin],[data-cout]'):null; CHT.x=e.clientX; CHT.y=e.clientY; });
@@ -7174,6 +7186,7 @@ function netDot(){ const n=NET.freqs.size+(NET.open?NET.reqs.size:0); const b=$n
 function netStructsArr(){ return [...structs.entries()].map(([k,v])=>svPack(k,v)); }
 function netPushStructs(){ if(NET.host) NET.db.ref('rooms/'+NET.uid+'/w/s').set(netStructsArr()); }
 const NPREF={open:false,gb:true,auto:true}; try{ const v=JSON.parse(localStorage.getItem('bp-npref')||'null'); if(v) Object.assign(NPREF,v); }catch(e){}
+if(!NPREF.ck){ NPREF.ck=String(10000+Math.floor(Math.random()*90000)); try{ localStorage.setItem('bp-npref',JSON.stringify(NPREF)); }catch(e){} }
 function nprefSave(){ try{ localStorage.setItem('bp-npref',JSON.stringify(NPREF)); }catch(e){} }
 let SENT={}; try{ SENT=JSON.parse(localStorage.getItem('bp-sent')||'{}')||{}; }catch(e){ SENT={}; }
 function sentSave(){ try{ localStorage.setItem('bp-sent',JSON.stringify(SENT)); }catch(e){} }
@@ -7196,8 +7209,14 @@ function netReqPop(){ const el=$n('netreq'); if(!el) return; let h='';
   el.innerHTML=h; el.classList.toggle('on',!!h); if(h) sfx.open(); }
 function netReqAnswer(g,yes){ const R='rooms/'+NET.uid; (yes?NET.db.ref(R+'/ok/'+g).set(true):Promise.resolve()).then(()=>NET.db.ref(R+'/req/'+g).remove()); if(yes) toast('Entrando...'); }
 function netEvIn(g,v){ if(!NET.host||!v) return; if(Array.isArray(v.g)) giftIn(g,v.g); if(Array.isArray(v.m)) chatIn(g,v.m);
-  if(Array.isArray(v.b)&&!NPREF.gb){ if(!NET.lastB) NET.lastB={}; for(const e of v.b) if(e&&e[0]>(NET.lastB[g]||0)) NET.lastB[g]=e[0]; netPushStructs(); }
-  else if(Array.isArray(v.b)){ if(!NET.lastB) NET.lastB={}; let lb=NET.lastB[g]||0, ch=false; for(const e of v.b){ if(!e||e[0]<=lb) continue; lb=e[0]; if(e[1]==='p') ch=applyBuild(e[2],e[3],e[4],e[5]||undefined)||ch; else if(e[1]==='d') ch=!!applyDismantle(e[2],e[3]||null)||ch; else if(e[1]==='w') ch=winToggle(e[2],e[3],true)||ch; else if(e[1]==='x'){ const sv=structs.get(e[2]); if(sv&&e[5]&&typeof e[5]==='object'){ sv.x=e[5]; addStructMesh(e[2],sv); ch=true; } } } NET.lastB[g]=lb; if(ch){ netPushStructs(); doSave(); } }
+  if(Array.isArray(v.b)){ if(!NET.lastB) NET.lastB={}; let lb=NET.lastB[g]||0, ch=false; const gb=NPREF.gb;
+    for(const e of v.b){ if(!e||e[0]<=lb) continue; lb=e[0];
+      if(e[1]==='k'){ ckCheck(g,e[3]); continue; }
+      if(e[1]==='x'){ const sv=structs.get(e[2]); if(!sv||!e[5]||typeof e[5]!=='object') continue; if(sv.t==='chest'){ if(!(NET.ckG&&NET.ckG[g])||!Array.isArray(e[5].it)) continue; } else if(!gb) continue;
+        sv.x=e[5]; addStructMesh(e[2],sv); ch=true; if(sv.t==='chest'&&CHEST.k===e[2]&&$('dlg').classList.contains('on')) chestRender(); continue; }
+      if(!gb) continue;
+      if(e[1]==='p') ch=applyBuild(e[2],e[3],e[4],e[5]||undefined)||ch; else if(e[1]==='d') ch=!!applyDismantle(e[2],e[3]||null)||ch; else if(e[1]==='w') ch=winToggle(e[2],e[3],true)||ch; }
+    NET.lastB[g]=lb; if(ch){ netPushStructs(); doSave(); } }
   if(!Array.isArray(v.e)) return; let last=NET.lastEv[g]||0;
   for(const e of v.e){ if(!e||e[0]<=last) continue; last=e[0]; const m=mobs.find(q=>q.nid===e[1]&&!q.dead); if(!m) continue;
     if(e[6]>0){ m.frz=e[6]; m.wind=0; }
@@ -7338,7 +7357,7 @@ function netJoinRoom(){ const H=VISIT.host, R='rooms/'+H, U=NET.uid; NET.hostUid
   netOn(R+'/w/m','value',s=>netMobs(s.val()||{}),NET.roomOffs);
   netOn(R+'/w/h/'+U,'value',s=>netHits(s.val()),NET.roomOffs);
   netOn(R+'/w/k','value',s=>netKills(s.val()),NET.roomOffs);
-  netOn(R+'/w/i','value',s=>{ const v=s.val(); if(v&&isFinite(v.tod)) TOD=v.tod; if(v) NET.gb=v.gb!==0; },NET.roomOffs);
+  netOn(R+'/w/i','value',s=>{ const v=s.val(); if(v&&isFinite(v.tod)) TOD=v.tod; if(v) NET.gb=v.gb!==0; const ok=!!(v&&v.ck&&v.ck[NET.uid]); if(ok&&!NET.ckOK) ckGranted(); else if(!ok) NET.ckOK=false; },NET.roomOffs);
   netOn(R+'/w/s','value',s=>netStructs(s.val()||[]),NET.roomOffs);
   netOn(R+'/w/g','value',s=>giftIn(H,(s.val()||{}).e),NET.roomOffs);
   const evG=s=>{ if(s.key===U) return; const v=s.val()||{}; giftIn(s.key,v.g); chatIn(s.key,v.m); }; netOn(R+'/ev','child_added',evG,NET.roomOffs); netOn(R+'/ev','child_changed',evG,NET.roomOffs);
@@ -7348,8 +7367,9 @@ function netLeaveVisit(msg){ if(!VISIT||NET.leaving) return; NET.leaving=1; if(m
   try{ if(NET.db&&NET.uid){ NET.db.ref('rooms/'+VISIT.host+'/p/'+NET.uid).remove(); NET.db.ref('rooms/'+VISIT.host+'/ev/'+NET.uid).remove(); } }catch(e){}
   try{ sessionStorage.removeItem('bp-visit'); }catch(e){} setTimeout(()=>location.reload(),1600); }
 function netStructs(arr){ if(!Array.isArray(arr)) return; const seen=new Set();
-  for(const a of arr){ if(!a) continue; const k=a[0], v=svUnpack(a); seen.add(k); const o=structs.get(k); if(o&&JSON.stringify(svPack(k,o))===JSON.stringify(svPack(k,v))) continue; structs.set(k,v); addStructMesh(k,v); roofDirty=1; }
-  for(const [k] of [...structs]) if(!seen.has(k)){ structs.delete(k); removeStructMesh(k); roofDirty=1; } }
+  for(const a of arr){ if(!a) continue; const k=a[0], v=svUnpack(a); seen.add(k); const o=structs.get(k); if(o&&o.t==='chest'&&NET.xHold&&NET.xHold[k]>Date.now()) v.x=o.x; if(o&&JSON.stringify(svPack(k,o))===JSON.stringify(svPack(k,v))) continue; structs.set(k,v); addStructMesh(k,v); roofDirty=1; }
+  for(const [k] of [...structs]) if(!seen.has(k)){ structs.delete(k); removeStructMesh(k); roofDirty=1; }
+  if(CHEST.k&&CHEST.open===CHEST.k&&$('dlg').classList.contains('on')){ if(structs.get(CHEST.k)) chestRender(); else { CHEST.k=null; closeDialog(); } } }
 function netMobs(o){ const ids=new Set();
   for(const id in o){ const a=o[id], nid=+id; ids.add(nid); let m=mobs.find(q=>q.net&&q.nid===nid);
     if(!m){ if(!MOBS[a[0]]) continue; m=makeMob(a[0],a[1],a[2],{lvl:a[5],elite:!!(a[7]&1),big:!!(a[7]&2),noElite:1}); m.lvl=a[5]; m.net=1; m.nid=nid; m.face=m.rot=a[6]; m.state='chase'; mobs.push(m); }
@@ -7442,7 +7462,7 @@ function netRender(){ const el=$n('netb'); if(!el) return; netDot(); if(!$n('net
         h+=gs.length?gs.map(p=>'<div class="nfr"><span><b>'+esc(p.d.n)+'</b> · Lv '+(p.d.l|0)+'</span><button class="pb gray sm" data-nkick="'+esc(p.id)+'">Tirar</button></div>').join(''):'<p class="nmut">No one has joined yet.</p>';
         h+='<button class="pb gray" data-nclose="1">Close my world</button>'; }
       else h+='<p class="nmut">Closed. Only people you accept can join.</p><button class="pb" data-nopen="1">Open my world to friends</button>';
-      h+='<p class="nmut" style="margin:8px 0 4px">Rules for friends in your world (green dot = on):</p><div class="nrow"><button class="pb sm ck'+(NPREF.gb?' on':'')+'" data-ngb="1">Friends can build and destroy</button><button class="pb sm ck'+(NPREF.auto?' on':'')+'" data-nauto="1">Friends join directly, no approval</button></div><p class="nmut" style="margin:2px 0 0">'+(NPREF.gb?'':'They can only hunt, help, and earn XP and items. ')+(NET.open?'Your world stays open every time you enter the game, until you tap Close.':'Once opened, it opens by itself every time you enter the game, until you tap Close.')+'</p>';
+      h+='<p class="nmut" style="margin:8px 0 4px">Rules for friends in your world (green dot = on):</p><div class="nrow"><button class="pb sm ck'+(NPREF.gb?' on':'')+'" data-ngb="1">Friends can build and destroy</button><button class="pb sm ck'+(NPREF.auto?' on':'')+'" data-nauto="1">Friends join directly, no approval needed</button></div><div class="ckrow"><span>🔑 Chest key: <b class="ncode">'+esc(NPREF.ck||'-----')+'</b></span><button class="pb gray sm" data-nck="1">Change</button></div><p class="nmut" style="margin:0 0 6px">Only give this key to people who may use your chests. Whoever types it right can use the chests until they leave the game. Changing the key removes everyone\'s access.</p><p class="nmut" style="margin:2px 0 0">'+(NPREF.gb?'':'They can only hunt, help, and earn XP and items. ')+(NET.open?'Your world stays open every time you enter the game, until you tap Close.':'Once opened, it opens by itself every time you enter the game, until you tap Close.')+'</p>';
       h+='</div>'; }
     if(NET.freqs.size){ h+='<div class="nsec"><h4>Friend requests</h4>'; for(const [id,v] of NET.freqs) h+='<div class="nfr"><span><b>'+esc(v.n)+'</b> · Lv '+(v.l|0)+'</span><button class="pb sm" data-nfa="'+esc(id)+'">Accept</button><button class="pb gray sm" data-nfd="'+esc(id)+'">Decline</button></div>'; h+='</div>'; }
     h+='<div class="nsec"><h4>Friends</h4>';
@@ -7469,6 +7489,7 @@ $n('netp').addEventListener('click',e=>{ const b=e.target.closest('button'); if(
   if(D.nret) netStart(); else if(D.ngoo) netGoogle(); else if(D.nano) netAnon(); else if(D.nout) netLogout();
   else if(D.nsav){ const v=($n('nname').value||'').trim().slice(0,16); if(v){ NET.name=v; netProfile(); netOnline(); toast('Name saved!'); } }
   else if(D.nopen) netOpenWorld(); else if(D.nclose){ NPREF.open=false; nprefSave(); netCloseWorld(); }
+  else if(D.nck){ ckNew(); toast('Chest key changed: '+NPREF.ck); netRender(); }
   else if(D.ngb){ NPREF.gb=!NPREF.gb; nprefSave(); if(NET.open) NET.db.ref('rooms/'+NET.uid+'/w/i/gb').set(NPREF.gb?1:0); netRender(); }
   else if(D.nauto){ NPREF.auto=!NPREF.auto; nprefSave(); netRender(); }
   else if(D.nsc){ const id=D.nsc; NET.db.ref('freq/'+id+'/'+NET.uid).remove().catch(()=>{}); delete SENT[id]; sentSave(); netRender(); } else if(D.nkick) netKick(D.nkick);
