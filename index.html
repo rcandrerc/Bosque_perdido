@@ -443,7 +443,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.87</div>
+    <div id="ver">v0.88</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -3311,6 +3311,7 @@ const REGMOBS=[
 ];
 function pickType(x,y){
   const list=onIsland(x,y)?ISLMOBS:REGMOBS[regIdx(x)]; let tot=0; const ws=list.map(e=>{ const w=(e[2]&&x<e[2])?0:e[1]; tot+=w; return w; });
+  if(P.hunt&&Math.random()<.65){ const hi=list.findIndex(e=>e[0]===P.hunt.key); if(hi>=0&&ws[hi]>0) return P.hunt.key; }
   let r=Math.random()*tot; for(let i=0;i<list.length;i++){ r-=ws[i]; if(r<=0) return list[i][0]; }
   return list[0][0];
 }
@@ -4283,12 +4284,16 @@ function updatePlayer(dt){
   if(manual&&P.chan&&il>.55) chanCancel('Cancelado');
   if(P.chan){ ix=0; iy=0; il=0; }
   const manual2=il>.15;
-  if(manual2){ P.move=null; P.gather=null; P.autoGo=null; P.talkTo=null; if(P.target&&Math.hypot(P.target.x-P.x,P.target.y-P.y)>RANGE+2) P.target=null; }
+  huntTick(dt);
+  if(manual2){ P.move=null; P.gather=null; P.autoGo=null; P.talkTo=null; P.hunt=null; if(P.target&&Math.hypot(P.target.x-P.x,P.target.y-P.y)>RANGE+2) P.target=null; }
   if(P.target&&P.target.dead) P.target=null;
   if(P.talkTo&&Math.hypot(P.talkTo.x-P.x,P.talkTo.y-P.y)<2.4){ const n=P.talkTo; P.talkTo=null; P.move=null; P.sp=0; openDialog(n); return; }
   if(P.autoGo&&!manual2&&!P.gather){ const g=P.autoGo, d=Math.hypot(g.x-P.x,g.y-P.y);
     if(d<(g.res?1.5:1.8)){ const rs=g.res; P.autoGo=null; P.move=null; if(rs){ tile(rs.tx,rs.ty); if(gO===rs.o) startGather(rs); } }
-    else { let tx=g.x, ty=g.y; if(Math.abs(g.x-P.x)>8){ const nx=P.x+Math.sign(g.x-P.x)*6; tx=nx; ty=roadY(nx); } else if(roadD(P.x,P.y)>4&&Math.abs(g.x-P.x)>8){ tx=P.x; ty=roadY(P.x); } P.move={x:tx,y:ty}; } }
+    else { let tx=g.x, ty=g.y; if(Math.abs(g.x-P.x)>40){ const nx=Math.round((P.x+Math.sign(g.x-P.x)*30)/10)*10; tx=nx; ty=roadY(nx); }
+      g.rt=(g.rt||0)-dt; const seg=Math.round(tx/3)+','+Math.round(ty/3);
+      if(!g.path||g.rt<=0||g.seg!==seg||(P.stuck||0)>.3){ if((P.stuck||0)>.3){ g.stk=(g.stk||0)+1; if(g.stk%3===0) jump(); } g.path=DG?null:pathFind(P.x,P.y,tx,ty); g.rt=g.path?3:1; g.seg=seg; P.stuck=0; }
+      const pth=g.path; if(pth&&pth.length){ while(pth.length>1&&Math.hypot(pth[0][0]-P.x,pth[0][1]-P.y)<.75) pth.shift(); P.move={x:pth[0][0],y:pth[0][1]}; } else P.move={x:tx,y:ty}; } }
   let wx=0,wy=0,mag=0;
   if(manual2){ wx=ix/il; wy=iy/il; mag=Math.min(1,(il-.15)/.6); }
   else if(P.gather){
@@ -4316,7 +4321,7 @@ function updatePlayer(dt){
   if(P.sp>.05){
     SWIMOK=true; CLIMBZ=climbZ(); const mvOk=tryMove(P,P.dx*P.sp*dt*(P.climbing?.32:1),P.dy*P.sp*dt*(P.climbing?.32:1),P.r); SWIMOK=false; CLIMBZ=0;
     if(mvOk){ P.moving=true; const lk2=combatLock(); P.walkPh+=P.sp*dt*1.95; P.stuck=0; if(lk2&&!P.climbing) P.face=Math.atan2(lk2[0],lk2[1]); else if(!(P.target&&P.cast>0)&&!P.climbing) P.face=Math.atan2(P.dx,P.dy); }
-    else { P.sp*=.5; P.stuck=(P.stuck||0)+dt; if(P.stuck>.5){ P.move=null; P.stuck=0; } }
+    else { P.sp*=.5; P.stuck=(P.stuck||0)+dt; if(P.stuck>.5&&!P.autoGo){ P.move=null; P.stuck=0; } }
   }
   if(P.dashT>0){ const st=Math.min(dt,P.dashT); P.dashT-=dt; const k=.55+.45*Math.sin(Math.PI*clamp(1-P.dashT/DASH_T,0,1));
     SWIMOK=true; CLIMBZ=climbZ(); tryMove(P,P.ddx*DASH_SP*k*st,P.ddy*DASH_SP*k*st,P.r); SWIMOK=false; CLIMBZ=0; P.face=Math.atan2(P.ddx,P.ddy); P.dx=P.ddx; P.dy=P.ddy; P.sp=Math.max(P.sp,P.mspd*.8);
@@ -4573,7 +4578,7 @@ $('mapb').onclick=openMap; $('mmw').onclick=openMap; $('wmx').onclick=closeMap;
 const wmZoom=(f,ax,ay)=>{ const cv=$('wmc'), r=cv.getBoundingClientRect(); const ns=clamp(WM.s*f,.6,14); if(ax!=null){ const wx=WM.cx+(ax-r.width/2)/WM.s, wy=WM.cy+(ay-r.height/2)/WM.s; WM.cx=wx-(ax-r.width/2)/ns; WM.cy=wy-(ay-r.height/2)/ns; } WM.s=ns; drawWorldMap(); };
 $('wzi').onclick=()=>wmZoom(1.5); $('wzo').onclick=()=>wmZoom(1/1.5); $('wme').onclick=()=>{ WM.cx=DG?DG.d.fx:P.x; WM.cy=DG?DG.d.fy:P.y; drawWorldMap(); };
 $('wml').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.go){ P.autoGo={x:+b.dataset.mx,y:+b.dataset.my}; P.gather=null; P.talkTo=null; P.target=null; WM.mark=null; closeMap(); toast('Indo caçar '+MOBS[b.dataset.go].name+'...'); sfx.ok&&sfx.ok(); return; }
+  if(b.dataset.go){ P.autoGo={x:+b.dataset.mx,y:+b.dataset.my}; P.hunt={key:b.dataset.go,t:240}; P.gather=null; P.talkTo=null; P.target=null; WM.mark=null; closeMap(); toast('Indo caçar '+MOBS[b.dataset.go].name+'...'); sfx.ok&&sfx.ok(); return; }
   if(b.dataset.rgo){ const r=WM.res; if(!r) return; P.autoGo={x:r.tx+.5,y:r.ty+.5,res:r}; P.gather=null; P.talkTo=null; P.target=null; WM.mark=null; closeMap(); toast('Indo buscar '+b.dataset.rn+'...'); sfx.ok&&sfx.ok(); return; }
   if(b.dataset.res){ const old=$('wml').querySelector('.mgo'); if(old) old.remove(); if(DG){ toast('Saia da masmorra primeiro'); return; }
     const k=b.dataset.res, r=findRes(k), nm=RGUIDE.find(q=>q[0]===k)[1]; if(!r){ toast('Nenhum(a) '+nm+' por perto'); return; }
@@ -4800,6 +4805,33 @@ function runFx(dt){ const on=P.running&&P.sp>3&&!P.swim&&!P.mounted&&!P.boat&&!P
       r.g.position.set(P.x+px+P.dx*fw,P.h+P.jz+.2+Math.random()*1.35,P.y+py+P.dy*fw); r.g.rotation.set(0,f-Math.PI/2,(Math.random()-.5)*.25); r.life=r.max=.22+Math.random()*.16; r.len=.7+Math.random()*.9; r.g.visible=true; } } else RFXa=0;
   for(const r of RFX){ if(r.life<=0) continue; r.life-=dt; if(r.life<=0){ r.g.visible=false; r.m.opacity=0; continue; } const k=r.life/r.max; r.m.opacity=.55*Math.sin(Math.PI*k); r.g.scale.set(r.len*(1.4-.6*k),1,1); } }
 function staUse(n){ if((P.sta||0)<n){ addText(P.x,P.y,P.h+P.jz+2.2,'Sem fôlego!','#e8ff9a',14); return false; } P.sta-=n; P.staT=.9; return true; }
+
+/* rota automática: A* nos ladrilhos (desvia de árvore, pedra, parede; evita água) */
+function pathFind(sx,sy,gx,gy){ if(DG) return null; const x0=Math.floor(Math.min(sx,gx))-14, y0=Math.floor(Math.min(sy,gy))-14, W=Math.min(110,Math.floor(Math.abs(gx-sx))+29), H=Math.min(110,Math.floor(Math.abs(gy-sy))+29);
+  const N=W*H, g=new Float32Array(N).fill(1e9), from=new Int32Array(N).fill(-1), st=new Uint8Array(N), cost=new Float32Array(N).fill(-1);
+  const SW=SWIMOK, CZ=CLIMBZ; SWIMOK=true; CLIMBZ=0;
+  const cst=i=>{ if(cost[i]>=0) return cost[i]; const tx=x0+i%W, ty=y0+(i/W|0); let c=0; if(!walkable(tx,ty)) c=1e9; else { tile(tx,ty); c=gT===T.WATER?6:1; if(pathD(tx+.5,ty+.5)<RW) c*=.8; } cost[i]=c; return c; };
+  const sxi=Math.floor(sx)-x0, syi=Math.floor(sy)-y0, gxi=Math.max(0,Math.min(W-1,Math.floor(gx)-x0)), gyi=Math.max(0,Math.min(H-1,Math.floor(gy)-y0));
+  if(sxi<0||syi<0||sxi>=W||syi>=H){ SWIMOK=SW; CLIMBZ=CZ; return null; }
+  const h=i=>{ const dx=Math.abs(i%W-gxi), dy=Math.abs((i/W|0)-gyi); return Math.max(dx,dy)+.41*Math.min(dx,dy); };
+  const heap=[], push=(i,f)=>{ heap.push([f,i]); let k=heap.length-1; while(k>0){ const p=(k-1)>>1; if(heap[p][0]<=heap[k][0]) break; [heap[p],heap[k]]=[heap[k],heap[p]]; k=p; } },
+    pop=()=>{ const top=heap[0], last=heap.pop(); if(heap.length){ heap[0]=last; let k=0; for(;;){ const l=2*k+1, r=l+1; let m=k; if(l<heap.length&&heap[l][0]<heap[m][0]) m=l; if(r<heap.length&&heap[r][0]<heap[m][0]) m=r; if(m===k) break; [heap[m],heap[k]]=[heap[k],heap[m]]; k=m; } } return top; };
+  const s0=syi*W+sxi, goal=gyi*W+gxi; g[s0]=0; push(s0,h(s0)); let best=s0, bh=h(s0), n=0;
+  const D=[[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.414],[1,-1,1.414],[-1,1,1.414],[-1,-1,1.414]];
+  while(heap.length&&n++<9000){ const [,i]=pop(); if(st[i]) continue; st[i]=1; if(i===goal){ best=i; break; } const hi=h(i); if(hi<bh){ bh=hi; best=i; }
+    const ix=i%W, iy=i/W|0;
+    for(const [dx,dy,dc] of D){ const nx=ix+dx, ny=iy+dy; if(nx<0||ny<0||nx>=W||ny>=H) continue; const j=ny*W+nx; if(st[j]) continue; const c=cst(j); if(c>=1e9) continue;
+      if(dx&&dy&&(cst(iy*W+nx)>=1e9||cst(ny*W+ix)>=1e9)) continue; const ng=g[i]+dc*c; if(ng<g[j]){ g[j]=ng; from[j]=i; push(j,ng+h(j)); } } }
+  SWIMOK=SW; CLIMBZ=CZ;
+  const out=[]; let k=best; while(k>=0&&k!==s0){ out.push([x0+k%W+.5,y0+(k/W|0)+.5]); k=from[k]; } out.reverse();
+  if(out.length>2){ const sm=[out[0]]; for(let i=1;i<out.length-1;i++){ const a=sm[sm.length-1], c=out[i+1]; if(!lineFree(a[0],a[1],c[0],c[1])) sm.push(out[i]); } sm.push(out[out.length-1]); return sm; }
+  return out; }
+function lineFree(ax,ay,bx,by){ const d=Math.hypot(bx-ax,by-ay), n=Math.ceil(d/.35); for(let i=1;i<n;i++){ const t=i/n, x=ax+(bx-ax)*t, y=ay+(by-ay)*t; for(const [ox,oy] of [[.28,0],[-.28,0],[0,.28],[0,-.28]]){ const tx=Math.floor(x+ox), ty=Math.floor(y+oy); if(!walkable(tx,ty)) return false; tile(tx,ty); if(gT===T.WATER) return false; } } return true; }
+/* caçar um bicho: vai até a região, faz ele aparecer por perto e anda até ele */
+function huntTick(dt){ const H=P.hunt; if(!H) return; H.t-=dt; H.chk=(H.chk||0)-dt; if(H.t<=0||DG||P.dead){ P.hunt=null; return; } if(H.chk>0) return; H.chk=.4;
+  let best=null, bd=38; for(const m of mobs){ if(m.dead||m.key!==H.key||m.dummy||m.duel) continue; const d=Math.hypot(m.x-P.x,m.y-P.y); if(d<bd){ bd=d; best=m; } }
+  if(best){ if(bd<RANGE+.5){ P.target=best; P.autoGo=null; P.move=null; P.hunt=null; toast('Achei: '+best.def.name+'!'); sfx.pick&&sfx.pick(); return; }
+    if(!H.seen){ H.seen=1; toast(best.def.name+' à vista!'); } P.autoGo={x:best.x,y:best.y,hunt:1}; } }
 function jump(){ if(P.dead||paused||P.swim||P.down>0||P.boat||P.ride||P.cart) return; if(P.pack&&(P.jz>.02||P.jumps>=1)) return;
   const now=time, fast=now-(P.lastJ||-9)<JUMP_FAST; P.lastJ=now;
   const ground=P.jz<=.02&&!(P.jumps>=1);
