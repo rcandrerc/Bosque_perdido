@@ -444,7 +444,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.89</div>
+    <div id="ver">v0.90</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -1689,7 +1689,8 @@ const LMNAME={ruin:'Ruínas Esquecidas',temple:'Templo em Ruínas',statue:'Está
 }
 function siteBlock(tx,ty){
   const x=tx+.5, y=ty+.5;
-  for(const d of DGDEF){ if(Math.abs(x-d.mx)>7) continue; if(Math.hypot(x-d.mx,y-d.my)<2.3) return true; }
+  for(const d of DGDEF){ if(Math.abs(x-d.mx)>7) continue; const dx=x-d.mx, dy=y-d.my, cs=Math.cos(d.rot), sn=Math.sin(d.rot), lx=dx*cs-dy*sn, lz=dx*sn+dy*cs;
+    if(Math.abs(lx)<3.6&&lz<1.75&&lz>-3&&!(Math.abs(lx)<1&&lz>.9)) return true; { const gx=-2.65, gz=3.45; if(Math.hypot(lx-gx,lz-gz)<.45) return true; } }
   for(const w of WAYS){ if(Math.abs(x-w.x)<.8&&Math.abs(y-w.y)<.8) return true; }
   if(lmBlock(x,y)) return true;
   if(Math.abs(x-DUMX)<.6&&Math.abs(y-DUMY)<.6) return true;
@@ -3106,7 +3107,7 @@ function yPotPut(n){ n=Math.min(n,P.potions,YPOTMAX-(Y.pots|0)); if(n<=0){ toast
 function yPotMenu(){ openMenu('Poções da Yuki','A Yuki guarda até '+YPOTMAX+' poções e bebe sozinha quando a vida dela fica baixa. Ela tem '+(Y.pots|0)+'. Você tem '+P.potions+'.',[
   ['Guardar 5',()=>{ yPotPut(5); closeDialog(); renderInv(); doSave(); }],['Encher ('+YPOTMAX+')',()=>{ yPotPut(YPOTMAX); closeDialog(); renderInv(); doSave(); }],
   ['Pegar de volta',()=>{ P.potions+=(Y.pots|0); Y.pots=0; sfx.pick(); closeDialog(); renderInv(); doSave(); }],['Fechar',closeDialog,1]]); }
-function yAutoPot(dt){ Y.pcd=(Y.pcd||0)-dt; if(!Y.owned||Y.hurt||!(Y.pots>0)||Y.pcd>0||Y.hp>yMax()*.4||Y.hp<=0) return; Y.pots--; Y.pcd=POTCD; const a=Math.round(yMax()*.6); Y.hp=Math.min(yMax(),Y.hp+a); mqEv('yheal'); sfx.potion(); addText(Y.x,Y.y,(Y.h||0)+1,'+'+a,'#86d36e',15); addParts(Y.x,Y.y,Y.h||0,'#86d36e',8,1,3); if(Y.pots===0) toast('As poções da Yuki acabaram'); else if(Y.pots===3) toast('A Yuki só tem 3 poções'); }
+function yAutoPot(dt){ Y.pcd=(Y.pcd||0)-dt; if(!Y.owned||Y.hurt||!(Y.pots>0||P.potions>0)||Y.pcd>0||Y.hp>yMax()*.4||Y.hp<=0) return; if(Y.pots>0) Y.pots--; else { P.potions--; if(!Y.potTip){ Y.potTip=1; toast('A Yuki pegou uma poção sua (o estoque dela acabou)'); } } Y.pcd=POTCD; const a=Math.round(yMax()*.6); Y.hp=Math.min(yMax(),Y.hp+a); mqEv('yheal'); sfx.potion(); addText(Y.x,Y.y,(Y.h||0)+1,'+'+a,'#86d36e',15); addParts(Y.x,Y.y,Y.h||0,'#86d36e',8,1,3); if(Y.pots===0) toast('As poções da Yuki acabaram'); else if(Y.pots===3) toast('A Yuki só tem 3 poções'); }
 function updateYuki(dt){ yAutoPot(dt); if(YV._gv!==((EQ.ycol||{}).id||'')+((EQ.ybody||{}).id||'')){ YV._gv=((EQ.ycol||{}).id||'')+((EQ.ybody||{}).id||''); yukiGearVis(); }
   Y.anim+=dt; Y.cd-=dt; Y.swing=Math.max(0,Y.swing-dt/.35); Y.moving=false; Y.hitT=Math.max(0,(Y.hitT||0)-dt);
   if(!Y.owned){
@@ -4468,7 +4469,7 @@ function drawMini(){
   if(NET.peers){ mctx.fillStyle='#ff6fd0'; for(const pe of NET.peers.values()){ if(!pe.live||!pe.e) continue; let [u,v]=toMM(pe.e.x-P.x,pe.e.y-P.y); const l=Math.max(Math.abs(u),Math.abs(v)); if(l>44){ u*=44/l; v*=44/l; } mctx.beginPath(); mctx.arc(47.5+u,47.5+v,3.5,0,6.283); mctx.fill(); } }
   for(const [k,st] of structs){ const tx=Math.floor(k/80000)-40000, ty=k%80000-40000, [u,v]=toMM(tx+.5-P.x,ty+.5-P.y); if(Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle=st.t==='bench'||st.t==='furnace'||st.t==='bed'?'#ffd166':st.t?'#9a6a3a':'#b8b0a2'; mctx.fillRect(47.5+u-2,47.5+v-2,4,4); } }
   if(DG){ const I=DG.I; for(const p of [I.exitP,I.bossP]){ if(!p.visible) continue; const [u,v]=toMM(p.position.x-P.x,p.position.z-P.y); if(Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle='#8ff0ff'; mctx.fillRect(47.5+u-3,47.5+v-3,6,6); } } }
-  else for(const st of SITES){ const [u,v]=toMM(st.x-P.x,st.y-P.y); if(Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle=st.type==='dg'?'#c79aff':(wayOn(st.w)?'#8ff0ff':'#8a8a8a'); mctx.fillRect(47.5+u-3,47.5+v-3,6,6); } }
+  else for(const st of SITES){ if(st.type==='guard') continue; const [u,v]=toMM(st.x-P.x,st.y-P.y); if(Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle=st.type==='dg'?'#c79aff':(wayOn(st.w)?'#8ff0ff':'#8a8a8a'); mctx.fillRect(47.5+u-3,47.5+v-3,6,6); } }
   for(const n of NPCS){ if(DG) break; const [u,v]=toMM(n.x-P.x,n.y-P.y); if(Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle='#6fd0ff'; mctx.fillRect(47.5+u-2.5,47.5+v-2.5,5,5); } }
   { const q=questInfo(); if(q){ let [u,v]=toMM(q.t.x-P.x,q.t.y-P.y); const l=Math.hypot(u,v); if(l>42){ u*=42/l; v*=42/l; } mctx.fillStyle='#ffd23f'; mctx.beginPath(); mctx.arc(47.5+u,47.5+v,3.5,0,6.283); mctx.fill(); mctx.strokeStyle='#5a3a00'; mctx.stroke(); } }
   { const [u,v]=toMM(Y.x-P.x,Y.y-P.y); if((Y.owned||Q.cat===1)&&Math.abs(u)<46&&Math.abs(v)<46){ mctx.fillStyle='#ffc9ec'; mctx.fillRect(47.5+u-2,47.5+v-2,4,4); } }
@@ -4561,7 +4562,7 @@ function mobSpot(key){ let best=null;
 function mapList(){
   const it=(col,t,sub,x,y)=>'<button data-mx="'+x+'" data-my="'+y+'"><i style="background:'+col+'"></i><span>'+t+(sub?'<small>'+sub+'</small>':'')+'</span></button>';
   let h='<h4>Lugares</h4>'+it('#ffe7a8','Vila da Fogueira','Sua família mora aqui. Lojas e missões.',0,2)+it('#e8c46a','Terreno da Luíza','Espaço livre na vila pra construir sua casa.',0,(LPLOT.y0+LPLOT.y1)/2)+it('#ff9a6a',ISL.n,'No meio do mar do sul. Só dá pra chegar de barquinho. Monstros nível 34+ e o Titã, chefe da ilha.',ISL.x,ISL.y)+it('#b8b2a6','Pedreira','Muita pedra pra quebrar. Tem uma estradinha saindo da estrada principal.',QUARRY.x,QUARRY.y)+it('#4f9a44','Bosque de Lenha','Árvores juntinhas pra cortar madeira. Tem uma estradinha saindo da estrada principal.',WOODS.x,WOODS.y)+it('#c9463d','Acampamento dos Lenhadores','O Dindo. Posto de troca de packs.',NPCPOS.juca[0],NPCPOS.juca[1])+it('#a87448','Acampamento dos Caçadores','A Tia Sandra. Posto de troca de packs.',NPCPOS.marta[0],NPCPOS.marta[1])+it('#4a7aa8','Porto do Mar do Sul','A Tia Bia. Posto de troca de packs e saída pro mar.',NPCPOS.bia[0],NPCPOS.bia[1])+it('#ffd23f','Sítio dos girassóis','O Tio Ão vende sementes e compra o que você colher.',NPCPOS.tonho[0],NPCPOS.tonho[1]);
-  for(const d of DGDEF){ if(DISC.has('dg:'+d.i)) h+=it(DGC[d.i]?'#8a7a9a':'#b07cff',d.name,(dgDoneToday(d.i)?'Vencida hoje':'Chefe: '+d.bname)+' · <b style="color:'+nameColor(d.lvl)+'">Nv '+d.lvl+'</b>',d.fx,d.fy); }
+  for(const d of DGDEF){ if(DISC.has('dg:'+d.i)) h+=it(DGC[d.i]?'#8a7a9a':'#b07cff',d.name,('Chefe: '+d.bname)+' · <b style="color:'+nameColor(d.lvl)+'">Nv '+d.lvl+'</b>',d.fx,d.fy); }
   h+='<h4>Pessoas</h4>';
   for(const n of NPCS){ if(DISC.has('npc:'+n.id)) h+=it('#6fd0ff',n.name,(NPCFN[n.id]?NPCFN[n.id][0]+' · ':'')+(n.role||''),n.x,n.y); }
   h+='<h4>Monstros</h4>';
@@ -6466,16 +6467,33 @@ const SITES=[];
     const g=new THREE.Group(); g.position.set(d.mx,hgt(d.mx,d.my),d.my); g.rotation.y=d.rot; scene.add(g);
     const rm=new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true,color:RT[d.theme],map:VT2.rock}); seeThrough(rm,0);
     const rock=(sx,sy,sz,x,y,z,r)=>{ const m=new THREE.Mesh(V.rock,rm); m.scale.set(sx,sy,sz); m.position.set(x,y,z); m.rotation.y=r||0; m.castShadow=true; m.receiveShadow=true; g.add(m); return m; };
-    rock(3,2.3,2.6,0,.5,-.2,.3); rock(1.8,1.6,1.6,-2,.2,.4,1.2); rock(1.7,1.9,1.5,2.1,.3,.2,2.1); rock(1.2,1,1.2,-1.4,1.7,-.4,.7); rock(1.1,.9,1.1,1.3,1.8,-.3,2.5);
-    const moss=mat(MOSS[d.theme],{roughness:.95}); for(const [sx,sy,sz,x,y,z] of [[1.25,.42,1.1,-.2,2.2,-.4],[.8,.35,.7,.9,2.15,-.1],[.7,.3,.6,-1.1,2.05,.1]]){ const m=new THREE.Mesh(V.leaf,moss); m.scale.set(sx,sy,sz); m.position.set(x,y,z); m.castShadow=true; g.add(m); }
-    const hole=new THREE.Mesh(new THREE.CircleGeometry(1.05,28,0,Math.PI),new THREE.MeshBasicMaterial({color:0x050404})); hole.position.set(0,.02,1.72); g.add(hole);
-    const inner=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,1.1,24,1,true,-Math.PI/2,Math.PI),new THREE.MeshBasicMaterial({color:0x0a0806,side:THREE.BackSide})); inner.rotation.x=Math.PI/2; inner.position.set(0,0,1.2); g.add(inner);
-    const arch=new THREE.Mesh(new THREE.TorusGeometry(1.17,.2,8,18,Math.PI),mat('#9d978d',{roughness:.85})); arch.position.set(0,0,1.78); arch.castShadow=true; g.add(arch);
-    for(const k of [0,1,2,3,4,5,6]){ const a=k/6*Math.PI, b=part(G.box,mat('#8a847a',{roughness:.85}),.26,.2,.3,Math.cos(a)*1.17,Math.sin(a)*1.17,1.8,g); b.rotation.z=a+Math.PI/2; }
+    /* morro de pedra alto em volta da boca da caverna */
+    rock(4.4,3.9,3.2,0,1.05,-.9,.3); rock(2.6,3.0,2.4,-2.7,.7,.1,1.2); rock(2.5,3.2,2.3,2.7,.8,0,2.1); rock(2,1.6,1.8,-1.1,3.1,-.8,.7); rock(1.9,1.5,1.7,1.3,3.2,-.7,2.5); rock(1.5,1.2,1.4,0,3.6,-1,1.4);
+    const moss=mat(MOSS[d.theme],{roughness:.95}); for(const [sx,sy,sz,x,y,z] of [[1.5,.45,1.3,-.3,3.9,-.8],[1,.38,.9,1.2,3.75,-.5],[.9,.32,.8,-1.4,3.6,-.4],[1.1,.35,.9,-2.6,2.4,.3],[1,.3,.8,2.7,2.5,.2]]){ const m=new THREE.Mesh(V.leaf,moss); m.scale.set(sx,sy,sz); m.position.set(x,y,z); m.castShadow=true; g.add(m); }
+    /* boca da caverna: bem maior que o personagem */
+    const OW=1.35, OH=2.35, Z0=1.95;
+    const hole=new THREE.Mesh(new THREE.CircleGeometry(1,32,0,Math.PI),new THREE.MeshBasicMaterial({color:0x040303})); hole.scale.set(OW,OH,1); hole.position.set(0,.02,Z0-.02); g.add(hole);
+    const tun=new THREE.Mesh(new THREE.CylinderGeometry(1,1,2.6,28,1,true,-Math.PI/2,Math.PI),new THREE.MeshBasicMaterial({color:0x0a0806,side:THREE.BackSide})); tun.rotation.x=Math.PI/2; tun.scale.set(OW,1,OH); tun.position.set(0,0,Z0-1.3); g.add(tun);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(OW*2,2.6).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x1a120c})); floor.position.set(0,.03,Z0-1.3); g.add(floor);
+    const stoneA=new THREE.MeshStandardMaterial({color:C(['#b0a99a','#9a8f80','#a39d94','#77708a'][d.theme]),map:VT2.rock,bumpMap:VT2.rock,bumpScale:.04,roughness:.95});
+    const NB=11; for(let k=0;k<NB;k++){ const a=Math.PI*(k+.5)/NB, x=-Math.cos(a)*(OW+.22), y=Math.sin(a)*(OH+.22); const b=new THREE.Mesh(tbox(.6,.48,.7,.8),stoneA); b.position.set(x,y,Z0+.05); b.rotation.z=a-Math.PI/2; b.castShadow=true; g.add(b); }
+    { const ks=new THREE.Mesh(tbox(.7,.62,.8,.8),stoneA); ks.position.set(0,OH+.32,Z0+.08); ks.castShadow=true; g.add(ks); }
+    for(const sx of [-1,1]){ const b=new THREE.Mesh(tbox(.62,.5,.72,.8),stoneA); b.position.set(sx*(OW+.24),.25,Z0+.05); g.add(b); }
+    for(let k=0;k<5;k++){ const r=new THREE.Mesh(V.rock,rm); r.scale.setScalar(.25+Math.random()*.2); r.position.set((Math.random()-.5)*4.4,.08,Z0+.7+Math.random()*1.2); g.add(r); }
     const torchP=[];
-    for(const sx of [-1,1]){ const t=new THREE.Group(); t.position.set(sx*1.75,0,2.15); g.add(t); part(G.cyl,mat('#5a3a22'),.06,1.3,.06,0,.65,0,t); part(G.cyl,mat('#3a3a40',{metalness:.6,roughness:.4}),.11,.1,.11,0,1.32,0,t); torchP.push(t); }
-    const sign=new THREE.Group(); sign.position.set(-2.6,0,2.7); sign.rotation.y=.3; g.add(sign); part(G.cyl,mat('#6b4a2c'),.06,1.1,.06,0,.55,0,sign); part(G.box,mat('#b98a58'),.9,.4,.06,0,1.05,.04,sign);
+    for(const sx of [-1,1]){ const t=new THREE.Group(); t.position.set(sx*(OW+.85),0,Z0+.45); g.add(t); part(G.cyl,mat('#5a3a22'),.07,1.5,.07,0,.75,0,t); part(G.cyl,mat('#3a3a40',{metalness:.6,roughness:.4}),.12,.12,.12,0,1.52,0,t); torchP.push(t); }
+    /* placa com o nome */
+    { const sg=new THREE.Group(); sg.position.set(-(OW+3.3),0,Z0+.6); sg.rotation.y=.45; g.add(sg); const wd=new THREE.MeshStandardMaterial({color:C('#a0764a'),map:VT2.oldwood,roughness:.95});
+      part(G.cyl,wd,.07,1.5,.07,-.55,.75,0,sg); part(G.cyl,wd,.07,1.5,.07,.55,.75,0,sg);
+      const cv=document.createElement('canvas'); cv.width=512; cv.height=200; const c2=cv.getContext('2d'); c2.fillStyle='#8a5e36'; c2.fillRect(0,0,512,200); for(let k=0;k<70;k++){ c2.strokeStyle='rgba(50,30,15,'+(.08+Math.random()*.14)+')'; c2.lineWidth=1+Math.random()*2; const y=Math.random()*200; c2.beginPath(); c2.moveTo(0,y); c2.bezierCurveTo(170,y+6,340,y-6,512,y+3); c2.stroke(); }
+      c2.strokeStyle='#4a2f18'; c2.lineWidth=12; c2.strokeRect(6,6,500,188); c2.fillStyle='#f6e2b8'; c2.textAlign='center'; c2.textBaseline='middle'; const nm=d.name; let fs=nm.length>18?50:60; c2.font='bold '+fs+'px Georgia,serif'; c2.shadowColor='rgba(0,0,0,.6)'; c2.shadowBlur=6; c2.fillText(nm,256,82); c2.font='bold 34px Georgia,serif'; c2.fillStyle='#ffd27a'; c2.fillText('Nv '+d.lvl+' · Chefe: '+d.bname,256,150);
+      const tx=new THREE.CanvasTexture(cv); tx.encoding=THREE.sRGBEncoding; const bd=new THREE.Mesh(new THREE.BoxGeometry(1.5,.6,.07),[wd,wd,wd,wd,new THREE.MeshStandardMaterial({map:tx,roughness:.9}),wd]); bd.position.set(0,1.25,.05); bd.castShadow=true; sg.add(bd); }
     SITES.push({type:'dg',d,g,torchP,x:d.fx,y:d.fy,r:1.2,arm:true});
+    { const lx=-2.65, lz=Z0+1.5, cs=Math.cos(d.rot), sn=Math.sin(d.rot), wx=d.mx+lx*cs+lz*sn, wy=d.my-lx*sn+lz*cs;
+      const GO=[{skin:'#e3b48c',cloth:'#6b7a8a',cloth2:'#3a4450',hair:'#3a2a1a',beard:1,leg:'#3a4450',shoe:'#2a1a10'},{skin:'#c98a62',cloth:'#7a5a3a',cloth2:'#4a3a2a',hair:'#1a1210',leg:'#4a3a2a',shoe:'#2a1a10'},{skin:'#d9a07a',cloth:'#8a6a2a',cloth2:'#5a4a2a',hair:'#6a6a6a',beard:1,leg:'#4a3a2a',shoe:'#2a1a10'},{skin:'#b98a72',cloth:'#4a3a5a',cloth2:'#2a2236',hair:'#d8d4e0',leg:'#2a2236',shoe:'#1a1218'}][d.theme];
+      const gv=buildNPC(GO); gv.root.position.set(wx,hgt(wx,wy),wy); gv.root.rotation.y=d.rot+.45; mergeFlat(gv.root); addOutline(gv.root); scene.add(gv.root);
+      const sp=part(G.cyl,mat('#6b4a2c'),.04,2.2,.04,.42,1.1,.1,gv.root); const tip=part(G.cone,mat('#c8ccd4',{metalness:.7,roughness:.3}),.07,.28,.07,.42,2.32,.1,gv.root);
+      SITES.push({type:'guard',d,g:gv.root,w:{x:wx,y:wy},torchP:[],x:wx,y:wy,r:1.1,arm:true}); }
   }
   for(const w of WAYS){
     const g=new THREE.Group(); g.position.set(w.x,hgt(w.x,w.y),w.y); scene.add(g);
@@ -6591,8 +6609,8 @@ function spawnDungeonMobs(){
   I.spawns.mins.forEach((p,k)=>{ let [x,y]=p; for(let t=0;t<10&&!dgWalk(Math.floor(x),Math.floor(y));t++){ x=p[0]+rnd(-1.5,1.5); y=p[1]+rnd(-1.5,1.5); } if(!dgWalk(Math.floor(x),Math.floor(y))) return; const key=d.mins[k%d.mins.length]; const m=makeMob(key,x,y,{lvl:L+rint(1,3)}); mobs.push(m); });
   const b=makeMob(d.boss,I.spawns.boss[0],I.spawns.boss[1],{lvl:L+2,def:bossDef(d)}); b.boss=true; b.slamT=3.5; b.face=0; addCrown(b); mobs.push(b); DG.boss=b;
 }
-function enterDungeon(i){ if(P.pack){ toast('Deixe o pack do lado de fora antes de entrar'); sfx.err(); return; } if(dgDoneToday(i)){ toast('Você já venceu essa masmorra hoje. Volta em '+untilMidnight()); return; } if(VISIT){ toast('Masmorras só no seu próprio mundo, por enquanto'); return; } if(NET.host&&NET.peers&&NET.peers.size){ toast('Seus amigos estão no seu mundo: masmorra fica pra depois'); return; } if(P.mounted) mount(false);
-  closeDialog(); sfx.portal(); const d=DGDEF[i];
+function enterDungeon(i){ if(P.pack){ toast('Deixe o pack do lado de fora antes de entrar'); sfx.err(); return; } if(count('pass'+i)<1){ toast('Você precisa do '+IT['pass'+i].n+'. Fale com o guardião da entrada.'); sfx.err&&sfx.err(); return; } if(VISIT){ toast('Masmorras só no seu próprio mundo, por enquanto'); return; } if(NET.host&&NET.peers&&NET.peers.size){ toast('Seus amigos estão no seu mundo: masmorra fica pra depois'); return; } if(P.mounted) mount(false);
+  take('pass'+i,1); closeDialog(); sfx.portal(); const d=DGDEF[i];
   fadeDo(()=>{ clearMobs(); const I=getInterior(i); DG={i,d,I,boss:null,won:false};
     I.root.visible=true; I.chest.visible=false; I.chest.userData.open=false; I.chest.userData.lid.rotation.x=0; I.bossP.visible=false;
     setWorldVis(false,DTH[d.theme]); placeParty(I.spawns.entry[0],I.spawns.entry[1]); spawnDungeonMobs();
@@ -6604,7 +6622,21 @@ function teleportTo(w){ if(P.pack){ closeDialog(); toast('Com pack nas costas n�
   fadeDo(()=>{ if(DG) leaveDG(); const dy=w.id==='camp'?1.2:(w.d.rot?-1.3:1.3); placeParty(w.x,w.y+dy); streamWorld(); spark(P.x,P.h+.6,P.y,'#8ff0ff',18,2,2.5); }); }
 function openMenu(title,text,btns,html){ dlgNPC=null; paused=true; P.sp=0; hideHint(); $('dn').textContent=NM(title); if(html) $('dtx').innerHTML=NM(html); else $('dtx').textContent=NM(text); const da=$('da'); da.innerHTML='';
   btns.forEach(b=>{ const e=document.createElement('button'); e.className='pb'+(b[2]?' gray':''); e.textContent=b[0]; e.onclick=b[1]; da.appendChild(e); }); $('dlg').classList.add('on'); sfx.pick(); }
-function siteMenu(s){
+
+/* passe de masmorra: o guardião da entrada cria com materiais dos monstros de fora */
+const DGPASS=[{need:[['gel',6],['leather',2]],gold:30},{need:[['fang',5],['leather',4]],gold:60},{need:[['bone',6],['iron',3]],gold:90},{need:[['bone',8],['crystal',3],['fang',4]],gold:140}];
+const GUARDN=['Guarda Bento','Guarda Lia','Mineiro Zé','Vigia Sombra'];
+function passCraft(i){ const R=DGPASS[i]; for(const [id,k] of R.need) if(count(id)<k){ toast('Falta '+IT[id].n.toLowerCase()); sfx.err&&sfx.err(); return false; } if(P.gold<R.gold){ toast('Faltam moedas'); sfx.err&&sfx.err(); return false; }
+  for(const [id,k] of R.need) take(id,k); P.gold-=R.gold; const left=addItem('pass'+i,1); if(left>0){ toast('Mochila cheia!'); } else { toast('Você recebeu: '+IT['pass'+i].n); sfx.level&&sfx.level(); } doSave(); return true; }
+function guardMenu(s){ const d=s.d, i=d.i, R=DGPASS[i], have=count('pass'+i);
+  let h='<div style="text-align:left;font-size:14px;line-height:1.5">Eu guardo a entrada de <b>'+d.name+'</b>. Só passa quem tiver o <b>'+IT['pass'+i].n+'</b>. Cada passe vale uma entrada.<br><br><b>Pra eu fazer um passe, me traga:</b><br>';
+  for(const [id,k] of R.need){ const c=count(id), ok=c>=k; h+='<span style="color:'+(ok?'#8dff7a':'#ff9a8a')+'">'+(ok?'✓':'✗')+' '+k+' '+IT[id].n+' ('+c+'/'+k+')</span><br>'; }
+  h+='<span style="color:'+(P.gold>=R.gold?'#8dff7a':'#ff9a8a')+'">'+(P.gold>=R.gold?'✓':'✗')+' '+R.gold+' moedas ('+P.gold+')</span><br>';
+  h+='<small style="color:#cbbfa8">Você tem '+have+' passe'+(have===1?'':'s')+' desta masmorra.</small></div>';
+  const can=R.need.every(([id,k])=>count(id)>=k)&&P.gold>=R.gold;
+  openMenu(GUARDN[i],'',[[can?'Criar passe':'Ainda faltam coisas',()=>{ if(passCraft(i)){ closeDialog(); setTimeout(()=>guardMenu(s),60); } }],['Tchau',closeDialog,1]]); $('dtx').innerHTML=h; }
+
+function siteMenu(s){ if(s.type==='guard'){ guardMenu(s); return; }
   if(s.type==='dg'){ const d=s.d, won=DGC[d.i]>0;
     const S=SETS[d.i], col=nameColor(d.lvl), df=d.lvl-P.lvl, pc=v=>(Math.round(v*1000)/10)+'%', done=dgDoneToday(d.i);
     let h='<div style="text-align:left;font-size:14px;line-height:1.45">'+(won?'Você já venceu '+d.bname+', mas ele volta todo dia.':'Dá pra ouvir alguma coisa grande lá no fundo…')+'<br>Chefe: <b>'+d.bname+'</b><br>';
@@ -6613,9 +6645,9 @@ function siteMenu(s){
     h+='<div style="margin-top:8px"><b>O que pode cair</b></div><div style="font-size:13px">';
     h+='★ Peça de Bruxa no baú (sempre): <b style="color:'+RAR[4].c+'">Mítica '+pc(WZBOSS.m[d.i])+'</b> · <b style="color:'+RAR[3].c+'">Lendária '+pc(WZBOSS.l[d.i])+'</b> · senão Épica ou Rara<br>Peça por monstro — <b>3,5%</b> (elite 10,5%)<br>';
     h+='Sempre: '+d.loot.map(([id,n])=>n+'–'+(n+2)+' '+IT[id].n).join(', ')+', 2 poções</div>';
-    h+=done?'<div style="margin-top:8px;color:#ffb3a3"><b>Você já venceu hoje.</b> Volta em '+untilMidnight()+'.</div>':'<div style="margin-top:8px;color:#cbbfa8;font-size:12.5px">Cada masmorra pode ser vencida 1 vez por dia.</div>';
+    { const np=count('pass'+d.i); h+=np?'<div style="margin-top:8px;color:#8dff7a"><b>🎟 Você tem '+np+' '+IT['pass'+d.i].n+'.</b> Entrar gasta 1.</div>':'<div style="margin-top:8px;color:#ffb3a3"><b>🎟 Precisa do '+IT['pass'+d.i].n+'.</b> Fale com '+GUARDN[d.i]+', o guardião aqui na entrada.</div>'; }
     h+='</div>';
-    openMenu(d.name,'',done?[['Ok',closeDialog]]:[['Entrar',()=>enterDungeon(d.i)],['Agora não',closeDialog,1]],h); return; }
+    openMenu(d.name,'',count('pass'+d.i)?[['Entrar (gasta 1 passe)',()=>enterDungeon(d.i)],['Agora não',closeDialog,1]]:[['Falar com o guardião',()=>{ closeDialog(); setTimeout(()=>{ const gs=SITES.find(q=>q.type==='guard'&&q.d===d); if(gs) guardMenu(gs); },60); }],['Agora não',closeDialog,1]],h); return; }
   if(s.type==='way'){ const w=s.w;
     if(!wayOn(w)){ openMenu('Pedra de Teleporte','A pedra está apagada. Derrote '+w.d.bname+' dentro da '+w.d.name+' para acendê-la.',[['Entendi',closeDialog]]); return; }
     const tpc=o=>Math.max(5,Math.round(Math.hypot(o.x-w.x,o.y-w.y)/8));
@@ -6692,6 +6724,8 @@ function drawSiteLabels(g){
   if(DG) return;
   for(const s of SITES){ if(Math.hypot(s.x-P.x,s.y-P.y)>22) continue;
     if(s.type==='dg'){ const p=proj(s.d.mx,hgt(s.d.mx,s.d.my)+3.3,s.d.my); if(!p.ok) continue; const t=s.d.name+' · Nv '+s.d.lvl; g.strokeText(t,p.x,p.y); g.fillStyle=DGC[s.d.i]?'#b8f0ff':'#ffd9a0'; g.fillText(t,p.x,p.y); }
+    else if(s.type==='guard'){ const p=proj(s.w.x,hgt(s.w.x,s.w.y)+2.1,s.w.y); if(!p.ok) continue; const t=GUARDN[s.d.i]; g.strokeText(t,p.x,p.y); g.fillStyle='#bfe7ff'; g.fillText(t,p.x,p.y); g.font='italic 700 10.5px Georgia,serif'; g.strokeText('« Guardião · passes »',p.x,p.y+13); g.fillStyle='#ffd27a'; g.fillText('« Guardião · passes »',p.x,p.y+13); g.font='700 12.5px system-ui';
+      if(!count('pass'+s.d.i)){ const b=Math.sin(time*4)*3; g.font='900 24px system-ui'; g.lineWidth=5; g.strokeText('!',p.x,p.y-18+b); g.fillStyle='#ffd23f'; g.fillText('!',p.x,p.y-18+b); g.font='700 12.5px system-ui'; g.lineWidth=3.5; } }
     else { const p=proj(s.w.x,hgt(s.w.x,s.w.y)+2.95,s.w.y); if(!p.ok) continue; const on=wayOn(s.w), t=on?'Pedra de Teleporte':'Pedra apagada'; g.strokeText(t,p.x,p.y); g.fillStyle=on?'#9ff6ff':'#c8c4bc'; g.fillText(t,p.x,p.y); }
   }
 }
@@ -7252,6 +7286,10 @@ Object.assign(IT,{
   coal:{n:'Carvão',st:99,d:'Sai do forno quando você queima madeira. Combustível forte: dura 4 vezes mais que madeira.'},
   fuel:{n:'Combustível',st:20,d:'Galão pro carrinho de carga. Cada um roda uns 160 passos.'},
   cart:{n:'Carrinho de carga',d:'Carrinho a combustível. Leva 2 packs, e você ainda leva 1 nas costas. Quebra se apanhar muito dos monstros, mas dá pra consertar.'},
+  pass0:{n:'Passe: Toca das Gosmas',st:20,d:'Abre a Toca das Gosmas uma vez. O guardião da entrada cria com gosma e couro.'},
+  pass1:{n:'Passe: Covil do Lobo',st:20,d:'Abre o Covil do Lobo Cinzento uma vez. Feito com presas e couro.'},
+  pass2:{n:'Passe: Mina Abandonada',st:20,d:'Abre a Mina Abandonada uma vez. Feito com ossos e ferro.'},
+  pass3:{n:'Passe: Coração Sombrio',st:20,d:'Abre o Coração Sombrio uma vez. Feito com ossos, cristal e presas.'},
   frag:{n:'Fragmento da Quimera',st:5,d:'Um pedaço do Coração da Quimera. Brilha e fica quentinho na mão. Junte os 5!'},
   chimstaff:{n:'Cajado da Quimera',slot:'weapon',mag:72,crit:.12,mana:30,dur:3000,d:'+72 de dano mágico, +12% de crítico e +30 de mana. Feito com o Coração da Quimera restaurado.'},
   potatoc:{n:'Batata assada',st:99,eat:18,food:30,d:'Quentinha, saída do forno.'},
@@ -7273,6 +7311,10 @@ Object.assign(ICO,{
   coal:svgI('<path d="M4 15l4-6 6-2 6 4 0 6-6 4-7-1z" fill="#2b2b30"/><path d="M8 9l3 4 3-6M14 13l6-2" stroke="#55555c" stroke-width="1"/>'),
   fuel:svgI('<path d="M6 6h10l3 3v12H6z" fill="#d0402e"/><path d="M8 3h5v3H8z" fill="#8a2a1e"/><path d="M10 12h5M10 16h5" stroke="#ffd6c8" stroke-width="1.6"/>'),
   cart:svgI('<path d="M3 9h18l-2 7H5z" fill="#c99a66" stroke="#6e4a2c"/><circle cx="7" cy="18" r="2.6" fill="#4a3a24"/><circle cx="17" cy="18" r="2.6" fill="#4a3a24"/><path d="M18 9V5h2" stroke="#6a6a72" stroke-width="2"/>'),
+  pass0:svgI('<rect x="4" y="5" width="16" height="14" rx="2" fill="#e8d6a8" stroke="#8a6a3a"/><circle cx="12" cy="12" r="4" fill="#7cc95a"/><path d="M6 8h3M15 16h3" stroke="#8a6a3a"/>'),
+  pass1:svgI('<rect x="4" y="5" width="16" height="14" rx="2" fill="#e8d6a8" stroke="#8a6a3a"/><path d="M8 15l4-7 4 7z" fill="#8a8f9a"/><path d="M6 8h3M15 16h3" stroke="#8a6a3a"/>'),
+  pass2:svgI('<rect x="4" y="5" width="16" height="14" rx="2" fill="#e8d6a8" stroke="#8a6a3a"/><path d="M8 9l8 6M16 9l-8 6" stroke="#9a7a5a" stroke-width="2"/><path d="M6 8h3M15 16h3" stroke="#8a6a3a"/>'),
+  pass3:svgI('<rect x="4" y="5" width="16" height="14" rx="2" fill="#c9b8d8" stroke="#5a4a6a"/><path d="M12 7l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#6a3a9a"/>'),
   frag:svgI('<path d="M12 2l5 7-3 13-7-9z" fill="#ff7ab8"/><path d="M12 2l-5 11 7 9" fill="#c94aff" opacity=".7"/><circle cx="12" cy="10" r="2" fill="#fff"/>'),
   chimstaff:svgI('<path d="M5 21L16 8" stroke="#6a3b8a" stroke-width="2.6" stroke-linecap="round"/><path d="M17 2l4 5-3 6-5-3z" fill="#ff7ab8"/><circle cx="17.5" cy="7" r="1.6" fill="#fff"/>'),
   potatoc:svgI('<ellipse cx="12" cy="13" rx="8" ry="6" fill="#a8783a"/><path d="M7 11l3 2M12 10l2 3" stroke="#ffe08a" stroke-width="1.4"/>'),
