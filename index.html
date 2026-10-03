@@ -445,7 +445,7 @@ body.inbuild #skills,body.inbuild #qt,body.inbuild #tut{display:none!important}#
 <div id="gmenu" role="dialog" aria-label="Menu">
   <div class="mbox">
     <div class="mlogo"><span class="leaf"></span><h1>Quimera Sandbox</h1><p id="msub">Crie o impossível e viva do seu jeito.</p><p class="mcred">criado por André Coutinho</p></div>
-    <div id="ver">v0.92</div>
+    <div id="ver">v0.93</div>
     <div class="mbtns" id="mmain">
       <button class="mb main" id="mplay">Jogar</button>
       <p class="mslh">👤 Personagens (toque pra trocar ou criar)</p>
@@ -5101,7 +5101,7 @@ function renderInv(){
   else if(invTab==='status') t=STH;
   else if(invTab==='all'){ const ks=Object.keys(IT).filter(k=>ICO[k]&&!IT[k].hide);
     t='<div class="sub" style="font-size:12px;color:var(--muted)">Modo criativo: toque num item e ele vai pra mochila (pilha cheia). Itens não acabam. <button class="pb gray sm" data-clrbag="1" style="margin-left:6px">Esvaziar mochila</button></div><div class="grid">'+ks.map(k=>slotHtml({id:k,n:1,d:IT[k].dur},'data-ci="'+k+'" title="'+IT[k].n+'"','',false)).join('')+'</div>'; }
-  else if(invTab==='bag') t='<div class="grid">'+BAG.map((q,i)=>slotHtml(q,'data-bag="'+i+'"','',sel&&sel.bag===i)).join('')+'</div>';
+  else if(invTab==='bag') t='<div style="display:flex;justify-content:flex-end;margin:0 0 6px"><button class="pb gray sm" data-sortbag="1">Organizar</button></div><div class="grid">'+BAG.map((q,i)=>slotHtml(q,'data-bag="'+i+'"','',sel&&sel.bag===i)).join('')+'</div>';
   else if(invTab==='craft'){
     const nb=nearBench(), nf=nearFurnace(); t='<div class="sub" style="font-size:12px;color:var(--muted)">'+(nb?'Perto da bancada: receitas da bancada liberadas.':'Longe da bancada: só receitas básicas.')+(nf?' Barras de metal: toque no forno e abra ele.':'')+'</div>';
     for(const r of RECIPES){ const it=IT[r.id], ok=canPay(r.cost)&&((typeof admActive==='function'&&admActive('cr'))||(!r.needBench||nb)&&(!r.needFurnace||nf)&&(!r.needFire||nearFire()));
@@ -5154,6 +5154,7 @@ inv.addEventListener('click',e=>{
   if(b.dataset.yp){ if(P.potions<=0||Y.hurt) return; P.potions--; mqEv('yheal'); const a=Math.round(yMax()*.6); Y.hp=Math.min(yMax(),Y.hp+a); sfx.potion(); sfx.meow(); addText(Y.x,Y.y,Y.h+1,'+'+a,'#86d36e',15); renderInv(); doSave(); return; }
   if(b.dataset.eq!==undefined){ sel=EQ[b.dataset.eq]?{eq:b.dataset.eq}:null; renderInv(); return; }
   if(b.dataset.ci){ const k=b.dataset.ci, it=IT[k]; if(!creativeFast()) return; const left=addItem(k,it.st||1); if(left>=(it.st||1)){ sfx.hurt(); toast('Mochila cheia: esvazie ou jogue algo fora'); return; } sfx.pick(); toast(it.n+' na mochila'); renderInv(); return; }
+  if(b.dataset.sortbag){ sortBag(); sel=null; sfx.pick(); renderInv(); doSave(); return; }
   if(b.dataset.clrbag){ for(let i=0;i<BAG.length;i++) BAG[i]=null; sel=null; sfx.pick(); renderInv(); doSave(); return; }
   if(b.dataset.bag!==undefined){ const i=+b.dataset.bag; sel=BAG[i]?{bag:i}:null; renderInv(); return; }
   if(b.dataset.cr){ const r=RECIPES.find(x=>x.id===b.dataset.cr); const crm=(typeof admActive==='function'&&admActive('cr')); if(!canPay(r.cost)||(!crm&&((r.needBench&&!nearBench())||(r.needFurnace&&!nearFurnace())||(r.needFire&&!nearFire())))) return; if(BAG.indexOf(null)<0&&!(IT[r.id].st&&BAG.some(x=>x&&x.id===r.id&&x.n<IT[r.id].st))){ sfx.hurt(); return; }
@@ -5821,15 +5822,28 @@ function applyDismantle(k,ps){ let v=structs.get(k); if(!v) return null; if(!ps)
 function netBuildEv(op,k,t,r,ex){ if(!NET.bQ) NET.bQ=[]; NET.bS=(NET.bS||Date.now())+1; NET.bQ.push([NET.bS,op,k,t||'',r|0,ex||0]); if(NET.bQ.length>30) NET.bQ.shift(); NET.evDirty=1; }
 function sbOf(k){ const [x,y]=kxy(k); return {k,x:x+.5,y:y+.5,v:structs.get(k)}; }
 
+/* organizar: junta pilhas iguais e ordena (equipamento, ferramentas, consumíveis, construção, materiais) */
+const ITORD={}; Object.keys(IT).forEach((k,i)=>ITORD[k]=i);
+function itCat(id){ const t=IT[id]||{}; return t.slot?0:t.tool?1:(t.eat||t.pot||t.heal||t.mp)?2:t.place?3:4; }
+function sortStacks(arr){ /* arr: [{id,n,d,e}] -> nova lista organizada */
+  const out=[]; for(const q of arr){ if(!q||!IT[q.id]) continue; const st=IT[q.id].st||1;
+    if(st>1&&!q.e&&q.d==null){ for(const o of out){ if(q.n<=0) break; if(o.id===q.id&&!o.e&&o.d==null&&o.n<st){ const k=Math.min(q.n,st-o.n); o.n+=k; q.n-=k; } } }
+    if(q.n>0) out.push({id:q.id,n:q.n,d:q.d,e:q.e|0}); }
+  out.sort((a,b)=>itCat(a.id)-itCat(b.id)||ITORD[a.id]-ITORD[b.id]||(b.e|0)-(a.e|0)||(b.d==null?0:b.d)-(a.d==null?0:a.d)||b.n-a.n); return out; }
+function sortBag(){ const o=sortStacks(BAG.map(q=>q&&{id:q.id,n:q.n,d:q.d,e:q.e})); for(let i=0;i<BAG.length;i++){ const q=o[i]; BAG[i]=q?Object.assign({id:q.id,n:q.n,d:q.d},q.e?{e:q.e}:{}):null; } }
+function sortChest(){ const v=structs.get(CHEST.k); if(!v) return; v.x.it=sortStacks(v.x.it.map(c=>({id:c[0],n:c[1],d:c[2]==null?undefined:c[2],e:c[3]|0}))).map(q=>[q.id,q.n,q.d==null?null:q.d,q.e|0]); }
 /* baú: guarda até 30 pilhas */
 const CHESTN=30;
 function chestOpen(k){ if(VISIT){ toast('Baú só no seu próprio mundo'); return; } const v=structs.get(k); if(!v||v.t!=='chest') return; if(!v.x||!Array.isArray(v.x.it)) v.x={it:[]}; CHEST.k=k; chestRender(); const g=structMesh.get(k); sfx.open&&sfx.open(); }
-const CHEST={k:null};
+const CHEST={k:null,open:null};
 function chestRender(){ const v=structs.get(CHEST.k); if(!v) return; const it=v.x.it, cell=(q,attr)=>q?'<button class="slot" '+attr+'>'+ICO[q[0]]+(q[1]>1?'<b>'+q[1]+'</b>':'')+(q[3]?'<u>+'+q[3]+'</u>':'')+'</button>':'<button class="slot" disabled></button>';
   let h='<div style="text-align:left;font-size:12.5px;color:#cbbfa8;margin-bottom:4px">Toque num item da <b>mochila</b> pra guardar. Toque no <b>baú</b> pra pegar de volta.</div><b>Baú ('+it.length+'/'+CHESTN+')</b><div class="chg">';
   for(let i=0;i<CHESTN;i++) h+=cell(it[i],'data-cout="'+i+'"');
   h+='</div><b>Mochila</b><div class="chg">'; BAG.forEach((q,i)=>{ h+=q?cell([q.id,q.n,q.d,q.e],'data-cin="'+i+'"'):'<button class="slot" disabled></button>'; }); h+='</div>';
-  openMenu('Baú','',[['Guardar tudo que der',()=>{ for(let i=0;i<BAG.length;i++) if(BAG[i]&&!IT[BAG[i].id].slot) chestPut(i,true); chestSave(); chestRender(); }],['Fechar',()=>{ CHEST.k=null; closeDialog(); }]]); $('dtx').innerHTML=h; }
+  const dl=$('dlg'), open=dl.classList.contains('on')&&CHEST.open===CHEST.k, sc=open?[dl.scrollTop,...[...$('dtx').querySelectorAll('.chg')].map(g=>g.scrollTop)]:null;
+  if(!open){ openMenu('Baú','',[['Organizar',()=>{ sortChest(); sortBag(); sfx.pick&&sfx.pick(); chestSave(); chestRender(); },1],['Guardar tudo que der',()=>{ for(let i=0;i<BAG.length;i++) if(BAG[i]&&!IT[BAG[i].id].slot) chestPut(i,true); chestSave(); chestRender(); }],['Fechar',()=>{ CHEST.k=null; CHEST.open=null; closeDialog(); }]]); }
+  CHEST.open=CHEST.k; $('dtx').innerHTML=h;
+  if(sc){ dl.scrollTop=sc[0]; $('dtx').querySelectorAll('.chg').forEach((g,i)=>{ if(sc[i+1]!=null) g.scrollTop=sc[i+1]; }); } }
 function chestPut(i,quiet){ const v=structs.get(CHEST.k), q=BAG[i]; if(!v||!q) return; const it=v.x.it, st=IT[q.id].st||1;
   if(st>1&&!q.e) for(const c of it){ if(q.n<=0) break; if(c[0]===q.id&&!c[3]&&c[1]<st){ const k=Math.min(q.n,st-c[1]); c[1]+=k; q.n-=k; } }
   while(q.n>0&&it.length<CHESTN){ const k=Math.min(q.n,st); it.push([q.id,k,q.d,q.e|0]); q.n-=k; }
@@ -5837,7 +5851,7 @@ function chestPut(i,quiet){ const v=structs.get(CHEST.k), q=BAG[i]; if(!v||!q) r
 function chestTake(j){ const v=structs.get(CHEST.k); if(!v) return; const c=v.x.it[j]; if(!c) return; const left=addItem(c[0],c[1],c[2]==null?undefined:c[2],c[3]|0); if(left>=c[1]){ toast('Mochila cheia'); return; } if(left>0) c[1]=left; else v.x.it.splice(j,1); }
 function chestSave(){ if(NET.host) netPushStructs(); doSave(); if(typeof renderInv==='function'&&$('inv').classList.contains('on')) renderInv(); }
 const CHT={t:0,x:0,y:0,b:null};
-function chestAct(b){ if(!CHEST.k||!b) return; if(b.dataset.cin!==undefined) chestPut(+b.dataset.cin); else chestTake(+b.dataset.cout); sfx.pick&&sfx.pick(); chestSave(); chestRender(); }
+function chestAct(b){ if(!CHEST.k||!b) return; if(b.dataset.cin!==undefined) chestPut(+b.dataset.cin); else chestTake(+b.dataset.cout); sfx.pick&&sfx.pick(); chestRender(); try{ chestSave(); }catch(err){ console.warn(err); } }
 $('dtx').addEventListener('pointerdown',e=>{ CHT.b=CHEST.k?e.target.closest('[data-cin],[data-cout]'):null; CHT.x=e.clientX; CHT.y=e.clientY; });
 $('dtx').addEventListener('pointerup',e=>{ const b=CHT.b; CHT.b=null; if(!b||!CHEST.k) return; if(Math.hypot(e.clientX-CHT.x,e.clientY-CHT.y)>14) return; e.preventDefault(); e.stopPropagation(); CHT.t=performance.now(); chestAct(b); });
 $('dtx').addEventListener('pointercancel',()=>{ CHT.b=null; });
@@ -6371,7 +6385,7 @@ function openDialog(n){ const d=talk(n); if(!d) return; if(!d.shop||n.id==='tiao
   if(n.id==='cida'&&Q.mq>=1&&d.b&&!d.shop){ d.b.splice(Math.max(0,d.b.length-1),0,['Comprar comida',()=>openTrade(n)]); if(isNight()) d.b.splice(Math.max(0,d.b.length-1),0,['Dormir aqui',()=>{ closeDialog(); sleepBed(null); }]); } if(d.shop){ showDlg(n,d,'shop'); sfx.pick(); return; } dlgNPC=n; paused=true; P.sp=0; hideHint(); $('dn').textContent=n.name; $('dtx').textContent=d.t;
   const da=$('da'); da.innerHTML=''; da.classList.remove('shop'); d.b.forEach((b,i)=>{ const e=document.createElement('button'); e.className='pb'+(i?' gray':''); e.textContent=b[0]; e.onclick=b[1]; da.appendChild(e); });
   $('dlg').classList.add('on'); n.face=Math.atan2(P.x-n.x,P.y-n.y); sfx.pick(); }
-function closeDialog(){ $('dlg').classList.remove('on'); dlgNPC=null; paused=false; }
+function closeDialog(){ if(typeof CHEST!=='undefined') CHEST.open=null; $('dlg').classList.remove('on'); dlgNPC=null; paused=false; }
 $('dlg').addEventListener('pointerdown',e=>e.stopPropagation());
 function sideOne(id){ const q=sideCur(id); if(!q||!sideOpen(id)) return null; const [,st,c]=sideKey(id), n=npcById(id);
   if(Q[st]===0) return {n:'Pedido: '+q.n,o:'Fale com '+nmA(n)+'.',t:n};
@@ -6674,7 +6688,7 @@ function leaveDG(){ if(!DG) return null; const d=DG.d; DG.I.root.visible=false; 
 function exitDungeon(){ closeDialog(); sfx.portal(); fadeDo(()=>{ const d=leaveDG(); if(d) placeParty(d.fx,d.fy+(d.rot?-.4:.4)); streamWorld(); }); }
 function teleportTo(w){ if(P.pack){ closeDialog(); toast('Com pack nas costas não dá pra teleportar. Leve ele andando (ou no carrinho).'); sfx.err(); return; } closeDialog(); sfx.portal(); addParts(P.x,P.y,P.h,'#8ff0ff',24,2.4,4);
   fadeDo(()=>{ if(DG) leaveDG(); const dy=w.id==='camp'?1.2:(w.d.rot?-1.3:1.3); placeParty(w.x,w.y+dy); streamWorld(); spark(P.x,P.h+.6,P.y,'#8ff0ff',18,2,2.5); }); }
-function openMenu(title,text,btns,html){ dlgNPC=null; paused=true; P.sp=0; hideHint(); $('dn').textContent=NM(title); if(html) $('dtx').innerHTML=NM(html); else $('dtx').textContent=NM(text); const da=$('da'); da.innerHTML='';
+function openMenu(title,text,btns,html){ if(typeof CHEST!=='undefined') CHEST.open=null; dlgNPC=null; paused=true; P.sp=0; hideHint(); $('dn').textContent=NM(title); if(html) $('dtx').innerHTML=NM(html); else $('dtx').textContent=NM(text); const da=$('da'); da.innerHTML='';
   btns.forEach(b=>{ const e=document.createElement('button'); e.className='pb'+(b[2]?' gray':''); e.textContent=b[0]; e.onclick=b[1]; da.appendChild(e); }); $('dlg').classList.add('on'); sfx.pick(); }
 
 /* passe de masmorra: o guardião da entrada cria com materiais dos monstros de fora */
